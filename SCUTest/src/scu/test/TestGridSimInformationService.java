@@ -1,26 +1,23 @@
 package scu.test;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedList;
-
 import eduni.simjava.Sim_system;
 import gridsim.GridSim;
 import gridsim.GridSimTags;
 import gridsim.IO_data;
 import gridsim.ResourceCharacteristics;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedList;
+
 import scu.adapter.gridsim.GSConstants;
+import scu.adapter.gridsim.GSInformationService;
 import scu.adapter.gridsim.GSService;
 import scu.adapter.gridsim.GSServiceCharacteristics;
-import scu.adapter.gridsim.GSInformationService;
-import scu.cloud.generator.ComputingElementGenerator;
 import scu.cloud.generator.ServiceGenerator;
 import scu.cloud.manager.ServiceManagerOnMemory;
-import scu.common.model.ComputingElement;
 import scu.common.model.Service;
-import scu.util.Config;
+import scu.util.ConfigJson;
 
 public class TestGridSimInformationService extends GridSim {
 
@@ -181,11 +178,9 @@ public class TestGridSimInformationService extends GridSim {
     private static int generateServices() {
         int numServices = 0;
         try {
-            Config config = new Config("cloud-generator.properties");
-            ComputingElementGenerator generator = new ComputingElementGenerator(config);
-            ArrayList<ComputingElement> hceList = generator.generateHumanComputingElement();
+            ConfigJson config = new ConfigJson("service-generator.json");
             ServiceGenerator svcGen = new ServiceGenerator(config);
-            ArrayList<Service> services = svcGen.generateServicesForComputingElement(hceList);
+            ArrayList<Service> services = svcGen.generate();
             for (Service service : services) {
                 GSService gsservice = new GSService(service);
                 // once created, it is automatically registered by GridSim

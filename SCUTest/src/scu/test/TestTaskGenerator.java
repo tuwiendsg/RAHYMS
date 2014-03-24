@@ -7,21 +7,12 @@ import java.util.Collection;
 
 import org.json.JSONException;
 
-import scu.cloud.generator.ComputingElementGenerator;
-import scu.cloud.generator.ServiceGenerator;
-import scu.cloud.generator.ServiceGeneratorJson;
-import scu.cloud.generator.TaskGeneratorJson;
-import scu.cloud.manager.ComputingElementManagerOnMemory;
-import scu.cloud.manager.ServiceManagerOnMemory;
-import scu.common.model.ComputingElement;
-import scu.common.model.HumanComputingElement;
-import scu.common.model.Service;
+import scu.cloud.generator.TaskGenerator;
 import scu.common.model.Task;
-import scu.util.Config;
 import scu.util.ConfigJson;
 
 
-public class TestTaskGeneratorJson {
+public class TestTaskGenerator {
 
     public static void main(String[] args) {
 
@@ -30,7 +21,7 @@ public class TestTaskGeneratorJson {
             ConfigJson config = new ConfigJson("task-generator.json");
 
             // generate services
-            TaskGeneratorJson taskGen = new TaskGeneratorJson(config);
+            TaskGenerator taskGen = new TaskGenerator(config);
             ArrayList<Task> rootTasks = new ArrayList<Task>(); 
             ArrayList<Task> tasks = taskGen.generate(rootTasks);
             
