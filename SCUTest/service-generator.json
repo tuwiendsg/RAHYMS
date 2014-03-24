@@ -1,0 +1,86 @@
+{
+    "seed": 1001,
+    "numberOfElements": 10,
+    "services": [
+        {
+            "functionality": "f_graphic_designer",
+            "probabilityToHave": 0.4,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_graphic",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+                    "probabilityToHave": 1.0,
+                }
+            ]
+        },
+        {   
+            "functionality": "f_web_designer",
+            "probabilityToHave": 0.4,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_web_designer",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+                    "probabilityToHave": 1.0,
+                }
+            ]
+        },
+        {   
+            "functionality": "f_web_programmer",
+            "probabilityToHave": 0.4,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_php",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},  
+                    "probabilityToHave": 0.8,
+                },
+                {
+                    "type": "skill",
+                    "name": "skill_java",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},    
+                    "probabilityToHave": 0.8,
+                },                
+            ]
+        },
+        {   
+            "functionality": "f_web_tester",
+            "probabilityToHave": 0.4,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_tester",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},    
+                    "probabilityToHave": 1.0,
+                }
+            ]
+        },
+        {   
+            "functionality": "f_supervisor",
+            "probabilityToHave": 0.4,
+            "properties": []
+        },
+    ],
+    "commonProperties": [
+        {
+            "type": "metric",
+            "name": "performance",
+            "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+            "probabilityToHave": 0.9,
+        },
+        {
+            "type": "metric",
+            "name": "acceptance_rate",
+            "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+            "probabilityToHave": 0.8,
+        },                
+        {
+            "type": "static",
+            "name": "location",
+            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                      "mapping": {0: "Austria", 1: "UK", 2: "Indonesia"}},   
+            "probabilityToHave": 0.9,
+        },                
+    ]
+}
