@@ -1,0 +1,3 @@
+EarliestResponse
+flag,algo_time,task,data,task,solution_components,objective_value,cost,norm_cost,competency,connnectedness,mu_connnectedness,response_time,norm_response_time
+f,3583392,web_dev,,"Task [id=1, load=3.8574627229355833, name=web_dev, roles=[], spec=[[(STATIC)deadline=28], [(STATIC)cost_limit=4.925595902302972], [(STATIC)connectedness=good]], optObj={skill=1.0, time=1.0, connectedness=1.0, cost=1.0}]",Algo can't find solution!

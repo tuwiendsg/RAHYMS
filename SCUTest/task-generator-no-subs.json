@@ -1,0 +1,231 @@
+{
+    "seed": 1001,
+    "taskTypes": [
+         {
+            "name": "web_design",
+            "description": "Web Page Design",
+            "isRootTask": true,
+            "tasksOccurance": {"class": "ExponentialDistribution", "params": [10, 1.0E-9]},
+            "load": {"class": "NormalDistribution", "params": [2, 2, 1.0E-9]},  
+            "roles": [
+        
+                {   
+                    "functionality": "f_graphic_designer",
+                    "probabilityToHave": 1.0,
+                    "specification": [ 
+                        {
+                            "type": "skill",
+                            "name": "skill_graphic",
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                        {
+                            "type": "metric",
+                            "name": "performance",
+                            "value": {"class": "UniformIntegerDistribution", "params": [2, 3], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                    ]
+                },
+
+                {   
+                    "functionality": "f_web_designer",
+                    "probabilityToHave": 0.9,
+                    "specification": [ 
+                        {
+                            "type": "skill",
+                            "name": "skill_web_designer",
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                        {
+                            "type": "metric",
+                            "name": "performance",
+                            "value": {"class": "UniformIntegerDistribution", "params": [2, 3], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},   
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                    ]
+                },
+            ],
+            "subTaskTypes": [],
+            "specification": [
+                {
+                    "type": "static",
+                    "name": "deadline",
+                    "value": {"class": "BinomialDistribution", "params": [70, 0.5]},
+                    "probabilityToHave": 1.0,
+                },
+                {
+                    "type": "static",
+                    "name": "cost_limit",
+                    "value": {"class": "NormalDistribution", "params": [5, 1, 1.0E-9]},
+                    "probabilityToHave": 1.0,
+                },
+                {
+                    "type": "static",
+                    "name": "connectedness",
+                    "value": {"class": "UniformIntegerDistribution", "params": [0, 1], 
+                                "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                    "probabilityToHave": 1.0,
+                },
+            ], 
+        },
+        
+        { 
+            "name": "web_programming",
+            "description": "Web Programming",
+            "isRootTask": true,
+            "tasksOccurance": {"class": "ExponentialDistribution", "params": [10, 1.0E-9]},
+            "load": {"class": "NormalDistribution", "params": [3, 2, 1.0E-9]},  
+            "roles": [
+            
+                {   
+                    "functionality": "f_web_programmer",
+                    "probabilityToHave": 1.0,
+                    "specification": [ 
+                        {
+                            "type": "skill",
+                            "name": "skill_php",
+                            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                        {
+                            "type": "skill",
+                            "name": "skill_java",
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                        {
+                            "type": "metric",
+                            "name": "performance",
+                            "value": {"class": "UniformIntegerDistribution", "params": [2, 3], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},    
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                    ]
+                },
+            ],
+            "subTaskTypes": [],
+            "specification": [
+                {
+                    "type": "static",
+                    "name": "deadline",
+                    "value": {"class": "BinomialDistribution", "params": [70, 0.5]},
+                    "probabilityToHave": 1.0,
+                },
+                {
+                    "type": "static",
+                    "name": "cost_limit",
+                    "value": {"class": "NormalDistribution", "params": [5, 1, 1.0E-9]},
+                    "probabilityToHave": 1.0,
+                },
+                {
+                    "type": "static",
+                    "name": "connectedness",
+                    "value": {"class": "UniformIntegerDistribution", "params": [0, 1], 
+                                "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                    "probabilityToHave": 1.0,
+                },
+            ], 
+        },
+        
+        { 
+            "name": "web_testing",
+            "description": "Web Testing",
+            "isRootTask": true,
+            "tasksOccurance": {"class": "ExponentialDistribution", "params": [10, 1.0E-9]},
+            "load": {"class": "NormalDistribution", "params": [1, 2, 1.0E-9]},  
+            "roles": [
+                {   
+                    "functionality": "f_web_tester",
+                    "probabilityToHave": 0.7,
+                    "specification": [ 
+                        {
+                            "type": "skill",
+                            "name": "skill_tester",
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                        {
+                            "type": "metric",
+                            "name": "acceptance_rate",
+                            "value": {"class": "NormalDistribution", "params": [0.8, 0.1, 1.0E-9]},   
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                        {
+                            "type": "static",
+                            "name": "location",
+                            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                                        "mapping": {0: "Austria", 1: "UK", 2: "Indonesia"}},   
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.StringComparator
+                        },
+                    ]
+                },
+        
+                {   
+                    "functionality": "f_supervisor",
+                    "probabilityToHave": 0.8,
+                    "specification": [ 
+                        {
+                            "type": "metric",
+                            "name": "acceptance_rate",
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},   
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
+                        },
+                        {
+                            "type": "static",
+                            "name": "location",
+                            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                                        "mapping": {0: "Austria", 1: "UK", 2: "Indonesia"}},   
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.StringComparator
+                        },
+                    ]
+                },
+            ],
+            "subTaskTypes": [],
+            "specification": [
+                {
+                    "type": "static",
+                    "name": "deadline",
+                    "value": {"class": "BinomialDistribution", "params": [70, 0.5]},
+                    "probabilityToHave": 1.0,
+                },
+                {
+                    "type": "static",
+                    "name": "cost_limit",
+                    "value": {"class": "NormalDistribution", "params": [5, 1, 1.0E-9]},
+                    "probabilityToHave": 1.0,
+                },
+                {
+                    "type": "static",
+                    "name": "connectedness",
+                    "value": {"class": "UniformIntegerDistribution", "params": [0, 1], 
+                                "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                    "probabilityToHave": 1.0,
+                },
+            ], 
+        },
+        
+    ],
+    
+}

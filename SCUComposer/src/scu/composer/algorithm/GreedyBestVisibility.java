@@ -1,0 +1,48 @@
+package scu.composer.algorithm;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+
+import scu.composer.Composer;
+import scu.composer.model.ConstructionGraph;
+import scu.composer.model.Solution;
+import scu.composer.model.SolutionComponent;
+
+public class GreedyBestVisibility implements ComposerAlgorithmInterface {
+
+  private ConstructionGraph cons;
+  private Composer composer;
+  
+  @Override
+  public void init(String configFile, ConstructionGraph cons, Composer composer) {
+    this.cons = cons;
+    this.composer = composer;
+
+  }
+
+  @Override
+  public Solution solve() {
+    Solution solution = new Solution();
+    for (int i=1; i<cons.getComponentList().size()-1; i++) {
+      ArrayList<SolutionComponent> components = cons.getComponentList().get(i);
+      double visibility = 0.0;
+      Hashtable<SolutionComponent, Double> scores = composer.calculateHeuristicScores(components, solution);
+      SolutionComponent bestSolutionComponent = null;
+      for (SolutionComponent comp: components) {
+        if (visibility<scores.get(comp)) {
+          visibility = comp.getEstimatedResponseTime();
+          bestSolutionComponent = comp;
+        }
+      }
+      solution.getList().add(bestSolutionComponent);
+    }
+    
+    // measure objective values
+    ArrayList<Solution> solutionList = new ArrayList<Solution>();
+    solutionList.add(solution);
+    composer.calculateObjectiveValues(solutionList);
+    
+    return solution;
+  }
+
+}

@@ -1,0 +1,13 @@
+<project default="wsimport">
+ <target name="wsimport">
+  <exec executable="wsimport">
+    <arg line="-keep -s ./src -p at.ac.tuwien.dsg.scucrowd.metacrowd.jaxws
+        -d ./bin http://localhost:8081/MetaCrowd?wsdl"/>
+  </exec>
+ </target>
+ <target name="wsgen" >
+  <exec executable="wsgen">
+   <arg line="-cp ../common/bin:./bin -keep -s ./src -d ./bin at.ac.tuwien.dsg.scucrowd.provisioner.api.ProvisionerWS"/>
+  </exec>
+ </target>
+</project>
