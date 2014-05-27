@@ -49,11 +49,9 @@ public class HumanComputingElement extends ComputingElement {
 
     @Override
     public String toString() {
-        String svc = "";
-        for (Service s : services) {
-            svc += s.getFunctionality() + ",";
-        }
         return "E[id=" + id + ", name=" + name + ", type=" + type + 
-                ", prop=" + properties + ", metrics=" + metrics + ", skills=" + skills + ", services=" + svc + "]";
+                ", prop=" + properties + ", metrics=" + metrics + 
+                ", skills=" + skills + ", services=" + servicesToString() + 
+                ", connections=" + connectionsToString() + "]";
     }
 }

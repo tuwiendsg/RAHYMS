@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import scu.common.interfaces.MetricMonitorInterface;
 import scu.common.model.ComputingElement;
 import scu.common.model.Functionality;
 import scu.common.model.HumanComputingElement;
@@ -24,6 +25,8 @@ public class ServiceGenerator {
     // distribution generators
     private UniformRealDistribution distPropToHave;
     private Object distPropValue;
+    private UniformRealDistribution distConnToHave;
+    private Object distConnWeight;
     private UniformRealDistribution distSvcToHave;
     private UniformRealDistribution[] distSvcPropToHaves;
     private Object[] distSvcPropValues;
@@ -44,6 +47,7 @@ public class ServiceGenerator {
         // config
         int seed = configRoot.getInt("seed");
         int nElements = configRoot.getInt("numberOfElements");
+        JSONObject connCfg = configRoot.getJSONObject("connection");
         JSONArray svcCfg = configRoot.getJSONArray("services");
         JSONArray propCfg = configRoot.getJSONArray("commonProperties"); 
         
@@ -61,25 +65,57 @@ public class ServiceGenerator {
             String type = prop.getString("type");
             String name = prop.getString("name");
             double pToHave = prop.getDouble("probabilityToHave");
-            JSONObject valueCfg = prop.getJSONObject("value");
-            String clazz = GeneratorUtil.DISTRIBUTION_PACKAGE + valueCfg.getString("class");
-            JSONArray params = valueCfg.getJSONArray("params");
             JSONObject mapping = null;
-            if (valueCfg.has("mapping")) mapping = valueCfg.getJSONObject("mapping");
             logger.info("Generating " + type + " " + name + "...");
             
             // init distributions
             if (distPropToHave==null) 
                 distPropToHave = new UniformRealDistribution(new MersenneTwister(seed++), 0, 1);
-            distPropValue = GeneratorUtil.createValueDistribution(clazz, params, seed++);
+            if (type.equals("static") || type.equals("skill")) {
+                JSONObject valueCfg = prop.getJSONObject("value");
+                String clazz = GeneratorUtil.DISTRIBUTION_PACKAGE + valueCfg.getString("class");
+                JSONArray params = valueCfg.getJSONArray("params");
+                if (valueCfg.has("mapping")) mapping = valueCfg.getJSONObject("mapping");
+                // TODO: distPropValue should be reusable, because we may generate streams of services
+                distPropValue = GeneratorUtil.createValueDistribution(clazz, params, seed++);
+            }
             
             for (ComputingElement e : elements) {
                 HumanComputingElement element = (HumanComputingElement)e;
                 if (GeneratorUtil.shouldHave(distPropToHave, pToHave)) {
-                    GeneratorUtil.generateProperty(element, name, type, distPropValue, mapping);
+                    if (type.equals("static") || type.equals("skill")) {
+                        GeneratorUtil.generateProperty(element, name, type, distPropValue, mapping);
+                    } else if (type.equals("metric")) {
+                        String ifaceClazz = prop.getString("interfaceClass");
+                        MetricMonitorInterface metric = GeneratorUtil.createMetricObject(ifaceClazz);
+                        element.getMetrics().setInterface(name, metric);
+                    }
                 }
             }
             
+        }
+        
+        // generate connections
+        double pToConnect = connCfg.getDouble("probabilityToConnect");
+        JSONObject weightCfg = connCfg.getJSONObject("weight");
+        String weightClazz = GeneratorUtil.DISTRIBUTION_PACKAGE + weightCfg.getString("class");
+        JSONArray weightParams = weightCfg.getJSONArray("params");        
+        if (distConnToHave==null) 
+            distConnToHave = new UniformRealDistribution(new MersenneTwister(seed++), 0, 1);
+        if (distConnWeight==null) 
+            distConnWeight = GeneratorUtil.createValueDistribution(weightClazz, weightParams, seed++);
+        logger.info("Generating connections...");
+        for (int i=0; i<elements.size(); i++) {
+            ComputingElement e = elements.get(i);
+            for (int j=i+1; j<elements.size(); j++) {
+                if (i!=j) {
+                    if (GeneratorUtil.shouldHave(distConnToHave, pToConnect)) {
+                        double weight = (double)GeneratorUtil.sample(distConnWeight);
+                        e.setConnection(elements.get(j), weight);
+                        elements.get(j).setConnection(e, weight);
+                    }                    
+                }
+            }
         }
         
         // generate services

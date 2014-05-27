@@ -1,5 +1,7 @@
 package scu.common.model;
 
+import scu.common.interfaces.MetricMonitorInterface;
+
 public class Service {
 
     protected Functionality functionality;
@@ -13,6 +15,8 @@ public class Service {
     public Service(Functionality functionality, ComputingElement provider) {
         this.functionality = functionality;
         setProvider(provider);
+        metrics = new Metrics();
+        metrics.setOwner(getProvider());
     }
     
     public ComputingElement getProvider() {
@@ -30,6 +34,21 @@ public class Service {
     
     public void setMetrics(Metrics metrics) {
         this.metrics = metrics;
+    }
+    
+    public Object getMetric(String name) {
+        return getMetric(name, null);
+    }
+    
+    public Object getMetric(String name, Object[] params) {
+        Object metric = null;
+        if (metrics.has(name)) {
+            metric = metrics.getValue(name, params); 
+        } else {
+            // try to get metric from service provider
+            metric = getProvider().getMetrics().getValue(name, params); 
+        }
+        return metric;
     }
     
     public Functionality getFunctionality() {
@@ -65,7 +84,7 @@ public class Service {
         } else {
             title = "SVC_";
         }
-        title += functionality + "_" + provider.getName();
+        title += functionality + "_" + provider.getId();
         return title;
     }
     

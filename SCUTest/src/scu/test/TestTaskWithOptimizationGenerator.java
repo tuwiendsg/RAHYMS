@@ -7,12 +7,15 @@ import java.util.Collection;
 
 import org.json.JSONException;
 
+import scu.cloud.generator.TaskWithOptimizationGenerator;
 import scu.cloud.generator.TaskGenerator;
 import scu.common.model.Task;
+import scu.common.model.optimization.OptimizationObjective;
+import scu.common.model.optimization.TaskWithOptimization;
 import scu.util.ConfigJson;
 
 
-public class TestTaskGenerator {
+public class TestTaskWithOptimizationGenerator {
 
     public static void main(String[] args) {
 
@@ -20,18 +23,24 @@ public class TestTaskGenerator {
 
             ConfigJson config = new ConfigJson("task-generator.json");
 
+            OptimizationObjective objective = new OptimizationObjective();
+            objective.setWeight("skill", 1.0)
+                     .setWeight("connectedness", 1.0)
+                     .setWeight("cost", 1.0)
+                     .setWeight("time", 1.0);
+            
             // generate services
-            TaskGenerator taskGen = new TaskGenerator(config);
-            ArrayList<Task> rootTasks = new ArrayList<Task>(); 
-            ArrayList<Task> tasks = taskGen.generate(rootTasks);
+            TaskWithOptimizationGenerator taskGen = new TaskWithOptimizationGenerator(config);
+            ArrayList<TaskWithOptimization> rootTasks = new ArrayList<TaskWithOptimization>(); 
+            ArrayList<TaskWithOptimization> tasks = taskGen.generate(objective, rootTasks);
             
             // dump
             System.out.println("====== TASKS =======");
-            for (Task t : tasks) {
+            for (TaskWithOptimization t : tasks) {
                 System.out.println(t);
             }
             System.out.println("====== ROOT TASKS =======");
-            for (Task t : rootTasks) {
+            for (TaskWithOptimization t : rootTasks) {
                 System.out.println(t);
             }
             

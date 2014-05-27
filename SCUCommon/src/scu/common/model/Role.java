@@ -58,5 +58,13 @@ public class Role {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "[func=" + functionality + ", spec="
+                + specification + "]";
+    }
+    
+    
     
 }

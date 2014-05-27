@@ -19,6 +19,17 @@ public class Specification {
     public void addObjective(Objective objective) {
         slos.add(objective);
     }
+    
+    public Objective findObjective(String name) {
+        Objective objective = null;
+        for (Objective slo : slos) {
+            if (slo.getName().equalsIgnoreCase(name)) {
+                objective = slo;
+                break;
+            }
+        }
+        return objective;
+    }
  
     // This is to model only full compliance, i.e., all required properties exist and comply
     // TODO: separate to a Spec Matcher class (using interface)
@@ -37,6 +48,19 @@ public class Specification {
             }
         }
         return isComply;
+    }
+
+    @Override
+    public String toString() {
+        return slos.toString();
+    }
+    
+    // NOTE: this is a shallow copy merge
+    public Specification merge(Specification spec) {
+        Specification result = new Specification();
+        result.slos = (ArrayList<Objective>) this.slos.clone();
+        result.slos.addAll(spec.getObjectives());
+        return result;
     }
     
 }

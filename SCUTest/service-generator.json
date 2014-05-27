@@ -1,6 +1,11 @@
 {
     "seed": 1001,
-    "numberOfElements": 10,
+    "numberOfElements": 100,
+    "connection":
+        {
+            "probabilityToConnect": 1.0,
+            "weight": {"class": "NormalDistribution", "params": [10, 1, 1.0E-9]},
+        },
     "services": [
         {
             "functionality": "f_graphic_designer",
@@ -64,16 +69,16 @@
     ],
     "commonProperties": [
         {
-            "type": "metric",
-            "name": "performance",
+            "type": "static",
+            "name": "performance_rating",
             "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
-            "probabilityToHave": 0.9,
+            "probabilityToHave": 1.0,
         },
         {
-            "type": "metric",
+            "type": "static",
             "name": "acceptance_rate",
             "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
-            "probabilityToHave": 0.8,
+            "probabilityToHave": 1.0,
         },                
         {
             "type": "static",
@@ -81,6 +86,18 @@
             "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
                       "mapping": {0: "Austria", 1: "UK", 2: "Indonesia"}},   
             "probabilityToHave": 0.9,
+        },                
+        {
+            "type": "static",
+            "name": "cost",
+            "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+            "probabilityToHave": 1.0,
+        },                
+        {
+            "type": "metric",
+            "name": "response_time",
+            "interfaceClass": "scu.cloud.monitor.AvailabilityMonitor",   
+            "probabilityToHave": 1.0,
         },                
     ]
 }

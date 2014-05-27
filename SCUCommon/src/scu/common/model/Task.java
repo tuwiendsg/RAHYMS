@@ -2,6 +2,8 @@ package scu.common.model;
 
 import java.util.ArrayList;
 
+import scu.common.sla.Specification;
+
 public class Task {
 
     protected long id;
@@ -9,21 +11,23 @@ public class Task {
     protected TaskType type;
     protected String name;
     protected String description;
+    protected long submissionTime;
 
     protected Task parent;
     protected ArrayList<Task> subTasks;
 
     protected ArrayList<Role> roles;
+    protected Specification specification;
     protected TaskDependency dependency;
     protected TaskPresentation presentation;
     protected Reward reward;
     
     public Task(long id, double load, Task parent, TaskType type) {
-        this(id, load, parent, type.getName(), type.getDescription(), type);
+        this(id, type.getName(), type.getDescription(), load, parent, type);
     }
     
-    public Task(long id, double load, Task parent, String name, String description, 
-            TaskType type) {
+    public Task(long id, String name, String description, double load, 
+            Task parent, TaskType type) {
         super();
         this.id = id;
         this.load = load;
@@ -40,7 +44,7 @@ public class Task {
         this.reward = (Reward) type.getReward().clone();
     }
 
-    public Task(long id, double load, Task parent, String name, String description) {
+    public Task(long id, String name, String description, double load, Task parent) {
         super();
         this.id = id;
         this.load = load;
@@ -48,6 +52,14 @@ public class Task {
         this.name = name;
         this.description = description;
         this.parent = parent;
+        this.subTasks = new ArrayList<Task>();
+        this.roles = new ArrayList<Role>();
+        this.dependency = new TaskDependency();
+        this.presentation = new TaskPresentation();
+        this.reward = new Reward();
+    }
+
+    public Task() {
         this.subTasks = new ArrayList<Task>();
         this.roles = new ArrayList<Role>();
         this.dependency = new TaskDependency();
@@ -192,15 +204,38 @@ public class Task {
         }
         return t;
     }
+    
+    public long getSubmissionTime() {
+        return submissionTime;
+    }
+
+    public void setSubmissionTime(long submissionTime) {
+        this.submissionTime = submissionTime;
+    }
+
+    public Specification getSpecification() {
+        return specification;
+    }
+
+    public void setSpecification(Specification specification) {
+        this.specification = specification;
+    }
+    
+    public Object getObjectiveValue(String name) {
+        return specification.findObjective(name).getValue();
+    }
 
     @Override
     public String toString() {
         return "Task [id=" + id + ", load=" + load + ", name=" + name
-                + ", subTasks=" + subTasks + "]";
+                + ", roles=" + roles + ", subTasks=" + subTasks
+                + ", spec=" + specification + "]";
     }
 
     /**
      * Tool to instantiate tasks from a TaskType.
      * Note: this can be implementation specific.
      */
+    
+    
 }

@@ -48,6 +48,13 @@ public class Connection {
     public void setWeight(double weight2) {
         this.weight = weight2;
     }
+    
+    public ComputingElement getOther(ComputingElement e1) {
+        ComputingElement other = null;
+        if (e1==element1) other = element2;
+        else if (e1==element2) other= element1;
+        return other;
+    }
 
     @Override
     public String toString() {

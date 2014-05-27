@@ -2,16 +2,16 @@ package scu.adapter.gridsim;
 
 import eduni.simjava.Sim_event;
 import eduni.simjava.Sim_system;
-import scu.common.interfaces.IServiceManager;
+import scu.common.interfaces.ServiceManagerInterface;
 import gridsim.GridInformationService;
 import gridsim.GridSim;
 import gridsim.GridSimTags;
 
 public class GSInformationService extends GridInformationService {
 
-    IServiceManager manager;
+    ServiceManagerInterface manager;
 
-    public GSInformationService(IServiceManager manager) throws Exception {
+    public GSInformationService(ServiceManagerInterface manager) throws Exception {
         super("SCUInformationService", GridSimTags.DEFAULT_BAUD_RATE);
         this.manager = manager;
     }
@@ -29,7 +29,7 @@ public class GSInformationService extends GridInformationService {
             // A resource that can support Advance Reservation
             case GridSimTags.REGISTER_RESOURCE_AR:
                 GSService service = (GSService)Sim_system.get_entity(id);
-                manager.saveService(service.getService());
+                manager.registerService(service.getService());
                 break;
 
             // filter based on SLA

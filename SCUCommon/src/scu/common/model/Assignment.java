@@ -12,15 +12,16 @@ public class Assignment {
             throws NotFoundException {
         this.assignee = assignee;
         this.task = task;
-        Role r = task.getRole(functionality);
-        if (r==null) throw new NotFoundException();
-        else this.role = r;
+        setRoleByFunctionality(functionality);
     }
 
     public Assignment(Service assignee, Task task, Role role) {
         this.assignee = assignee;
         this.task = task;
         this.role = role;
+    }
+    
+    public Assignment() {
     }
 
     public Service getAssignee() {
@@ -45,6 +46,13 @@ public class Assignment {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+    
+    public void setRoleByFunctionality(Functionality functionality) 
+            throws NotFoundException {
+        Role r = task.getRole(functionality);
+        if (r==null) throw new NotFoundException();
+        else this.role = r;        
     }
     
     

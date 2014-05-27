@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 public class Properties {
     
-    private Hashtable<String, Object> valueSet;
+    protected Hashtable<String, Object> valueSet;
 
     public Properties() {
         valueSet = new Hashtable<String, Object>();
@@ -29,7 +29,11 @@ public class Properties {
         valueSet.put(name, value);
     }
     
-    public Hashtable<String, Object> getPropertySet() {
+    public Hashtable<String, Object> getValueSet() {
         return valueSet;
+    }
+    
+    public boolean has(String name) {
+        return valueSet.containsKey(name);
     }
 }

@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -11,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import scu.common.interfaces.MetricMonitorInterface;
 import scu.common.model.HumanComputingElement;
 
 public class GeneratorUtil {
@@ -51,10 +53,23 @@ public class GeneratorUtil {
         return dist;
     }
     
+    public static MetricMonitorInterface createMetricObject(String clazz) 
+            throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException, 
+            SecurityException, ClassNotFoundException, JSONException {
+        
+        Object metric = Class.forName(clazz).newInstance();
+        return (MetricMonitorInterface) metric;
+    }
+
+    public static Object sample(Object dist) {
+        return sample(dist, null);
+    }
+    
     public static Object sample(Object dist, JSONObject mapping) {
         Object value = null;
         try {
-            Method method = dist.getClass().getDeclaredMethod("sample", null);
+            Method method = dist.getClass().getMethod("sample", null);
             value = method.invoke(dist, null);
             if (mapping!=null) {
                 String svalue = mapping.getString(value.toString());
@@ -85,9 +100,6 @@ public class GeneratorUtil {
         switch (propType) {
             case "static":
                 element.getProperties().setValue(propName, value);
-                break;
-            case "metric":
-                element.getMetrics().setValue(propName, value);
                 break;
             case "skill":
                 element.getSkills().setValue(propName, value);

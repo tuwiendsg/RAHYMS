@@ -6,20 +6,41 @@
             "description": "Web Page Development",
             "isRootTask": true,
             "tasksOccurance": {"class": "ExponentialDistribution", "params": [10, 1.0E-9]},
-            "load": {"class": "NormalDistribution", "params": [5, 1, 1.0E-9]},  
+            "load": {"class": "NormalDistribution", "params": [3, 1, 1.0E-9]},  
             "roles": [],
             "subTaskTypes": [
                 {"name": "web_design", "probabilityToHave": 1.0},
                 {"name": "web_programming", "probabilityToHave": 0.8},
                 {"name": "web_testing", "probabilityToHave": 0.6},
             ],
+            "specification": [
+                {
+                    "type": "static",
+                    "name": "deadline",
+                    "value": {"class": "BinomialDistribution", "params": [70, 0.5]},
+                    "probabilityToHave": 1.0,
+                },
+                {
+                    "type": "static",
+                    "name": "cost_limit",
+                    "value": {"class": "NormalDistribution", "params": [5, 1, 1.0E-9]},
+                    "probabilityToHave": 1.0,
+                },
+                {
+                    "type": "static",
+                    "name": "connectedness",
+                    "value": {"class": "UniformIntegerDistribution", "params": [0, 3], 
+                                "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                    "probabilityToHave": 1.0,
+                },
+            ], 
          },
          
          {
             "name": "web_design",
             "description": "Web Page Design",
             "isRootTask": false,
-            "load": {"class": "NormalDistribution", "params": [20, 2, 1.0E-9]},  
+            "load": {"class": "NormalDistribution", "params": [2, 2, 1.0E-9]},  
             "roles": [
         
                 {   
@@ -29,9 +50,10 @@
                         {
                             "type": "skill",
                             "name": "skill_graphic",
-                            "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},  
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
                             "probabilityToHave": 1.0,
-                            "comparator": scu.common.sla.comparator.NumericAscendingComparator
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
                         },
                         {
                             "type": "metric",
@@ -51,9 +73,10 @@
                         {
                             "type": "skill",
                             "name": "skill_web_designer",
-                            "value": {"class": "NormalDistribution", "params": [0.8, 0.1, 1.0E-9]},   
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
                             "probabilityToHave": 1.0,
-                            "comparator": scu.common.sla.comparator.NumericAscendingComparator
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
                         },
                         {
                             "type": "metric",
@@ -66,14 +89,15 @@
                     ]
                 },
             ],
-            "subTaskTypes": []
+            "subTaskTypes": [],
+            "specification": [], 
         },
         
         { 
             "name": "web_programming",
             "description": "Web Programming",
             "isRootTask": false,
-            "load": {"class": "NormalDistribution", "params": [30, 2, 1.0E-9]},  
+            "load": {"class": "NormalDistribution", "params": [3, 2, 1.0E-9]},  
             "roles": [
             
                 {   
@@ -83,16 +107,18 @@
                         {
                             "type": "skill",
                             "name": "skill_php",
-                            "value": {"class": "NormalDistribution", "params": [0.8, 0.1, 1.0E-9]},   
-                            "probabilityToHave": 0.8,
-                            "comparator": scu.common.sla.comparator.NumericAscendingComparator
+                            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
                         },
                         {
                             "type": "skill",
                             "name": "skill_java",
-                            "value": {"class": "NormalDistribution", "params": [0.8, 0.1, 1.0E-9]},   
-                            "probabilityToHave": 0.8,
-                            "comparator": scu.common.sla.comparator.NumericAscendingComparator
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
                         },
                         {
                             "type": "metric",
@@ -105,14 +131,15 @@
                     ]
                 },
             ],
-            "subTaskTypes": []
+            "subTaskTypes": [],
+            "specification": [], 
         },
         
         { 
             "name": "web_testing",
             "description": "Web Testing",
             "isRootTask": false,
-            "load": {"class": "NormalDistribution", "params": [15, 2, 1.0E-9]},  
+            "load": {"class": "NormalDistribution", "params": [1, 2, 1.0E-9]},  
             "roles": [
                 {   
                     "functionality": "f_web_tester",
@@ -121,9 +148,10 @@
                         {
                             "type": "skill",
                             "name": "skill_tester",
-                            "value": {"class": "NormalDistribution", "params": [0.8, 0.1, 1.0E-9]},   
-                            "probabilityToHave": 0.8,
-                            "comparator": scu.common.sla.comparator.NumericAscendingComparator
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
+                                        "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},
+                            "probabilityToHave": 1.0,
+                            "comparator": scu.common.sla.comparator.FuzzyComparator
                         },
                         {
                             "type": "metric",
@@ -150,7 +178,7 @@
                         {
                             "type": "metric",
                             "name": "acceptance_rate",
-                            "value": {"class": "UniformIntegerDistribution", "params": [2, 3], 
+                            "value": {"class": "UniformIntegerDistribution", "params": [1, 2], 
                                         "mapping": {0: "poor", 1: "fair", 2: "good", 3: "very_good"}},   
                             "probabilityToHave": 1.0,
                             "comparator": scu.common.sla.comparator.FuzzyComparator
@@ -166,9 +194,10 @@
                     ]
                 },
             ],
-            "subTaskTypes": []
+            "subTaskTypes": [],
+            "specification": [], 
         },
         
-        
-    ]
+    ],
+    
 }

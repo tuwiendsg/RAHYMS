@@ -2,7 +2,7 @@ package scu.common.model;
 
 import java.util.ArrayList;
 
-import scu.common.interfaces.IServiceManager;
+import scu.common.interfaces.ServiceManagerInterface;
 
 public class ComputingElement {
 
@@ -16,7 +16,7 @@ public class ComputingElement {
     protected Metrics metrics;
     protected ArrayList<Connection> connections;
     protected ArrayList<Service> services;
-    protected IServiceManager manager;
+    protected ServiceManagerInterface manager;
     
     protected static final String DEFAULT_NAME_PREFIX = "CE_";
 
@@ -45,6 +45,7 @@ public class ComputingElement {
         this.name = name;
         this.properties = properties;
         this.metrics = metrics;
+        this.metrics.setOwner(this);
         this.connections = connections;
         this.queue = new Queue();
         this.services = new ArrayList<Service>();
@@ -54,11 +55,11 @@ public class ComputingElement {
         return type;
     }
 
-    public IServiceManager getManager() {
+    public ServiceManagerInterface getManager() {
         return manager;
     }
 
-    public void setManager(IServiceManager manager) {
+    public void setManager(ServiceManagerInterface manager) {
         this.manager = manager;
     }
     
@@ -121,7 +122,8 @@ public class ComputingElement {
     public Connection getConnection(ComputingElement other) {
         Connection conn = null;
         for (Connection c : connections) {
-            if (c.getComputingElement1()==this || c.getComputingElement2()==this) {
+            if ((c.getComputingElement1()==this && c.getComputingElement2()==other) || 
+                (c.getComputingElement2()==this && c.getComputingElement1()==other)) {
                 conn = c;
                 break;
             }
@@ -131,13 +133,34 @@ public class ComputingElement {
 
     protected void autoUpdate() {
         if (manager!=null) {
-            manager.saveElement(this);
+            manager.registerElement(this);
         }        
     }
 
+    public String connectionsToString() {
+        String sconn = "";
+        for (Connection c: connections) {
+            ComputingElement other = c.getOther(this);
+            if (!sconn.equals("")) sconn += ",";
+            sconn += other.getId() + ":" + c.getWeight(); 
+        }
+        return "[" + sconn + "]";
+    }
+    
+    public String servicesToString() {
+        String svc = "";
+        for (Service s : services) {
+            if (!svc.equals("")) svc += ",";
+            svc += s.getFunctionality();
+        }
+        return "[" + svc + "]";
+    }
+    
     @Override
     public String toString() {
-        return "E[id=" + id + ", type=" + type + ", prop=" + properties + ", metrics=" + metrics + ", services=" + services + "]";
+        return "E[id=" + id + ", type=" + type + ", prop=" + properties + 
+                ", metrics=" + metrics + ", services=" + servicesToString() + 
+                ", connections=" + connectionsToString() + "]";
     }
     @Override
     public int hashCode() {

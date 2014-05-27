@@ -73,7 +73,7 @@ public class TaskGenerator {
         return tasks;
     }
     
-    private ArrayList<Task> createTask(JSONObject taskTypeCfg, Task parent,
+    protected ArrayList<Task> createTask(JSONObject taskTypeCfg, Task parent,
             String parentPath, double probabilityToHave,
             ArrayList<Task> rootTasks) 
             throws InstantiationException, IllegalAccessException, 
@@ -129,7 +129,7 @@ public class TaskGenerator {
         for (int i=0; i<occurance; i++) {
             
             double load = (double)GeneratorUtil.sample(curDistLoad, null);
-            Task task = new Task(++lastTaskId, load, parent, name, description);
+            Task task = new Task(++lastTaskId, name, description, load, parent);
             if (parent!=null) parent.addSubTask(task);
             if (taskTypeCfg.getBoolean("isRootTask")) {
                 rootTasks.add(task);
@@ -139,6 +139,11 @@ public class TaskGenerator {
             // create roles
             JSONArray rolesCfg = taskTypeCfg.getJSONArray("roles");
             createRoles(rolesCfg, task, currentPath);
+            
+            // create specification
+            JSONArray specCfg = taskTypeCfg.getJSONArray("specification");
+            Specification spec = createSpecification(specCfg, currentPath);
+            task.setSpecification(spec);
             
             // create sub tasks
             JSONArray subTaskCfgs = taskTypeCfg.getJSONArray("subTaskTypes");
@@ -186,51 +191,79 @@ public class TaskGenerator {
                 task.addUpdateRole(role);
                 
                 // create spec
-                Specification spec = new Specification();
+                Specification spec = createSpecification(specCfg, currentRolePath);
                 role.setSpecification(spec);
-                
-                // iterate spec
-                for (int j=0; j<specCfg.length(); j++) {
-                    
-                    // get spec's objective config
-                    JSONObject curSpecCfg = specCfg.getJSONObject(j);
-                    String type = curSpecCfg.getString("type");
-                    String name = curSpecCfg.getString("name");
-                    double pToHave = curSpecCfg.getDouble("probabilityToHave");
-                    JSONObject valueCfg = curSpecCfg.getJSONObject("value");
-                    String clazz = GeneratorUtil.DISTRIBUTION_PACKAGE + valueCfg.getString("class");
-                    JSONArray params = valueCfg.getJSONArray("params");
-                    JSONObject mapping = null;
-                    if (valueCfg.has("mapping")) mapping = valueCfg.getJSONObject("mapping");
-                    String comparator = curSpecCfg.getString("comparator");
-                    String currentObjectivePath = currentRolePath + "/{o}" + name;
-                    
-                    // init dist
-                    if (distToHaves.get(currentObjectivePath)==null) {
-                        UniformRealDistribution dist = new UniformRealDistribution(
-                                new MersenneTwister(seed++), 0, 1);
-                        distToHaves.put(currentObjectivePath, dist);
-                    }
-                    UniformRealDistribution distObjToHave = distToHaves.get(currentObjectivePath);
-                    if (distValues.get(currentObjectivePath)==null) {
-                        Object dist = GeneratorUtil.createValueDistribution(clazz, params, seed++);
-                        distValues.put(currentObjectivePath, dist);
-                    }
-                    Object distObjValue = distValues.get(currentObjectivePath);
-                    
-                    if (GeneratorUtil.shouldHave(distObjToHave, pToHave)) {
-                        // create objective
-                        Object value = GeneratorUtil.sample(distObjValue, mapping);
-                        Comparator comparatorObj = (Comparator)Class.forName(comparator).newInstance();
-                        Objective objective = new Objective(name, value, comparatorObj);
-                        spec.addObjective(objective);
-                    }
-                }
-                
                 
             }
             
         }
+    }
+    
+
+    private Specification createSpecification(JSONArray specCfg, String parentPath) 
+            throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException, 
+            SecurityException, ClassNotFoundException, JSONException {
+        // create spec
+        Specification spec = new Specification();
+        
+        // iterate spec
+        for (int j=0; j<specCfg.length(); j++) {
+            
+            // get spec's objective config
+            JSONObject curSpecCfg = specCfg.getJSONObject(j);
+            String type = curSpecCfg.getString("type");
+            String name = curSpecCfg.getString("name");
+            double pToHave = curSpecCfg.getDouble("probabilityToHave");
+            JSONObject valueCfg = curSpecCfg.getJSONObject("value");
+            String clazz = GeneratorUtil.DISTRIBUTION_PACKAGE + valueCfg.getString("class");
+            JSONArray params = valueCfg.getJSONArray("params");
+            JSONObject mapping = null;
+            if (valueCfg.has("mapping")) mapping = valueCfg.getJSONObject("mapping");
+            String comparator = "";
+            if (curSpecCfg.has("comparator")) comparator = curSpecCfg.getString("comparator");
+            String currentObjectivePath = parentPath + "/{o}" + name;
+            
+            // init dist
+            if (distToHaves.get(currentObjectivePath)==null) {
+                UniformRealDistribution dist = new UniformRealDistribution(
+                        new MersenneTwister(seed++), 0, 1);
+                distToHaves.put(currentObjectivePath, dist);
+            }
+            UniformRealDistribution distObjToHave = distToHaves.get(currentObjectivePath);
+            if (distValues.get(currentObjectivePath)==null) {
+                Object dist = GeneratorUtil.createValueDistribution(clazz, params, seed++);
+                distValues.put(currentObjectivePath, dist);
+            }
+            Object distObjValue = distValues.get(currentObjectivePath);
+            
+            if (GeneratorUtil.shouldHave(distObjToHave, pToHave)) {
+                // create objective
+                Object value = GeneratorUtil.sample(distObjValue, mapping);
+                Comparator comparatorObj = null;
+                if (!comparator.equals("")) comparatorObj = (Comparator)Class.forName(comparator).newInstance();
+                Objective objective = new Objective(name, value, toObjType(type), comparatorObj);
+                spec.addObjective(objective);
+            }
+        }
+        return spec;
+        
+    }
+    
+    public Objective.Type toObjType(String type) {
+        Objective.Type t = null;
+        switch(type) {
+            case "skill":
+                t = Objective.Type.SKILL;
+                break;
+            case "metric":
+                t = Objective.Type.METRIC;
+                break;
+            case "static":
+                t = Objective.Type.STATIC;
+                break;
+        }
+        return t;
     }
     
 }
