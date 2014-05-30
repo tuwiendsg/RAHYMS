@@ -26,7 +26,7 @@ public class Util {
         return properties.getProperty(key);
     }
 
-    public static String stringRepeat(String s, long repeat) {
+    public static String stringRepeat(String s, int repeat) {
         return new String(new char[(int) repeat]).replace("\0", s);    
     }
 

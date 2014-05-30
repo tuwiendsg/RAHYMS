@@ -11,7 +11,6 @@ public class ComputingElement {
     protected int type;
     protected String description;
     protected int status;
-    protected Queue queue;
     protected Properties properties;
     protected Metrics metrics;
     protected ArrayList<Connection> connections;
@@ -47,7 +46,6 @@ public class ComputingElement {
         this.metrics = metrics;
         this.metrics.setOwner(this);
         this.connections = connections;
-        this.queue = new Queue();
         this.services = new ArrayList<Service>();
     }
 
@@ -78,15 +76,6 @@ public class ComputingElement {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Queue getQueue() {
-        return queue;
-    }
-
-    public void setQueue(Queue queue) {
-        this.queue = queue;
-        autoUpdate();
     }
 
     public Properties getProperties() {

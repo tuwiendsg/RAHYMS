@@ -11,7 +11,7 @@ public class Task {
     protected TaskType type;
     protected String name;
     protected String description;
-    protected long submissionTime;
+    protected int submissionTime;
 
     protected Task parent;
     protected ArrayList<Task> subTasks;
@@ -205,11 +205,11 @@ public class Task {
         return t;
     }
     
-    public long getSubmissionTime() {
+    public int getSubmissionTime() {
         return submissionTime;
     }
 
-    public void setSubmissionTime(long submissionTime) {
+    public void setSubmissionTime(int submissionTime) {
         this.submissionTime = submissionTime;
     }
 

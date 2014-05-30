@@ -52,7 +52,7 @@ public class TestDiscoverer {
             Discoverer discoverer = new Discoverer(manager);
             int time = 0;
             for (Task t : rootTasks) {
-                long deadline = (int)t.getSpecification()
+                int deadline = (int)t.getSpecification()
                         .findObjective("deadline") 
                         .getValue();
                 for (Role r: t.getAllRoles()) {
@@ -60,7 +60,7 @@ public class TestDiscoverer {
                             r.getFunctionality(), 
                             t.getSpecification().merge(r.getSpecification()),
                             time++, 
-                            (long) Math.ceil(t.getLoad()), 
+                            (int) Math.ceil(t.getLoad()), 
                             deadline);
                     System.out.println(r);
                     System.out.println(discServices.size());

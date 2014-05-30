@@ -11,6 +11,7 @@ import scu.cloud.generator.ServiceGenerator;
 import scu.cloud.generator.TaskWithOptimizationGenerator;
 import scu.cloud.manager.ServiceManagerOnMemory;
 import scu.cloud.monitor.AvailabilityMonitor;
+import scu.common.model.Assignment;
 import scu.common.model.Role;
 import scu.common.model.Service;
 import scu.common.model.Task;
@@ -64,12 +65,20 @@ public class TestComposer {
 
             // init composer
             Discoverer discoverer = new Discoverer(manager);
-            Composer composer = new Composer("composer.properties", manager, discoverer);
+            discoverer.setServiceManager(manager);
+            Composer composer = new Composer("composer.properties");
+            composer.setServiceManager(manager)
+                    .setDiscoverer(discoverer);
 
             for (TaskWithOptimization t : tasks) {
-                Solution solution = composer.compose(t);
                 System.out.println(t);
-                System.out.println(solution);
+
+                //Solution solution = composer.composeWithOptimization(t);
+                //System.out.println(solution);
+
+                ArrayList<Assignment> assignments = composer.compose(t);
+                System.out.print("Assignments: ");
+                System.out.println(assignments);
             }
             
             

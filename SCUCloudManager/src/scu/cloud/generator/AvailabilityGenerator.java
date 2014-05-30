@@ -5,6 +5,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.json.JSONObject;
 
+import scu.cloud.monitor.AvailabilityMonitor;
 import scu.util.ConfigJson;
 import scu.util.Util;
 
@@ -41,25 +42,30 @@ public class AvailabilityGenerator {
         }
 
         // get next state
-        char lastState;
+        int lastState;
         if (current.length()>0) {
-            lastState = current.charAt(current.length()-1);
+            lastState = Character.getNumericValue(current.charAt(current.length()-1));
         } else {
-            lastState = Double.toString(Math.round(distStartState.sample())).charAt(0);
+            lastState = Character.getNumericValue(Double.toString(Math.round(distStartState.sample())).charAt(0));
         }
-        int nextState = 1;
-        if (lastState=='1' || lastState=='2') nextState = 0;
+        int nextState = AvailabilityMonitor.AVAILABLE;
+        if (lastState==AvailabilityMonitor.AVAILABLE || lastState==AvailabilityMonitor.BUSY) 
+            nextState = AvailabilityMonitor.NOT_AVAILABLE;
 
         int nextLength = 0; 
         while (result.length()<minLength) {
-            if (nextState==1) {
+            if (nextState==AvailabilityMonitor.AVAILABLE) {
                 nextLength = distAvail.sample();
             } else {
                 nextLength = distUnavail.sample();
             }
             String block = Util.stringRepeat(Integer.toString(nextState), nextLength);
-            nextState = (nextState+1) % 2;
             result += block;
+            if (nextState==AvailabilityMonitor.AVAILABLE) {
+                nextState = AvailabilityMonitor.NOT_AVAILABLE;
+            } else {
+                nextState = AvailabilityMonitor.AVAILABLE;
+            }
         }
 
         return result;

@@ -9,6 +9,10 @@ public interface MetricMonitorInterface {
     public Object measure(Service service, String name, Object[] params);
     public Object measure(ComputingElement element, String name, Object[] params);
     
+    // update data of the element for future measurement 
+    public Object update(Service service, String name, Object[] params);
+    public Object update(ComputingElement element, String name, Object[] params);
+
     // TODO: callback hook
     
 }

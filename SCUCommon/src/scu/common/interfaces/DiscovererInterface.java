@@ -8,6 +8,10 @@ import scu.common.sla.Specification;
 
 public interface DiscovererInterface {
 
+    // methods for setting middleware component
+    public DiscovererInterface setServiceManager(
+            ServiceManagerInterface serviceManager);
+
     // discover service without time constraint
     public ArrayList<Service> discoverServices(Functionality functionality,
             Specification specification);   
@@ -15,6 +19,6 @@ public interface DiscovererInterface {
     // discover service with time constraint
     public ArrayList<Service> discoverServices(Functionality functionality,
             Specification specification,
-            long timeStart, long duration, long deadline);
+            int timeStart, int duration, int deadline);
 
 }

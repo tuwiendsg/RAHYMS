@@ -22,7 +22,14 @@ public class Discoverer implements DiscovererInterface {
     private static LinkedList<Service> serviceCache = null; 
 
     public Discoverer(ServiceManagerInterface manager) {
-        this.manager = manager;
+        
+    }
+
+    @Override
+    public DiscovererInterface setServiceManager(
+            ServiceManagerInterface serviceManager) {
+        this.manager = serviceManager;
+        return this;
     }
 
     @Override
@@ -34,7 +41,7 @@ public class Discoverer implements DiscovererInterface {
     @Override
     public ArrayList<Service> discoverServices(Functionality functionality,
             Specification specification,
-            long timeStart, long duration, long deadline) {   
+            int timeStart, int duration, int deadline) {   
 
         if (serviceCache==null) serviceCache = 
                 (LinkedList<Service>) manager.retrieveServices(functionality);
@@ -71,7 +78,7 @@ public class Discoverer implements DiscovererInterface {
                     metrics = service.getProvider().getMetrics();
                 }
                 if (metrics!=null) {
-                    long responseTime = (long) metrics.getValue(
+                    int responseTime = (int) metrics.getValue(
                             "response_time", new Object[]{timeStart, duration});
                     if (responseTime==-1 || responseTime>deadline) {
                         // deadline will be violated if we assign to this service
@@ -116,5 +123,6 @@ public class Discoverer implements DiscovererInterface {
 
         return match;
     }
+
 
 }

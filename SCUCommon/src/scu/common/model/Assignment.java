@@ -54,6 +54,13 @@ public class Assignment {
         if (r==null) throw new NotFoundException();
         else this.role = r;        
     }
+
+    @Override
+    public String toString() {
+        return "Assignment [assignee=" + assignee.getDescription() 
+                + ", task=" + task.getDescription()
+                + ", role=" + role.getFunctionality() + "]";
+    }
     
     
 

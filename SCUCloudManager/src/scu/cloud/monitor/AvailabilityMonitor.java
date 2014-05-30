@@ -11,6 +11,10 @@ import scu.util.Util;
 
 public class AvailabilityMonitor implements MetricMonitorInterface {
 
+    public static int NOT_AVAILABLE = 0;
+    public static int AVAILABLE = 1;
+    public static int BUSY = 2;
+    
     private static AvailabilityMonitor _instance;
     private static AvailabilityGenerator generator;
     private Hashtable<Long, String> availabilityCache;
@@ -41,21 +45,93 @@ public class AvailabilityMonitor implements MetricMonitorInterface {
     private Object measureMetric(ComputingElement element, String name, Object[] params) {
         Object result = null;
         switch (name) {
-        case "response_time":
-            if (params.length==2) {
-                long start = (long) params[0]; 
-                long duration = (long) params[1]; 
-                long response = earliestResponseTime(element.getId(), start, duration);
-                result = response;
-            }
-            break;
-        default:
-            result = null;
+            case "response_time":
+                if (params.length>=2) {
+                    int start = (int) params[0]; 
+                    int duration = (int) params[1]; 
+                    int response = earliestResponseTime(element.getId(), start, duration);
+                    result = response;
+                }
+                break;
+            case "availability_status":
+                if (params.length>=1) {
+                    int time = (int) params[0]; 
+                    int response = getStatus(element.getId(), time);
+                    result = response;
+                }
+                break;
+            case "availability_sequence":
+                result = availabilityCache.get(element.getId());
+                break;
         }
         return result;
     }
 
-    private long earliestResponseTime(long id, long start, long duration) {
+    @Override
+    public Object update(Service service, String name, Object[] params) {
+        getInstance().updateMetric(service.getProvider(), name, params);
+        return null;
+    }
+
+    @Override
+    public Object update(ComputingElement element, String name, Object[] params) {
+        getInstance().updateMetric(element, name, params);
+        return null;
+    }
+
+    private void updateMetric(ComputingElement element, String name, Object[] params) {
+        switch (name) {
+            case "availability_status":
+                if (params.length>=3) {
+                    int start = (int) params[0]; 
+                    int duration = (int) params[1]; 
+                    int status = (int) params[2]; 
+                    setStatus(element.getId(), start, duration, status);
+                }
+                break;
+            case "availability_sequence":
+                if (params.length>=1) {
+                    String seq = (String) params[0]; 
+                    availabilityCache.put(element.getId(), seq);
+                }
+                break;
+        }
+    }
+
+    private int getStatus(long id, int time) {
+
+        // get availability sequence
+        String sequence = availabilityCache.get(id);
+        if (sequence==null) {
+            sequence = generator.generate(time + 30, "");
+        }
+        if (sequence.length()<time+1) {
+            sequence += generator.generate(time - sequence.length() + 30, sequence);
+        }
+        availabilityCache.put(id, sequence);
+        return Character.getNumericValue(sequence.charAt(time));
+
+    }
+
+
+    private void setStatus(long id, int start, int duration, int status) {
+
+        // get availability sequence
+        String sequence = availabilityCache.get(id);
+        if (sequence==null) {
+            sequence = generator.generate(start + duration + 30, "");
+        }
+        if (sequence.length()<start + duration) {
+            sequence += generator.generate(start + duration - sequence.length() + 30, sequence);
+        }
+        
+        String replacement = Util.stringRepeat(Integer.toString(status), duration);
+        sequence = sequence.substring(0, start-1) + replacement + sequence.substring(start+duration);
+
+        availabilityCache.put(id, sequence);
+    }
+
+    private int earliestResponseTime(long id, int start, int duration) {
 
         // get availability sequence
         String sequence = availabilityCache.get(id);
@@ -63,7 +139,7 @@ public class AvailabilityMonitor implements MetricMonitorInterface {
             sequence = generator.generate((duration>30?duration:30), "");
         }
 
-        String block = Util.stringRepeat("1", duration);
+        String block = Util.stringRepeat(Integer.toString(AVAILABLE), duration);
         int pos = sequence.indexOf(block, (int) start);
 
         int maxExtension = 5;
@@ -81,6 +157,6 @@ public class AvailabilityMonitor implements MetricMonitorInterface {
             return pos+duration;
         }
 
-
     }
+
 }

@@ -95,6 +95,18 @@
         },                
         {
             "type": "metric",
+            "name": "availability_status",
+            "interfaceClass": "scu.cloud.monitor.AvailabilityMonitor",   
+            "probabilityToHave": 1.0,
+        },                
+        {
+            "type": "metric",
+            "name": "availability_sequence",
+            "interfaceClass": "scu.cloud.monitor.AvailabilityMonitor",   
+            "probabilityToHave": 1.0,
+        },                
+        {
+            "type": "metric",
             "name": "response_time",
             "interfaceClass": "scu.cloud.monitor.AvailabilityMonitor",   
             "probabilityToHave": 1.0,

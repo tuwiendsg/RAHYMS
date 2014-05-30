@@ -175,9 +175,9 @@ public class ConstructionGraph {
 
         ArrayList<SolutionComponent> components = new ArrayList<SolutionComponent>();
 
-        long duration = estimateDuration(task.getLoad(), null);
-        long submissionTime = task.getSubmissionTime();
-        long deadline = (int)task.getSpecification()
+        int duration = estimateDuration(task.getLoad(), null);
+        int submissionTime = task.getSubmissionTime();
+        int deadline = (int)task.getSpecification()
                 .findObjective("deadline") // deadline spec must exist
                 .getValue();
         
@@ -192,7 +192,7 @@ public class ConstructionGraph {
         for (Service service: services) {
             long estDuration = estimateDuration(task.getLoad(), service);
             SolutionComponent comp = new SolutionComponent(level, service, task, role);
-            Long estimatedResponseTime = (Long) service.getMetric(
+            Integer estimatedResponseTime = (Integer) service.getMetric(
                     "response_time", new Object[]{submissionTime, duration});
             if (estimatedResponseTime!=null) {
                 comp.setEstimatedResponseTime(estimatedResponseTime);
@@ -273,13 +273,13 @@ public class ConstructionGraph {
         return "\"" + size + "\"";
     }
     
-    private long estimateDuration(double load, Service service) {
+    private int estimateDuration(double load, Service service) {
         double perfRating = 1.0;
         if (service!=null) {
             perfRating = (double) service.getProvider().getProperties()
                     .getValue("performance_rating");
         }
-        return (long) Math.ceil(load / perfRating);
+        return (int) Math.ceil(load / perfRating);
     }
 
 }

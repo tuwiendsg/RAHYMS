@@ -8,11 +8,15 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Endpoint;
 
+import scu.common.interfaces.ComposerInterface;
 import scu.common.interfaces.DiscovererInterface;
 import scu.common.interfaces.MetricMonitorInterface;
+import scu.common.interfaces.MiddlewareInterface;
 import scu.common.interfaces.ServiceManagerInterface;
+import scu.common.model.Assignment;
 import scu.common.model.Connection;
 import scu.common.model.Service;
+import scu.common.model.Task;
 import scu.common.model.optimization.OptimizationObjective;
 import scu.common.model.optimization.TaskWithOptimization;
 import scu.composer.algorithm.ACOAlgorithm;
@@ -25,7 +29,7 @@ import scu.composer.model.SolutionComponent;
 import scu.util.Util;
 
 
-public class Composer {
+public class Composer implements ComposerInterface {
 
     private static Logger logger = Logger.getLogger("ProvisionerLogger");
     private static Tracer globalTracer = null;
@@ -39,14 +43,24 @@ public class Composer {
     private ServiceManagerInterface manager;
     private DiscovererInterface discoverer;
 
-    public Composer(String configFile, ServiceManagerInterface manager, 
-            DiscovererInterface discoverer) {
-        this.manager = manager;
-        this.discoverer = discoverer;
+    public Composer(String configFile) {
         this.configFile = configFile;
         init();
     }
     
+    @Override
+    public ComposerInterface setServiceManager(
+            ServiceManagerInterface serviceManager) {
+        this.manager = serviceManager;
+        return this;
+    }
+
+    @Override
+    public ComposerInterface setDiscoverer(DiscovererInterface discoverer) {
+        this.discoverer = discoverer;
+        return this;
+    }
+
     public TaskWithOptimization getTask() {
         return task;
     }
@@ -95,7 +109,25 @@ public class Composer {
 
     }
 
-    public Solution compose(TaskWithOptimization task) {
+    @Override
+    public ArrayList<Assignment> compose(Task task) {
+        TaskWithOptimization taskWO;
+        if (task instanceof TaskWithOptimization) {
+            taskWO = (TaskWithOptimization) task;
+        } else {
+            taskWO = new TaskWithOptimization(task);
+            OptimizationObjective objective = new OptimizationObjective();
+            objective.setWeight("skill", 1.0);
+            objective.setWeight("connectedness", 1.0);
+            objective.setWeight("cost", 1.0);
+            objective.setWeight("time", 1.0);
+            taskWO.setOptObjective(objective);
+        }
+        Solution solution = composeWithOptimization(taskWO);
+        return solution.getAssignments();
+    }
+
+    public Solution composeWithOptimization(TaskWithOptimization task) {
 
         // TODO: handle sub-task
         
@@ -451,4 +483,5 @@ public class Composer {
         Hashtable<Solution, Double> values = calculateObjectiveValues(solutionList);
         return values.get(solution);
     }
+
 }

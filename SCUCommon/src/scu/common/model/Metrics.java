@@ -28,6 +28,16 @@ public class Metrics extends Properties {
         return result;
     }
 
+    @Override
+    public Object getValue(String name) {
+        MetricMonitorInterface metricInterface = valueSet.get(name);
+        Object result = null;
+        if (metricInterface!=null) {
+            result = metricInterface.measure(owner, name, null);
+        }
+        return result;
+    }
+
     public Object getValue(String name, Object[] params) {
         MetricMonitorInterface metricInterface = valueSet.get(name);
         Object result = null;
@@ -39,8 +49,17 @@ public class Metrics extends Properties {
 
     @Override
     public void setValue(String name, Object value) {
-        // metric is read only
-        return;
+        MetricMonitorInterface metricInterface = valueSet.get(name);
+        if (metricInterface!=null) {
+            metricInterface.update(owner, name, new Object[]{value});
+        }
+    }
+
+    public void setValue(String name, Object[] value) {
+        MetricMonitorInterface metricInterface = valueSet.get(name);
+        if (metricInterface!=null) {
+            metricInterface.update(owner, name, value);
+        }
     }
 
     @Override
