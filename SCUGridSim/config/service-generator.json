@@ -1,0 +1,103 @@
+{
+    "seed": 1001,
+    "numberOfElements": 200,
+    "singleElementSingleServices": true,
+    "connection": {
+	    "probabilityToConnect": 1.0,
+	    "weight": {"class": "NormalDistribution", "params": [10, 1, 1.0E-9]}
+    },
+    "services": [
+        {   
+            "functionality": "D1",
+            "probabilityToHave": 0.8,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_d1",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+                    "probabilityToHave": 1.0
+                }
+            ]
+        },
+        {   
+            "functionality": "D2",
+            "probabilityToHave": 0.8,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_d2",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},  
+                    "probabilityToHave": 1.0
+                }
+            ]
+        },
+        {   
+            "functionality": "D3",
+            "probabilityToHave": 0.8,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_d3",
+                    "value": {"class": "NormalDistribution", "params": [1.0, 0.01, 1.0E-9]},    
+                    "probabilityToHave": 1.0
+                }
+            ]
+        },
+        {   
+            "functionality": "D4",
+            "probabilityToHave": 0.8,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_d4",
+                    "value": {"class": "NormalDistribution", "params": [1.0, 0.01, 1.0E-9]},    
+                    "probabilityToHave": 1.0
+                }
+            ]
+        },
+        {   
+            "functionality": "D5",
+            "probabilityToHave": 0.8,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_d5",
+                    "value": {"class": "NormalDistribution", "params": [1.0, 0.01, 1.0E-9]},    
+                    "probabilityToHave": 1.0
+                }
+            ]
+        }
+    ],
+    "commonProperties": [
+        {
+            "type": "static",
+            "name": "performance_rating",
+            "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+            "probabilityToHave": 1.0
+        },
+        {
+            "type": "static",
+            "name": "cost",
+            "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "metric",
+            "name": "response_time",
+            "interfaceClass": "scu.adapter.gridsim.GSAvailabilityMonitor",   
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "metric",
+            "name": "execution_time",
+            "interfaceClass": "scu.adapter.gridsim.GSAvailabilityMonitor",   
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "metric",
+            "name": "earliest_availability",
+            "interfaceClass": "scu.adapter.gridsim.GSAvailabilityMonitor",   
+            "probabilityToHave": 1.0
+        }
+    ]
+}
