@@ -6,17 +6,14 @@ import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
-import org.apache.commons.math3.distribution.*;
+import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import scu.common.model.ComputingElement;
 import scu.common.model.Functionality;
-import scu.common.model.HumanComputingElement;
 import scu.common.model.Role;
-import scu.common.model.Service;
 import scu.common.model.Task;
 import scu.common.sla.Objective;
 import scu.common.sla.Specification;
@@ -34,7 +31,6 @@ public class TaskGenerator {
     private Hashtable<String, UniformRealDistribution> distToHaves;
     
     private int seed;
-    private long lastTaskId;
     Hashtable<String, JSONObject> taskTypes;
 
     public TaskGenerator(ConfigJson config) {
@@ -44,9 +40,16 @@ public class TaskGenerator {
         distValues = new Hashtable<String, Object>();
         distToHaves = new Hashtable<String, UniformRealDistribution>();
         taskTypes = new Hashtable<String, JSONObject>();
-        lastTaskId = 0;
     }
     
+    public ArrayList<Task> generate() 
+            throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException, 
+            SecurityException, ClassNotFoundException, JSONException {
+        ArrayList<Task> rootTasks = new ArrayList<Task>();
+        return generate(rootTasks);
+    }
+
     public ArrayList<Task> generate(ArrayList<Task> rootTasks) 
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
@@ -91,17 +94,19 @@ public class TaskGenerator {
         // calc occurance
         long occurance = 0;
         if (taskTypeCfg.getBoolean("isRootTask")) {
-            logger.info("Generating " + name + " tasks...");
+            //logger.info("Generating " + name + " tasks...");
             // init occurance distribution
+            JSONObject occuranceCfg = taskTypeCfg.getJSONObject("tasksOccurance");
             if (distOccurances.get(name)==null) {
-                JSONObject occuranceCfg = taskTypeCfg.getJSONObject("tasksOccurance");
-                String clazz = GeneratorUtil.DISTRIBUTION_PACKAGE + occuranceCfg.getString("class");
+                String clazz = GeneratorUtil.getFullClassName(occuranceCfg.getString("class"));
                 JSONArray params = occuranceCfg.getJSONArray("params");
                 Object dist = GeneratorUtil.createValueDistribution(clazz, params, seed++);
                 distOccurances.put(name, dist);
             }
             Object curDistOccurance = distOccurances.get(name);
-            occurance = Math.round((double)GeneratorUtil.sample(curDistOccurance, null));
+            // TODO: use sampleMethod on other places as well
+            String sampleMethod = occuranceCfg.has("sampleMethod") ? occuranceCfg.getString("sampleMethod") : "sample";
+            occurance = Math.round((double)GeneratorUtil.sample(curDistOccurance, null, sampleMethod));
         } else {
             if (distToHaves.get(currentPath)==null) {
                 UniformRealDistribution dist = new UniformRealDistribution(new MersenneTwister(seed++), 0, 1);
@@ -118,7 +123,7 @@ public class TaskGenerator {
         // init load distribution
         if (distLoads.get(name)==null) {
             JSONObject loadCfg = taskTypeCfg.getJSONObject("load");
-            String clazz = GeneratorUtil.DISTRIBUTION_PACKAGE + loadCfg.getString("class");
+            String clazz = GeneratorUtil.getFullClassName(loadCfg.getString("class"));
             JSONArray params = loadCfg.getJSONArray("params");
             Object dist = GeneratorUtil.createValueDistribution(clazz, params, seed++);
             distLoads.put(name, dist);
@@ -129,7 +134,7 @@ public class TaskGenerator {
         for (int i=0; i<occurance; i++) {
             
             double load = (double)GeneratorUtil.sample(curDistLoad, null);
-            Task task = new Task(++lastTaskId, name, description, load, parent);
+            Task task = new Task(name, description, load, parent);
             if (parent!=null) parent.addSubTask(task);
             if (taskTypeCfg.getBoolean("isRootTask")) {
                 rootTasks.add(task);
@@ -166,6 +171,9 @@ public class TaskGenerator {
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
         
+        Hashtable<String, Role> roles = new Hashtable<String, Role>(); 
+        Hashtable<String, JSONArray> dependecies = new Hashtable<String, JSONArray>();
+        
         // iterate roles
         for (int i=0; i<rolesCfg.length(); i++) {
 
@@ -173,8 +181,12 @@ public class TaskGenerator {
             JSONObject roleCfg = rolesCfg.getJSONObject(i);
             String func = roleCfg.getString("functionality");
             double pRoleToHave = roleCfg.getDouble("probabilityToHave");
+            double loadRatio = roleCfg.has("relativeLoadRatio") ? roleCfg.getDouble("relativeLoadRatio") : 1.0;
             JSONArray specCfg = roleCfg.getJSONArray("specification");
             String currentRolePath = parentPath + "/{r}" + func;
+            if (roleCfg.has("dependsOn")) {
+                dependecies.put(func, roleCfg.getJSONArray("dependsOn"));
+            }
             
             // init dist
             if (distToHaves.get(currentRolePath)==null) {
@@ -189,14 +201,34 @@ public class TaskGenerator {
                 // create role
                 Role role = new Role(new Functionality(func));
                 task.addUpdateRole(role);
+                roles.put(func, role);
                 
                 // create spec
                 Specification spec = createSpecification(specCfg, currentRolePath);
                 role.setSpecification(spec);
                 
+                // set load
+                role.setLoad(loadRatio * task.getLoad());
+                
             }
             
         }
+        
+        // role dependency
+        for (String func: dependecies.keySet()) {
+            Role me = roles.get(func); 
+            JSONArray others = dependecies.get(func);
+            for (int i=0; i<others.length(); i++) {
+                String other = others.getString(i);
+                if (other.startsWith("*")) {
+                    other = other.substring(1);
+                    if (roles.get(other)!=null) me.addStrongDependency(roles.get(other));
+                } else {
+                    if (roles.get(other)!=null) me.addWeakDependency(roles.get(other));
+                }
+            }
+        }
+        
     }
     
 
@@ -216,7 +248,7 @@ public class TaskGenerator {
             String name = curSpecCfg.getString("name");
             double pToHave = curSpecCfg.getDouble("probabilityToHave");
             JSONObject valueCfg = curSpecCfg.getJSONObject("value");
-            String clazz = GeneratorUtil.DISTRIBUTION_PACKAGE + valueCfg.getString("class");
+            String clazz = GeneratorUtil.getFullClassName(valueCfg.getString("class"));
             JSONArray params = valueCfg.getJSONArray("params");
             JSONObject mapping = null;
             if (valueCfg.has("mapping")) mapping = valueCfg.getJSONObject("mapping");

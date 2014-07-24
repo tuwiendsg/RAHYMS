@@ -2,23 +2,25 @@
 
 package eduni.simjava;
 
-import eduni.simanim.Sim_anim;
-import eduni.simjava.distributions.Sim_random_obj;
-import eduni.simjava.distributions.Generator;
-import java.util.ListIterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Date;
-import java.util.zip.GZIPOutputStream;
-import java.text.NumberFormat;
-import java.text.DateFormat;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.zip.GZIPOutputStream;
+
+import eduni.simanim.Sim_anim;
+import eduni.simjava.distributions.Generator;
+import eduni.simjava.distributions.Sim_random_obj;
 
 /**
  * The <code>SimJava</code> simulation kernel.
@@ -250,6 +252,11 @@ public class Sim_system {
 
   private static boolean efficient_measure_defined = false; // Flag used to check whether the simulation contains an efficient measure
 
+  // ADDED BY MARCOS - 2007-09-07
+  private static boolean paused = false;
+  private static double pauseAt = Double.MAX_VALUE;
+  private static Object syncObj = new Object();
+  
   /**
    * Do not a constructor for <code>Sim_system</code>. Use an <code>initialise</code> method instead.
    */
@@ -283,7 +290,7 @@ public class Sim_system {
    * @param sim The simulation thread.
    */
   public static void initialise(Sim_output out, Thread sim) {
-    System.out.println("Initialising...");
+    //System.out.println("Initialising...");
     entities = new ArrayList();
     future = new Evqueue();
     deferred = new Evqueue();
@@ -397,6 +404,18 @@ public class Sim_system {
     return id;
   }
 
+  /**
+   * Returns a list of entities created for the simulation
+   * @return the entity iterator
+   */
+  public static LinkedList<Sim_entity> getEntityList(){
+	  // create a new list to prevent the user from changing
+	  // the list of entities used by Sim_system
+	  LinkedList<Sim_entity> list = new LinkedList<Sim_entity>();
+	  list.addAll(entities);
+	  return list;
+  }
+  
   /**
    * Get the currently running entity.
    * @return The entity, or <code>null</code> if none are running
@@ -687,6 +706,23 @@ public class Sim_system {
       }
     }
   }
+  
+  // Removes all events that match a given predicate from the future event queue
+  // returns true if at least one event has been cancelled; false otherwise
+  static synchronized boolean cancel_all(int src, Sim_predicate p) {
+	  Sim_event ev = null;
+	  int previousSize = future.size();
+	  Iterator iter = future.iterator();
+	  while(iter.hasNext()) {
+		  ev = (Sim_event)iter.next();
+		  if (ev.get_src() == src) {
+			  if (p.match(ev)) {
+				  iter.remove();
+			  }
+		  }
+	  }
+	  return previousSize < future.size();
+  }
 
   // Puts an event into the deferred queue
   static synchronized void putback(Sim_event ev) { deferred.add_event(ev); }
@@ -697,6 +733,24 @@ public class Sim_system {
 
   // Processes an event
   private static void process_event(Sim_event e) {
+
+	// ADDED TO ALLOW THE SIMULATION TO BE PAUSED
+    synchronized(syncObj){
+    	
+    	if(clock >= pauseAt)
+    		paused = true;
+    	
+		while(paused){
+		  try {
+			 syncObj.wait();
+		  } catch (InterruptedException e1) {
+			  // it should not happen, but if does, 
+			  // then show it to the user
+			  e1.printStackTrace();
+		  }
+	   }
+	}
+	   
     int dest, src;
     Sim_entity dest_ent;
     // Update the system's clock
@@ -1734,6 +1788,58 @@ public class Sim_system {
     return result;
   }
 
+  // ADDED TO ALLOW THE SIMULATION TO BE PAUSED AND RESUMED
+  
+  /**
+   * This method is called if one wants to 
+   * pause the simulation
+   * @return <tt>true</tt>if the simulation has been paused
+   * or <tt>false</tt> otherwise.
+   */
+  public static synchronized boolean pauseSimulation() {
+	  synchronized(syncObj){
+		  paused = true;
+		  return paused;
+	  }
+  }
+
+  /**
+   * This method is called if one wants to pause the simulation
+   * at a given time
+   * @param time the time at which the simulation has to be paused
+   * @return <tt>true</tt>if the simulation has been paused
+   * or <tt>false</tt> otherwise.
+   */
+  public static synchronized boolean pauseSimulation(double time) {
+	  synchronized(syncObj){
+		  if(time <= clock)
+			  return false;
+		  else
+			  pauseAt = time;
+	  }
+	  return true;
+  }
+  
+  /**
+   * This method is called if one wants to resume the simulation
+   * that has previously been paused
+   * @return <tt>true</tt>if the simulation has been restarted or
+   * or <tt>false</tt> otherwise.
+   */
+  public static synchronized boolean resumeSimulation() {
+	  synchronized(syncObj){
+		  paused = false;
+		  
+		  if(pauseAt <= clock)
+			  pauseAt = Double.MAX_VALUE;
+		  
+		  syncObj.notify();
+		  return !paused;
+	  }
+  }
+  
+  // END OF METHODS USED TO PAUSE THE SIMULATION
+ 
   /**
    * Start the simulation running. This should be called after all the entities have been setup
    * and added, and their ports linked.

@@ -36,7 +36,9 @@ public enum MessageType {
     COMMIT(5,"Commit"),
     
     /** Requests a list of free or empty time of a resource. */
-    LIST_FREE_TIME(6,"List free time slots");
+    LIST_FREE_TIME(6,"List free time slots"),
+    
+    FORECAST_RESPONSE_TIME(7, "Forecast response time");
 
 	private int value;
 	private String description;

@@ -1,8 +1,10 @@
 package scu.composer.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import scu.common.model.Assignment;
+import scu.common.model.ComputingElement;
 
 public class Solution {
 
@@ -18,6 +20,10 @@ public class Solution {
     private double normCost;
     private String data;
 
+    public void addSolutionComponent(SolutionComponent comp) {
+        list.add(comp);
+    }
+    
     public ArrayList<SolutionComponent> getList() {
         return list;
     }
@@ -29,9 +35,24 @@ public class Solution {
         }
         return assignments;
     }
+    
+    public boolean contains(ComputingElement elmt) {
+        boolean found = false;
+        for (SolutionComponent comp: list) {
+            if (comp.getAssignee().getProvider().getId()==elmt.getId()) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
 
     public void setList(ArrayList<SolutionComponent> list) {
         this.list = list;
+    }
+    
+    public int size() {
+        return list.size();
     }
 
     public double getSkillScore() {
@@ -107,14 +128,20 @@ public class Solution {
     }
 
     public Solution replace(int index, SolutionComponent comp) {
-        if (index<list.size()) {
+        if (index<=list.size()) {
             // arraylist is immutable, so just create a new one
             ArrayList<SolutionComponent> newList = new ArrayList<SolutionComponent>();
+            List<Assignment> assignments = new ArrayList<Assignment>();
             for (int i=0; i<list.size(); i++) {
-                if (i==index) newList.add(comp);
-                else newList.add(list.get(i));
+                if (i == index-1) {
+                    newList.add(comp);
+                    assignments.add(comp);
+                } else {
+                    SolutionComponent c = list.get(i);
+                    newList.add(c);
+                    assignments.add(c);
+                }
             }
-            list = newList;
             Solution newSolution = new Solution();
             newSolution.setList(newList);
             return newSolution;

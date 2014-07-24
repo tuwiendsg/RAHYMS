@@ -588,10 +588,9 @@ public class GridSim extends GridSimCore
      * @return <code>true</code> if the simulation has been paused or 
      * 			<code>false</code> otherwise.
      */
-    /*
     public static boolean pauseSimulation() {
     	return Sim_system.pauseSimulation();
-    } */
+    }
     
     /**
      * Pauses the simulation at a given simulation time. This method 
@@ -600,10 +599,9 @@ public class GridSim extends GridSimCore
      * @return <code>true</code> if the simulation can be paused or 
      * 			<code>false</code> otherwise.
      */
-    /*
     public static boolean pauseSimulation(long time) {
     	return Sim_system.pauseSimulation(time);
-    }*/
+    }
     
     /**
      * Resumes the simulation. This method should be used for 
@@ -611,10 +609,9 @@ public class GridSim extends GridSimCore
      * @return <code>true</code> if the simulation has been resumed or 
      * 			<code>false</code> otherwise.
      */
-    /*
     public static boolean resumeSimulation() {
     	return Sim_system.resumeSimulation();
-    }*/
+    }
 
     /**
      * Gets the current simulation time (based on SimJava simulation clock)

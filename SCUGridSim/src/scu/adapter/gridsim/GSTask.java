@@ -9,6 +9,7 @@ public class GSTask extends Gridlet {
     
     public GSTask(Task task) {
         this((int)task.getId(), task.getLoad());
+        this.task = task;
     }
     
     private GSTask(int taskId, double taskLength) {
@@ -28,6 +29,4 @@ public class GSTask extends Gridlet {
         return task.toString();
     }
     
-    
-
 }

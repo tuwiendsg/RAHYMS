@@ -142,6 +142,7 @@ public class ConservativeBackfill extends AllocPolicy {
     public ConservativeBackfill(String resourceName, String entityName) 
     					throws Exception {
         super(resourceName, entityName);
+        profile = new SingleProfile(super.totalPE_);
     }
 
     /**

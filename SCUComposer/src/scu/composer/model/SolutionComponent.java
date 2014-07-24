@@ -1,9 +1,12 @@
 package scu.composer.model;
 
+import java.util.List;
+
 import scu.common.exceptions.NotFoundException;
 import scu.common.fuzzy.MembershipFunction;
 import scu.common.fuzzy.function.InfinityConnectednessMembershipFunctionCollection;
 import scu.common.fuzzy.function.SkillMembershipFunctionCollection;
+import scu.common.interfaces.DependencyProcessorInterface;
 import scu.common.model.Assignment;
 import scu.common.model.Functionality;
 import scu.common.model.HumanComputingElement;
@@ -16,7 +19,6 @@ public class SolutionComponent extends Assignment {
 
     private int level;
     private double pheromone;
-    private long estimatedResponseTime;
 
     public SolutionComponent() {
         super();
@@ -25,17 +27,22 @@ public class SolutionComponent extends Assignment {
     public SolutionComponent(int level) {
         super();
         this.level = level;
+        this.forecastedDuration = 0.0;
     }
 
     public SolutionComponent(int level, Service assignee, Task task, 
             Functionality functionality) throws NotFoundException {
         super(assignee, task, functionality);
         this.level = level;
+        this.forecastedDuration = 0.0;
+        getForecastedDuration();
     }
 
     public SolutionComponent(int level, Service assignee, Task task, Role role) {
         super(assignee, task, role);
         this.level = level;
+        this.forecastedDuration = 0.0;
+        getForecastedDuration();
     }
 
     public int getLevel() {
@@ -51,7 +58,10 @@ public class SolutionComponent extends Assignment {
         //if (worker==null || job==null) return "SolutionComponent [level=" + level + "]";
         //else return "SolutionComponent [level=" + level + ", job=" + job + ", worker=" + worker.getId() + "]";
         if (getAssignee()==null || getTask()==null) return "Comp [" + level + "]";
-        else return "[" + level + ", " + getTask() + ", S#" + getAssignee().getTitle() + "," + pheromone + "]";
+        else {
+            String s = super.toString();
+            return "[ level " + level + ", " + s + ", pheromone " + pheromone + "]";
+        }
     }
 
     public String trace() {
@@ -96,12 +106,31 @@ public class SolutionComponent extends Assignment {
     public void setPheromone(double pheromone) {
         this.pheromone = pheromone;
     }
-
-    public long getEstimatedResponseTime() {
-        return estimatedResponseTime;
+    
+    public double getForecastedDuration() {
+        if (forecastedDuration==0) {
+            // get forecasted execution time metric
+            forecastedDuration = (double) assignee.getMetric("execution_time", 
+                    new Object[]{getRole().getLoad()});
+        }
+        return forecastedDuration;
     }
 
-    public void setEstimatedResponseTime(long estimatedResponseTime) {
-        this.estimatedResponseTime = estimatedResponseTime;
+    public void setForecastedDuration(double forecastedDuration) {
+        this.forecastedDuration = forecastedDuration;
     }
+
+    public double getForecastedResponseTime(Solution solutionSoFar,
+            DependencyProcessorInterface dp) {
+
+        // use dependency processor to forecast response time
+        // we can't keep the result, because it depends on the solutionSoFar
+        List<Assignment> assignmentsSoFar = solutionSoFar.getAssignments();
+        assignmentsSoFar.add(this);
+        double forecastResponseTime = dp.forecastResponseTime(assignmentsSoFar, this);
+
+        return forecastResponseTime;
+        
+    }
+
 }

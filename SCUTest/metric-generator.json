@@ -1,9 +1,0 @@
-{
-    "availability": {
-        "seed": 1001,
-        "minAvailBlock": 5,
-        "maxAvailBlock": 12,
-        "minUnavailBlock": 2,
-        "maxUnavailBlock": 5,
-    }
-}

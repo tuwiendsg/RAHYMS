@@ -16,11 +16,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>gridsim</name>
-			<type>2</type>
-			<location>D:/study/my research/experiments/SCU/v1/lib/gridsim</location>
-		</link>
-		<link>
 			<name>lib</name>
 			<type>2</type>
 			<location>D:/study/my research/experiments/SCU/v1/lib</location>

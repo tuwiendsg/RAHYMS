@@ -38,8 +38,7 @@ public class TaskWithOptimization extends Task {
         this.optimizationObjective = optimizationObjective;
     }
 
-    @Override
-    public String toString() {
+    public String detail() {
         return "Task [id=" + id + ", load=" + load + ", name=" + name
                 + ", roles=" + roles //+ ", subTasks=" + subTasks
                 + ", spec=" + specification 

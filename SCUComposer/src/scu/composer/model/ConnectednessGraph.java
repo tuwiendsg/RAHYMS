@@ -148,7 +148,7 @@ public class ConnectednessGraph extends
                 sum += getEdgeWeight(e);
             }      
         }
-        int size = solution.getList().size();
+        int size = solution.size();
         int nEdgeComplete = size * (size -1) / 2;
         double result = 9999;
         if (nEdgeComplete!=0) result = sum / nEdgeComplete;
@@ -178,6 +178,6 @@ public class ConnectednessGraph extends
                 sum += getEdgeWeight(edge);
             }
         }
-        return sum / (solution.getList().size()+1);
+        return sum / (solution.size()+1);
     }
 }

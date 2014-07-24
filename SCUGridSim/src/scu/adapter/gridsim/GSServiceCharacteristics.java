@@ -12,11 +12,16 @@ public class GSServiceCharacteristics extends ResourceCharacteristics {
         super(
                 "ICU-Arch", 
                 "ICU-OS", 
-                new MachineList(), 
+                getDefaultMachineList(performanceRating), 
                 ResourceCharacteristics.ADVANCE_RESERVATION,
                 timeZone, costPerSec);
-        int mipsRating = performanceRating;
-        this.getMachineList().add(new Machine(0, 1, mipsRating));
+    }
+    
+    private static MachineList getDefaultMachineList(int mipsRating) {
+        MachineList list = new MachineList();
+        //list.add(new Machine(0, 1, mipsRating));
+        list.add(new Machine(0, 1, 1));
+        return list;
     }
 
 }

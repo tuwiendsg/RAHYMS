@@ -99,7 +99,7 @@ public class ARConservativeBackfill extends ConservativeBackfill
 	private static Logger logger = Logging.getLogger(LoggerEnum.PARALLEL);
 	
 	// outstanding reservations
-    private LinkedHashMap<Integer,ServerReservation> reservTable = 
+    protected LinkedHashMap<Integer,ServerReservation> reservTable = 
     		new LinkedHashMap<Integer,ServerReservation>(); 
     
     // expired reservations
@@ -532,7 +532,7 @@ public class ARConservativeBackfill extends ConservativeBackfill
      * for which an advance reservation has been made.
      * @param gridlet a job object to be executed
      */
-    private synchronized boolean handleReservationJob(Gridlet gridlet) {
+    public synchronized boolean handleReservationJob(Gridlet gridlet) {
         int reqPE = gridlet.getNumPE();
     	SSGridlet sgl = new SSGridlet(gridlet);
     	long runTime = super.forecastExecutionTime(ratingPE, sgl.getLength());

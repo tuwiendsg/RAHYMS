@@ -14,6 +14,8 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
+import eduni.simjava.Sim_system;
+
 /**
  * A log formatter based on the {@link SimpleFormatter} of java.
  * 
@@ -41,10 +43,13 @@ public class LogFormatter extends Formatter {
 		}
 		
 		formatter.format(args, text, null);
-		sb.append(text);
-		sb.append(" ");
+		//sb.append(text);
+		//sb.append(" ");
 		
-		if (record.getSourceClassName() != null) {
+        double clock = Sim_system.clock();
+        sb.append(String.format("[%3.3f] ", clock));
+
+        if (record.getSourceClassName() != null) {
 			sb.append(record.getSourceClassName().substring(
 					record.getSourceClassName().lastIndexOf(".") + 1));
 		} else {

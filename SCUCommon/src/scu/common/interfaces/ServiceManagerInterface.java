@@ -1,7 +1,7 @@
 package scu.common.interfaces;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import scu.common.exceptions.NotFoundException;
 import scu.common.model.ComputingElement;
@@ -24,9 +24,9 @@ public interface ServiceManagerInterface {
     // manage service
     public Service registerService(Service service);
     public void removeService(Service service) throws NotFoundException;
-    public Collection<Service> retrieveServices(Functionality functionality);
+    public List<Service> retrieveServices(Functionality functionality);
     
     // manage relations
-    public Collection<Connection> getConnections(ArrayList<Service> services);
+    public List<Connection> getConnections(List<Service> services);
 
 }

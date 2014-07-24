@@ -1,35 +1,60 @@
 package scu.common.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import scu.common.sla.Specification;
+import scu.common.statistics.StatisticPoints;
 
 public class Task {
 
-    protected long id;
-    protected double load;
+    public enum Status {
+        CREATED (100, "Created"),
+        QUEUED (110, "Queued"),
+        RUNNING (200, "Running"),
+        SUSPENDED (300, "Suspended"),
+        SUCCESSFUL (410, "Successful"),
+        FAILED (420, "Failed");
+        
+        int code;
+        String description;
+        private Status(int code, String description) {
+            this.code = code;
+            this.description = description;
+        }
+        public String toString() {
+            return description;
+        }
+    };
+    
+    protected int id;
     protected TaskType type;
     protected String name;
     protected String description;
-    protected int submissionTime;
+    protected double submissionTime;
+    protected double load;
 
     protected Task parent;
-    protected ArrayList<Task> subTasks;
+    protected List<Task> subTasks;
 
-    protected ArrayList<Role> roles;
+    protected List<Role> roles;
     protected Specification specification;
     protected TaskDependency dependency;
     protected TaskPresentation presentation;
     protected Reward reward;
+    protected Status status;
+    protected StatisticPoints stat;
     
-    public Task(long id, double load, Task parent, TaskType type) {
-        this(id, type.getName(), type.getDescription(), load, parent, type);
+    private static int _lastId = 1;
+
+    public Task(double load, Task parent, TaskType type) {
+        this(type.getName(), type.getDescription(), load, parent, type);
     }
     
-    public Task(long id, String name, String description, double load, 
+    public Task(String name, String description, double load, 
             Task parent, TaskType type) {
         super();
-        this.id = id;
+        this.id = _lastId++;
         this.load = load;
         this.type = type;
         this.name = name;
@@ -38,15 +63,17 @@ public class Task {
         this.subTasks = new ArrayList<Task>();
         
         // clone properties from task type
-        this.roles = (ArrayList<Role>) type.getRoles().clone();
+        this.roles = (ArrayList<Role>)((ArrayList<Role>) type.getRoles()).clone();
         this.dependency = (TaskDependency) type.getDependency().clone();
         this.presentation = (TaskPresentation) type.getPresentation().clone();
         this.reward = (Reward) type.getReward().clone();
+        this.status = Task.Status.CREATED;
+        this.stat = new StatisticPoints(this);
     }
 
-    public Task(long id, String name, String description, double load, Task parent) {
+    public Task(String name, String description, double load, Task parent) {
         super();
-        this.id = id;
+        this.id = _lastId++;
         this.load = load;
         this.type = null;
         this.name = name;
@@ -57,6 +84,8 @@ public class Task {
         this.dependency = new TaskDependency();
         this.presentation = new TaskPresentation();
         this.reward = new Reward();
+        this.status = Task.Status.CREATED;
+        this.stat = new StatisticPoints(this);
     }
 
     public Task() {
@@ -65,13 +94,14 @@ public class Task {
         this.dependency = new TaskDependency();
         this.presentation = new TaskPresentation();
         this.reward = new Reward();
+        this.stat = new StatisticPoints(this);
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -115,15 +145,15 @@ public class Task {
         this.load = load;
     }
 
-    public ArrayList<Task> getSubTasks() {
+    public List<Task> getSubTasks() {
         return subTasks;
     }
 
-    public void setSubTasks(ArrayList<Task> subTasks) {
+    public void setSubTasks(List<Task> subTasks) {
         this.subTasks = subTasks;
     }
 
-    public ArrayList<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
@@ -155,10 +185,10 @@ public class Task {
      * Recursively get the list of the roles of this task type and its descendents
      * @return ArrayList<Role>
      */
-    public ArrayList<Role> getAllRoles() {
-        ArrayList<Role> clone = ((ArrayList<Role>) this.roles.clone());
+    public List<Role> getAllRoles() {
+        ArrayList<Role> clone = (ArrayList<Role>)((ArrayList<Role>) this.roles).clone();
         for (Task child : subTasks) {
-            ArrayList<Role> childRoles = child.getAllRoles();
+            ArrayList<Role> childRoles = (ArrayList<Role>)child.getAllRoles();
             clone.addAll(childRoles);
         }
         return clone;
@@ -192,8 +222,8 @@ public class Task {
         subTasks.add(task);
     }
 
-    public void addSubTask(long id, double load, TaskType taskType) {
-        Task newTask = new Task(id, load, this, taskType);
+    public void addSubTask(double load, TaskType taskType) {
+        Task newTask = new Task(load, this, taskType);
         subTasks.add(newTask);
     }
 
@@ -205,11 +235,11 @@ public class Task {
         return t;
     }
     
-    public int getSubmissionTime() {
+    public double getSubmissionTime() {
         return submissionTime;
     }
 
-    public void setSubmissionTime(int submissionTime) {
+    public void setSubmissionTime(double submissionTime) {
         this.submissionTime = submissionTime;
     }
 
@@ -225,8 +255,28 @@ public class Task {
         return specification.findObjective(name).getValue();
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public StatisticPoints getStat() {
+        return stat;
+    }
+
+    public void setStat(StatisticPoints stat) {
+        this.stat = stat;
+    }
+
     @Override
     public String toString() {
+        return "Task #" + id + " (" + status + ")";
+    }
+
+    public String detail() {
         return "Task [id=" + id + ", load=" + load + ", name=" + name
                 + ", roles=" + roles + ", subTasks=" + subTasks
                 + ", spec=" + specification + "]";

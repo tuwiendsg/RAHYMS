@@ -1,8 +1,12 @@
 package scu.util;
 
+import gridsim.parallel.log.LoggerEnum;
+import gridsim.parallel.log.Logging;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class Util {
 
@@ -52,8 +56,9 @@ public class Util {
         try {
             if (o instanceof String) {
                 x = Double.parseDouble((String)o);
-
-            } else {
+            } else if (o instanceof Integer) {
+                x = (Integer)o * 1.0;
+            } else  {
                 x = (Double)o;
             }
         } catch (Exception e) {
@@ -63,5 +68,9 @@ public class Util {
 
     public static double Double(Object o) {
         return Double(o, 0.0);
+    }
+    
+    public static Logger log() {
+        return Logging.getLogger(LoggerEnum.GRIDSIM);        
     }
 }

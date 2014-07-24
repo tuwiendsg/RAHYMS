@@ -65,12 +65,12 @@ public class GreedyLocalSearch implements ComposerAlgorithmInterface {
             Hashtable<SolutionComponent, Double> scores = composer.calculateHeuristicScores(components, solution);
             SolutionComponent bestSolutionComponent = null;
             for (SolutionComponent comp: components) {
-                if (visibility<scores.get(comp)) {
-                    visibility = comp.getEstimatedResponseTime();
+                if (visibility < scores.get(comp)) {
+                    visibility = scores.get(comp);
                     bestSolutionComponent = comp;
                 }
             }
-            solution.getList().add(bestSolutionComponent);
+            solution.addSolutionComponent(bestSolutionComponent);
         }
 
         // measure objective values
@@ -84,14 +84,14 @@ public class GreedyLocalSearch implements ComposerAlgorithmInterface {
         // refine with hill climbing
         int c = 1; 
         int nLayer = cons.getComponentList().size() - 2;
-        while (c<maxCycle) {
+        while (c < maxCycle) {
             // change one component at a time
             int layerSize = 0;
             int chosenLayer = 0;
             if (nLayer>1) {
                 int retry = 0;
                 do {
-                    chosenLayer = (int)Math.round(distSelector.sample() * (nLayer-2) );
+                    chosenLayer = (int)Math.round(distSelector.sample() * (nLayer-1) );
                     chosenLayer = chosenLayer + 1;
                     layerSize = cons.getComponentList().get(chosenLayer).size();
                 } while (layerSize<=1 && retry++<10);
@@ -112,7 +112,7 @@ public class GreedyLocalSearch implements ComposerAlgorithmInterface {
                     // change to the new comp, if it is better
                     Solution newSolution = solution.replace(chosenLayer, newComp);
                     double newScore = composer.calculateObjectiveValue(newSolution);
-                    if (currentScore>newScore) {
+                    if (currentScore > newScore) {
                         currentScore = newScore;
                         solution = newSolution;
                     }
@@ -129,7 +129,7 @@ public class GreedyLocalSearch implements ComposerAlgorithmInterface {
 
             c++;
         }
-
+        
         closeTracer();
 
         return solution;

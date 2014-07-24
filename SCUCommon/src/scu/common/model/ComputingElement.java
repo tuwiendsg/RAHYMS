@@ -1,6 +1,7 @@
 package scu.common.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import scu.common.interfaces.ServiceManagerInterface;
 
@@ -13,8 +14,8 @@ public class ComputingElement {
     protected int status;
     protected Properties properties;
     protected Metrics metrics;
-    protected ArrayList<Connection> connections;
-    protected ArrayList<Service> services;
+    protected List<Connection> connections;
+    protected List<Service> services;
     protected ServiceManagerInterface manager;
     
     protected static final String DEFAULT_NAME_PREFIX = "CE_";
@@ -87,7 +88,7 @@ public class ComputingElement {
         autoUpdate();
     }
     
-    public ArrayList<Connection> getConnections() {
+    public List<Connection> getConnections() {
         return connections;
     }
 
@@ -145,11 +146,14 @@ public class ComputingElement {
         return "[" + svc + "]";
     }
     
-    @Override
-    public String toString() {
+    public String detail() {
         return "E[id=" + id + ", type=" + type + ", prop=" + properties + 
                 ", metrics=" + metrics + ", services=" + servicesToString() + 
                 ", connections=" + connectionsToString() + "]";
+    }
+    @Override
+    public String toString() {
+        return name;
     }
     @Override
     public int hashCode() {
@@ -199,7 +203,7 @@ public class ComputingElement {
         autoUpdate();
     }
 
-    public ArrayList<Service> getServices() {
+    public List<Service> getServices() {
         return services;
     }
 

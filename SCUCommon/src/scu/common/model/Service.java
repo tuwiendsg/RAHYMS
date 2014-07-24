@@ -4,6 +4,7 @@ import scu.common.interfaces.MetricMonitorInterface;
 
 public class Service {
 
+    protected int id;
     protected Functionality functionality;
     protected String description;
     protected Object _interface;
@@ -19,6 +20,14 @@ public class Service {
         metrics.setOwner(getProvider());
     }
     
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public ComputingElement getProvider() {
         return provider;
     }
@@ -41,14 +50,14 @@ public class Service {
     }
     
     public Object getMetric(String name, Object[] params) {
-        Object metric = null;
+        Object metricValue = null;
         if (metrics.has(name)) {
-            metric = metrics.getValue(name, params); 
+            metricValue = metrics.getValue(name, params); 
         } else {
             // try to get metric from service provider
-            metric = getProvider().getMetrics().getValue(name, params); 
+            metricValue = getProvider().getMetrics().getValue(name, params); 
         }
-        return metric;
+        return metricValue;
     }
     
     public Functionality getFunctionality() {
@@ -123,9 +132,13 @@ public class Service {
     
     @Override
     public String toString() {
-        return getTitle() + "[" + provider + "]";
+        //return getTitle();
+        return provider + "[" + getTitle() + "]";
     }
     
+    public String detail() {
+        return getTitle() + "[" + provider + "]";
+    }
     
     
 }

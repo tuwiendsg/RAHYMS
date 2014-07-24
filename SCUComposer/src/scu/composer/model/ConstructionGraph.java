@@ -3,15 +3,16 @@ package scu.composer.model;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.jgrapht.graph.ListenableDirectedWeightedGraph;
 
 import scu.common.interfaces.DiscovererInterface;
-import scu.common.interfaces.ServiceManagerInterface;
 import scu.common.model.Role;
 import scu.common.model.Service;
 import scu.common.model.Task;
+import scu.util.Util;
 
 // TODO: extends ListenableDirectedWeightedGraph<SolutionComponent, DefaultWeightedEdge> directly
 // TODO: sort level by the number of workers available for that level
@@ -29,11 +30,9 @@ public class ConstructionGraph {
     private SolutionComponent initialComponent;
     private SolutionComponent finalComponent;
     
-    private ServiceManagerInterface manager;
     private DiscovererInterface discoverer;
 
-    public ConstructionGraph(ServiceManagerInterface manager, DiscovererInterface discoverer) {
-        this.manager = manager;
+    public ConstructionGraph(DiscovererInterface discoverer) {
         this.discoverer = discoverer;
         init();
     }
@@ -96,7 +95,7 @@ public class ConstructionGraph {
         this.finalComponent = finalComponent;
     }
 
-    public ConstructionGraph generate(Task task) {
+    public ConstructionGraph generate(Task task, List<Role> roles) {
 
         init();
 
@@ -111,12 +110,19 @@ public class ConstructionGraph {
         int level = 1;
         for (Role role: task.getRoles()) {
 
+            if (roles!=null) {
+                // partial composition
+                if (!roles.contains(role)) {
+                    continue;
+                }
+            }
+            
             ArrayList<SolutionComponent> comps = generateSolutionComponents(
                     level, role, task);
 
             // no feasible solution at this level, we should not proceed
             if (comps==null) {
-                logger.info("No workers found, submissionTime=" + 
+                Util.log().info("No workers found, submissionTime=" + 
                         task.getSubmissionTime() + ", role=" + role);
                 return null;
             }
@@ -175,36 +181,33 @@ public class ConstructionGraph {
 
         ArrayList<SolutionComponent> components = new ArrayList<SolutionComponent>();
 
-        int duration = estimateDuration(task.getLoad(), null);
-        int submissionTime = task.getSubmissionTime();
-        int deadline = (int)task.getSpecification()
+        double submissionTime = task.getSubmissionTime();
+        double deadline = (double)task.getSpecification()
                 .findObjective("deadline") // deadline spec must exist
                 .getValue();
         
-        ArrayList<Service> services = discoverer.discoverServices(
+        List<Service> services = discoverer.discoverServices(
                 role.getFunctionality(), 
                 task.getSpecification().merge(role.getSpecification()), 
-                submissionTime, duration, deadline);
+                submissionTime, role.getLoad(), deadline);
 
         // no feasible solution
         if (services.size()==0) return null;
 
         for (Service service: services) {
-            long estDuration = estimateDuration(task.getLoad(), service);
             SolutionComponent comp = new SolutionComponent(level, service, task, role);
-            Integer estimatedResponseTime = (Integer) service.getMetric(
-                    "response_time", new Object[]{submissionTime, duration});
-            if (estimatedResponseTime!=null) {
-                comp.setEstimatedResponseTime(estimatedResponseTime);
-                components.add(comp);
-            }
+            components.add(comp);
+            // this should be done when calculating objective value
+            //Integer estimatedResponseTime = (Integer) service.getMetric(
+            //        "response_time", new Object[]{submissionTime, duration});
+            //if (estimatedResponseTime!=null) {
         }
         return components;
     }
 
     public String getTrail(Solution solution) {
         String trail = "";
-        for (int i=0; i<solution.getList().size(); i++) {
+        for (int i=0; i<solution.size(); i++) {
             SolutionComponent comp = solution.getList().get(i);
             if (trail.equals("")) trail = Double.toString(comp.getPheromone());
             else trail += ", " + Double.toString(comp.getPheromone());
@@ -273,13 +276,4 @@ public class ConstructionGraph {
         return "\"" + size + "\"";
     }
     
-    private int estimateDuration(double load, Service service) {
-        double perfRating = 1.0;
-        if (service!=null) {
-            perfRating = (double) service.getProvider().getProperties()
-                    .getValue("performance_rating");
-        }
-        return (int) Math.ceil(load / perfRating);
-    }
-
 }

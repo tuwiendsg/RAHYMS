@@ -10,6 +10,7 @@
 package gridsim;
 
 import java.util.*;
+
 import eduni.simjava.Sim_event;
 import eduni.simjava.Sim_system;
 
@@ -51,24 +52,24 @@ public class ARSimpleSpaceShared extends ARPolicy
 {
     // NOTE: gridletQueueList_ is for non-AR jobs, where gridletWaitingList_
     // is for AR jobs.
-    private ResGridletList gridletQueueList_;     // Queue list
-    private ResGridletList gridletInExecList_;    // Execution list
-    private ResGridletList gridletPausedList_;    // Pause list
-    private ResGridletList gridletWaitingList_;   // waiting list for AR
+    protected ResGridletList gridletQueueList_;     // Queue list
+    protected ResGridletList gridletInExecList_;    // Execution list
+    protected ResGridletList gridletPausedList_;    // Pause list
+    protected ResGridletList gridletWaitingList_;   // waiting list for AR
 
-    private double lastUpdateTime_;    // the last time Gridlets updated
-    private int[] machineRating_;      // list of machine ratings available
+    protected double lastUpdateTime_;    // the last time Gridlets updated
+    protected int[] machineRating_;      // list of machine ratings available
 
-    private ArrayList reservList_;  // a new reservation list
-    private ArrayList expiryList_;  // a list that contains expired reservations
+    protected ArrayList reservList_;  // a new reservation list
+    protected ArrayList expiryList_;  // a list that contains expired reservations
 
-    private int reservID_;          // reservation ID
-    private int commitPeriod_;      // default booking/reservation commit period
-    private static final int SUCCESS = 1;        // a constant to denote success
-    private static final int NOT_FOUND = -1;     // a constant to denote not found
-    private static final int EMPTY = -88888888;  // a constant regarding to empty val
-    private static final int EXPIRY_TIME = 2;    // a constant to denote expiry time
-    private static final int PERFORM_RESERVATION = 3;   // a constant
+    protected int reservID_;          // reservation ID
+    protected int commitPeriod_;      // default booking/reservation commit period
+    protected static final int SUCCESS = 1;        // a constant to denote success
+    protected static final int NOT_FOUND = -1;     // a constant to denote not found
+    protected static final int EMPTY = -88888888;  // a constant regarding to empty val
+    protected static final int EXPIRY_TIME = 2;    // a constant to denote expiry time
+    protected static final int PERFORM_RESERVATION = 3;   // a constant
 
 
     /**
@@ -481,7 +482,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre userID > 0
      * @post $none
      */
-    private int cancelReservation(int gridletID, int userID)
+    protected int cancelReservation(int gridletID, int userID)
     {
         int result = 0;
 
@@ -517,7 +518,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre reservationID > 0
      * @post $none
      */
-    private ResGridlet cancelReservationGridlet(int reservationID)
+    protected ResGridlet cancelReservationGridlet(int reservationID)
     {
         ResGridlet rgl = null;
 
@@ -587,7 +588,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre list != null
      * @post $none
      */
-    private int findGridlet(LinkedList list, int reservationID)
+    protected int findGridlet(LinkedList list, int reservationID)
     {
         ResGridlet rgl = null;
         int found = -1;     // means the Gridlet is not in the list
@@ -726,7 +727,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre reservationID > 0
      * @post $none
      */
-    private int doCommitReservation(int reservationID, Object obj)
+    protected int doCommitReservation(int reservationID, Object obj)
     {
         // search the reservation first
         int index = super.searchReservation(reservList_, reservationID);
@@ -876,7 +877,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre startTime > 0
      * @post $none
      */
-    private int findPosition(LinkedList list, long startTime)
+    protected int findPosition(LinkedList list, long startTime)
     {
         int index = 0;
 
@@ -914,7 +915,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre $none
      * @post $none
      */
-    private void performReservation()
+    protected void performReservation()
     {
         // update the current Gridlets in exec list up to this point in time
         updateGridletProcessing();
@@ -946,7 +947,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre index > 0
      * @post $none
      */
-    private void executeReservedGridlet(int index)
+    protected void executeReservedGridlet(int index)
     {
         boolean success = false;
 
@@ -997,7 +998,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre totalPE > 0
      * @post $none
      */
-    private int clearExecList(int totalPE)
+    protected int clearExecList(int totalPE)
     {
         int removeSoFar = 0;   // number of PEs removed so far
         ResGridlet obj = null;
@@ -1568,11 +1569,11 @@ public class ARSimpleSpaceShared extends ARPolicy
     }
 
     /**
-     * Initialises all private attributes
+     * Initialises all protected attributes
      * @pre $none
      * @post $none
      */
-    private void init()
+    protected void init()
     {
         reservID_ = 1;
         reservList_ = new ArrayList();
@@ -1593,7 +1594,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre $none
      * @post $none
      */
-    private void checkExpiryTime()
+    protected void checkExpiryTime()
     {
         long currentTime = super.getCurrentTime();   // get current time
         ARObject obj = null;
@@ -1652,7 +1653,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre expTime > 0
      * @post $none
      */
-    private void acceptReservation(ARObject obj, int pos, int senderID,
+    protected void acceptReservation(ARObject obj, int pos, int senderID,
                                    int sendTag, long expTime, boolean ar)
     {
         // Create a copy of this object.
@@ -1691,7 +1692,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre numPE > 0
      * @post $none
      */
-    private int findEmptySlot(long startTime, long endTime, int numPE)
+    protected int findEmptySlot(long startTime, long endTime, int numPE)
     {
         long finishTime = 0;
         int pos = NOT_FOUND;     // the exact position for a new obj to be put
@@ -1775,7 +1776,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre $none
      * @post $none
      */
-    private int isAvailable(int begin, int end, int numPE, long startTime,
+    protected int isAvailable(int begin, int end, int numPE, long startTime,
                             long endTime)
     {
         // if the required slot is empty or not occupied
@@ -1830,7 +1831,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre $none
      * @post $none
      */
-    private int calculateEmptySlot(int begin,int end,int numPE,long startTime)
+    protected int calculateEmptySlot(int begin,int end,int numPE,long startTime)
     {
         int i = 0;
         int NEGATIVE = -1;
@@ -1944,7 +1945,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @param array       an array that stores pos variable
      * @return the latest current index of the array
      */
-    private int insertionSort(int pos, int indexArray, int[] array)
+    protected int insertionSort(int pos, int indexArray, int[] array)
     {
         ARObject obj = null;
         ARObject newObj = null;
@@ -2043,7 +2044,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre $none
      * @post $none
      */
-    private void allocateQueueGridlet()
+    protected void allocateQueueGridlet()
     {
         // if there are many Gridlets in the QUEUE, then allocate a
         // PE to the first Gridlet in the list since it follows FCFS
@@ -2071,8 +2072,10 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre $none
      * @post $none
      */
-    private void updateGridletProcessing()
+    protected void updateGridletProcessing()
     {
+        System.out.println(super.get_name() + ": clock = " + Sim_system.clock() + 
+                ": updateGridletProcessing()");
         // Identify MI share for the duration (from last event time)
         double time = GridSim.clock();
         double timeSpan = time - lastUpdateTime_;
@@ -2106,7 +2109,11 @@ public class ARSimpleSpaceShared extends ARPolicy
 
             // Updates the Gridlet length that is currently being executed
             load = getMIShare( timeSpan, obj.getMachineID() );
+            load = load;
             obj.updateGridletFinishedSoFar(load);
+            System.out.println(super.get_name() + ": clock = " + Sim_system.clock() + 
+                    ", gridlet = " + obj.getGridlet() + 
+                    ", load = " + load);
         }
     }
 
@@ -2121,7 +2128,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre machineId > 0
      * @post $result >= 0.0
      */
-    private double getMIShare(double timeSpan, int machineId)
+    protected double getMIShare(double timeSpan, int machineId)
     {
         // 1 - localLoad_ = available MI share percentage
         double localLoad = super.resCalendar_.getCurrentLoad();
@@ -2141,7 +2148,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre rgl != null
      * @post $none
      */
-    private boolean allocatePEtoGridlet(ResGridlet rgl)
+    protected boolean allocatePEtoGridlet(ResGridlet rgl)
     {
         // IDENTIFY MACHINE which has a free PE and add this Gridlet to it.
         Machine myMachine = resource_.getMachineWithFreePE( rgl.getNumPE() );
@@ -2188,7 +2195,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre length >= 0.0
      * @post $none
      */
-    private static double forecastFinishTime(double availableRating, double length)
+    protected double forecastFinishTime(double availableRating, double length)
     {
         double finishTime = (length / availableRating);
 
@@ -2208,7 +2215,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre $none
      * @post $none
      */
-    private void checkGridletCompletion()
+    protected void checkGridletCompletion()
     {
         ResGridlet obj = null;
         int i = 0;
@@ -2249,7 +2256,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre status >= 0
      * @post $none
      */
-    private void gridletFinish(ResGridlet rgl, int status)
+    protected void gridletFinish(ResGridlet rgl, int status)
     {
         // Set PE on which Gridlet finished to FREE
         super.resource_.setStatusPE(PE.FREE, rgl.getMachineID(), rgl.getPEID());
@@ -2297,7 +2304,7 @@ public class ARSimpleSpaceShared extends ARPolicy
      * @pre userId > 0
      * @post $none
      */
-    private ResGridlet cancel(int gridletId, int userId)
+    protected ResGridlet cancel(int gridletId, int userId)
     {
         ResGridlet rgl = null;
 

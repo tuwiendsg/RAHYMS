@@ -3,7 +3,7 @@ package scu.cloud.manager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.LinkedList;
+import java.util.List;
 
 import scu.cloud.generator.ServiceGenerator;
 import scu.common.exceptions.NotFoundException;
@@ -18,14 +18,14 @@ public class ServiceManagerOnMemory implements
         ServiceManagerInterface {
     
     protected Hashtable<Long, ComputingElement> elementCache;
-    protected LinkedList<Service> serviceCache;
+    protected ArrayList<Service> serviceCache;
     protected long lastId;
     
     private ServiceManagerOnMemory _instance;
 
     public ServiceManagerOnMemory() {
         this.elementCache = new Hashtable<Long, ComputingElement>();
-        this.serviceCache  = new LinkedList<Service>();
+        this.serviceCache  = new ArrayList<Service>();
         this.lastId = -1;
     }
 
@@ -90,8 +90,8 @@ public class ServiceManagerOnMemory implements
     }
     
     @Override
-    public Collection<Service> retrieveServices(Functionality functionality) {
-        LinkedList<Service> services = new LinkedList<Service>();
+    public List<Service> retrieveServices(Functionality functionality) {
+        List<Service> services = new ArrayList<Service>();
         for (Service s: serviceCache) {
             if (s.getFunctionality().equals(functionality)) {
                 services.add(s);
@@ -116,7 +116,7 @@ public class ServiceManagerOnMemory implements
     }
 
     @Override
-    public Collection<Connection> getConnections(ArrayList<Service> services) {
+    public List<Connection> getConnections(List<Service> services) {
         
         ArrayList<Connection> connections = new ArrayList<Connection>();
 

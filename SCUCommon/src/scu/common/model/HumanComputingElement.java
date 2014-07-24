@@ -48,10 +48,15 @@ public class HumanComputingElement extends ComputingElement {
     }
 
     @Override
-    public String toString() {
+    public String detail() {
         return "E[id=" + id + ", name=" + name + ", type=" + type + 
                 ", prop=" + properties + ", metrics=" + metrics + 
                 ", skills=" + skills + ", services=" + servicesToString() + 
                 ", connections=" + connectionsToString() + "]";
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

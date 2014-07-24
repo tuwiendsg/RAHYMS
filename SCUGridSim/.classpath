@@ -4,5 +4,7 @@
 	<classpathentry kind="src" path="lib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SCUCommon"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SCUCloudManager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SCUComposer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

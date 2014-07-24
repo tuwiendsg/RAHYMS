@@ -4,24 +4,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.logging.Logger;
 
-import javax.xml.ws.Endpoint;
-
 import scu.common.interfaces.ComposerInterface;
+import scu.common.interfaces.DependencyProcessorInterface;
 import scu.common.interfaces.DiscovererInterface;
-import scu.common.interfaces.MetricMonitorInterface;
-import scu.common.interfaces.MiddlewareInterface;
 import scu.common.interfaces.ServiceManagerInterface;
 import scu.common.model.Assignment;
 import scu.common.model.Connection;
+import scu.common.model.Role;
 import scu.common.model.Service;
 import scu.common.model.Task;
 import scu.common.model.optimization.OptimizationObjective;
 import scu.common.model.optimization.TaskWithOptimization;
-import scu.composer.algorithm.ACOAlgorithm;
 import scu.composer.algorithm.ComposerAlgorithmInterface;
-import scu.composer.algorithm.aco.ACOVariantInterface;
 import scu.composer.model.ConnectednessGraph;
 import scu.composer.model.ConstructionGraph;
 import scu.composer.model.Solution;
@@ -31,7 +28,6 @@ import scu.util.Util;
 
 public class Composer implements ComposerInterface {
 
-    private static Logger logger = Logger.getLogger("ProvisionerLogger");
     private static Tracer globalTracer = null;
     private static String algoName;
 
@@ -42,23 +38,23 @@ public class Composer implements ComposerInterface {
     
     private ServiceManagerInterface manager;
     private DiscovererInterface discoverer;
+    private DependencyProcessorInterface dp;
 
-    public Composer(String configFile) {
+    public Composer(String configFile, ServiceManagerInterface serviceManager,
+            DiscovererInterface discoverer, DependencyProcessorInterface dp) {
         this.configFile = configFile;
+        this.manager = serviceManager;
+        this.discoverer = discoverer;
+        this.dp = dp;
         init();
     }
     
-    @Override
-    public ComposerInterface setServiceManager(
-            ServiceManagerInterface serviceManager) {
-        this.manager = serviceManager;
-        return this;
+    public DependencyProcessorInterface getDp() {
+        return dp;
     }
 
-    @Override
-    public ComposerInterface setDiscoverer(DiscovererInterface discoverer) {
-        this.discoverer = discoverer;
-        return this;
+    public void setDp(DependencyProcessorInterface dp) {
+        this.dp = dp;
     }
 
     public TaskWithOptimization getTask() {
@@ -89,12 +85,12 @@ public class Composer implements ComposerInterface {
         
         // init param
         algoName = Util.getProperty(configFile, "algorithm");
-        System.out.println("Using " + algoName + ".");
+        Util.log().info("[Composer] Initializing using " + algoName + " algorithm");
 
         // init tracer
         String traceFilePrefix = Util.getProperty(configFile, "trace_file_prefix");
         if (traceFilePrefix!=null && !traceFilePrefix.equals("")) {
-            logger.info("Initiating tracer.");
+            Util.log().info("Initiating tracer");
             SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
             Date now = new Date();
             String date = sdfDate.format(now);      
@@ -108,9 +104,8 @@ public class Composer implements ComposerInterface {
         //logger.info("Composer Service started using " + algoName + " algorithm.");
 
     }
-
-    @Override
-    public ArrayList<Assignment> compose(Task task) {
+    
+    private TaskWithOptimization addOptimization(Task task) {
         TaskWithOptimization taskWO;
         if (task instanceof TaskWithOptimization) {
             taskWO = (TaskWithOptimization) task;
@@ -123,39 +118,45 @@ public class Composer implements ComposerInterface {
             objective.setWeight("time", 1.0);
             taskWO.setOptObjective(objective);
         }
-        Solution solution = composeWithOptimization(taskWO);
-        return solution.getAssignments();
+        return taskWO;
     }
 
-    public Solution composeWithOptimization(TaskWithOptimization task) {
+    @Override
+    public List<Assignment> partialCompose(Task task, List<Role> roles) {
+        TaskWithOptimization taskWO = addOptimization(task);
+        List<Assignment> assignments = partialCompose(taskWO, roles);
+        return assignments;
+    }
+
+    @Override
+    public List<Assignment> partialCompose(TaskWithOptimization task,
+            List<Role> roles) {
 
         // TODO: handle sub-task
         
-        Solution solution = new Solution();
-
         // check objective weight
         if (task.getOptObjective().getWeight("skill") + 
                 task.getOptObjective().getWeight("connectedness") +
                 task.getOptObjective().getWeight("cost") +
                 task.getOptObjective().getWeight("time") <= 0) {
-            logger.info("Invalid objective!");
-            globalTracer.traceln(","+task.getName()+",,\"" + task.toString() + "\",\"Invalid objective!\"");
-            return solution;
+            Util.log().info("Invalid objective!");
+            if (globalTracer!=null) globalTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"Invalid objective!\"");
+            return new ArrayList<Assignment>();
         }
 
         // init an instance
         this.setTask(task);
 
         // generate construction graph
-        System.out.println("Generating construction graph.");
+        Util.log().info("Generating construction graph");
         ConstructionGraph constructionGraph = 
-                new ConstructionGraph(manager, discoverer);
-        constructionGraph = constructionGraph.generate(task);
+                new ConstructionGraph(discoverer);
+        constructionGraph = constructionGraph.generate(task, roles);
         this.setConstructionGraph(constructionGraph);
 
         if (constructionGraph==null) {
-            System.out.println("No feasible solution found!");
-            globalTracer.traceln(","+task.getName()+",,\"" + task.toString() + "\",\"No feasible solution found!\"");
+            Util.log().warning("No feasible solution found!");
+            if (globalTracer!=null) globalTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"No feasible solution found!\"");
             return null;
         }
 
@@ -165,18 +166,42 @@ public class Composer implements ComposerInterface {
         //applet.showGraph(constructionGraph.getGraph());
 
         // generate connectedness graph
-        System.out.println("Generating connectedness graph.");
-        ArrayList<Service> services = constructionGraph.getServiceList();
-        //ArrayList<WorkerRelation> relations = (ArrayList<WorkerRelation>)APIClient.metaCrowd().getWorkerRelations(workers);
-        ArrayList<Connection> relations = (ArrayList<Connection>) manager.getConnections(services);
-        ConnectednessGraph connectednessGraph = new ConnectednessGraph();
-        connectednessGraph.generate(relations);
-        this.setConnectednessGraph(connectednessGraph);
+        Util.log().info("Generating connectedness graph");
+        this.setConnectednessGraph(generateConnectednessGraph(constructionGraph.getServiceList()));
 
         // show graph
         //ShowGraphApplet<Worker, RelationEdge> applet = new ShowGraphApplet<Worker, RelationEdge>();
         //applet.showGraph(connectednessGraph);
+        
+        Solution solution = startAlgoritm();
+        
+        return solution.getAssignments();
+        
+    }
 
+    @Override
+    public List<Assignment> compose(Task task) {
+        TaskWithOptimization taskWO = addOptimization(task);
+        List<Assignment> assignments = compose(taskWO);
+        return assignments;
+    }
+
+    @Override
+    public List<Assignment> compose(TaskWithOptimization task) {
+        return partialCompose(task, null);
+    }
+    
+    private ConnectednessGraph generateConnectednessGraph(List<Service> services) {
+        Util.log().info("Generating connectedness graph");
+        ArrayList<Connection> relations = (ArrayList<Connection>) manager.getConnections(services);
+        ConnectednessGraph connectednessGraph = new ConnectednessGraph();
+        connectednessGraph.generate(relations);
+        return connectednessGraph;
+    }
+    
+    private Solution startAlgoritm() {
+
+        Solution solution = new Solution();
         ComposerAlgorithmInterface algorithm = null;
 
         try {
@@ -191,19 +216,19 @@ public class Composer implements ComposerInterface {
             solution = algorithm.solve();
             long algoTime = System.nanoTime() - startTime;
 
-            logger.info("Solution: " + solution.toString());
+            Util.log().info("Solution: " + solution.toString());
 
             // trace
             if (globalTracer!=null) {
                 String data = "";
-                if (solution!=null && solution.getList().size()>0) {
+                if (solution!=null && solution.size()>0) {
                     data = solution.getData();
                 }
                 String flag = "";
                 if (this.isSolutionFeasible(solution)) flag = "f"; 
                 globalTracer.trace(flag + "," + algoTime + ","+task.getName()+","
                         +data+",\"" + task.toString() + "\",");
-                if (solution!=null && solution.getList().size()>0) {
+                if (solution!=null && solution.size()>0) {
                     globalTracer.traceln(solution, "");
                 } else {
                     globalTracer.traceln("Algo can't find solution!"); 
@@ -226,17 +251,21 @@ public class Composer implements ComposerInterface {
         
         OptimizationObjective objective = task.getOptObjective();
 
+        // get SLOs constraints
         double costLimit = (double) task.getObjectiveValue("cost_limit");
-        long deadline = (int) task.getObjectiveValue("deadline");
+        double deadline = (double) task.getObjectiveValue("deadline");
         
         if (objective.getWeight("connectedness")>0 && 
-                s.getList().size()>1 && s.getFuzzyConnectedness()==0.0) return false;
+                s.size()>1 && s.getFuzzyConnectedness()==0.0) return false;
         else if (objective.getWeight("cost")>0 && 
                 s.getCost()>costLimit) return false;
         
-        // the following two should not happen because we have prune the construction graph
         else if (objective.getWeight("skill")>0 && s.getSkillScore()==0.0) return false;
-        else if (objective.getWeight("time")>0 && s.getTime()>deadline) return false;
+        else if (objective.getWeight("time")>0) {
+            double finishTime = dp.forecastFinishTime(s.getAssignments());
+            if (finishTime>deadline) return false;
+            else return true;
+        }
         
         else return true;
     }
@@ -271,8 +300,8 @@ public class Composer implements ComposerInterface {
             costs = getCostForEachSolution(solutions);
             maxCost = Collections.max(costs);
         }
-        ArrayList<Long> responseTimes = null;
-        long maxResponseTime = 0;
+        ArrayList<Double> responseTimes = null;
+        double maxResponseTime = 0;
         if (rtWeight>0) {
             responseTimes = getResponseTimeForEachSolution(solutions);
             maxResponseTime = Collections.max(responseTimes);
@@ -317,7 +346,7 @@ public class Composer implements ComposerInterface {
             double normResponseTimeScore = 0;
             if (rtWeight>0) {
                 responseTimeScore = responseTimes.get(k);
-                double center = (int) task.getObjectiveValue("deadline") - 
+                double center = (double) task.getObjectiveValue("deadline") - 
                         task.getSubmissionTime() * 1.0;
                 normResponseTimeScore = center / (center + responseTimeScore);
             }
@@ -361,23 +390,13 @@ public class Composer implements ComposerInterface {
         return costs;
     }
 
-    private ArrayList<Long> getResponseTimeForEachSolution(ArrayList<Solution> solutions) {
-        ArrayList<Long> responseTimes = new ArrayList<Long>();
+    private ArrayList<Double> getResponseTimeForEachSolution(ArrayList<Solution> solutions) {
+        ArrayList<Double> responseTimes = new ArrayList<Double>();
         for (Solution solution: solutions) {
-            long responseTime = getMaxResponseTime(solution);
+            double responseTime = dp.forecastFinishTime(solution.getAssignments());
             responseTimes.add(responseTime);
         }
         return responseTimes;
-    }
-
-    private long getMaxResponseTime(Solution s) {
-        long max = 0;
-        for (SolutionComponent comp: s.getList()) {
-            if (max<comp.getEstimatedResponseTime()) {
-                max = comp.getEstimatedResponseTime();
-            }
-        }
-        return max;
     }
 
     public Hashtable<SolutionComponent,Double> calculateHeuristicScores(
@@ -387,8 +406,8 @@ public class Composer implements ComposerInterface {
         Hashtable<SolutionComponent,Double> scores = new Hashtable<SolutionComponent,Double>();
         ArrayList<Double> deltaConnectedness = new ArrayList<Double>();
         ArrayList<Double> deltaCost = new ArrayList<Double>();
-        ArrayList<Long> deltaRT = new ArrayList<Long>();
-        long prevRT = 0;
+        ArrayList<Double> deltaRT = new ArrayList<Double>();
+        double prevRT = 0;
 
         // get objective weights
         OptimizationObjective objective = task.getOptObjective();
@@ -399,7 +418,7 @@ public class Composer implements ComposerInterface {
 
         // get response time so far
         if (rtWeight>0) {
-            prevRT = getMaxResponseTime(solutionSoFar);
+            prevRT = dp.forecastFinishTime(solutionSoFar.getAssignments());
         }
 
         // first iteration to calculate medians
@@ -417,8 +436,11 @@ public class Composer implements ComposerInterface {
             }
             // response time
             if (rtWeight>0) {
-                if (comp.getEstimatedResponseTime()<prevRT) deltaRT.add(0L);
-                else deltaRT.add(comp.getEstimatedResponseTime()-prevRT);
+                List<Assignment> assignmentSoFar = solutionSoFar.getAssignments();
+                assignmentSoFar.add(comp);
+                double forecastedResponseTime = dp.forecastFinishTime(assignmentSoFar);
+                if (forecastedResponseTime < prevRT) deltaRT.add(0.0);
+                else deltaRT.add(forecastedResponseTime - prevRT);
             }
         }
 

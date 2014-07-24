@@ -1,6 +1,7 @@
 package scu.common.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TaskType {
 
@@ -10,8 +11,8 @@ public class TaskType {
     
     // NOTE: when adding/removing sub-types, it is not necessary to update 
     //          the role list of the parent 
-    protected ArrayList<Role> roles;
-    protected ArrayList<TaskType> subTaskTypes;
+    protected List<Role> roles;
+    protected List<TaskType> subTaskTypes;
     
     protected TaskDependency dependency;
     protected TaskPresentation presentation;
@@ -77,7 +78,7 @@ public class TaskType {
         this.reward = reward;
     }
     
-    public ArrayList<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
     
@@ -109,16 +110,16 @@ public class TaskType {
      * Recursively get the list of the roles of this task type and its descendents
      * @return ArrayList<Role>
      */
-    public ArrayList<Role> getAllRoles() {
-        ArrayList<Role> clone = ((ArrayList<Role>) this.roles.clone());
+    public List<Role> getAllRoles() {
+        ArrayList<Role> clone = (ArrayList<Role>)((ArrayList<Role>) this.roles).clone();
         for (TaskType child : subTaskTypes) {
-            ArrayList<Role> childRoles = child.getAllRoles();
+            ArrayList<Role> childRoles = (ArrayList<Role>)child.getAllRoles();
             clone.addAll(childRoles);
         }
         return clone;
     }
 
-    public ArrayList<TaskType> getSubTaskTypes() {
+    public List<TaskType> getSubTaskTypes() {
         return subTaskTypes;
     }
 
