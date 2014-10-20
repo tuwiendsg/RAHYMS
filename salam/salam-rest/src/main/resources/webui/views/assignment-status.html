@@ -1,0 +1,56 @@
+<h2>Assignment</h2>
+
+
+<form class="form-horizontal" role="form">
+
+	<div ng-show='is_loading' ng-bind-html='Util.spinner()'></div>
+
+	<h3>Task Details</h3>
+    <div class="form-group">
+
+        <label for="name" class="col-sm-2 control-label">Task #</label>
+        <div class="col-sm-10"><p class="form-control-static">{{collective.task.id}}</p></div>
+        
+        <label for="name" class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-10"><p class="form-control-static">{{collective.task.name}}</p></div>
+
+        <label for="name" class="col-sm-2 control-label">Tag</label>
+        <div class="col-sm-10"><p class="form-control-static">{{collective.task.tag}}</p></div>
+
+        <label for="name" class="col-sm-2 control-label">Severity</label>
+        <div class="col-sm-10"><p class="form-control-static">{{collective.task.severity}}</p></div>
+
+        <label for="name" class="col-sm-2 control-label">Content</label>
+        <div class="col-sm-10"><p class="form-control-static">{{collective.task.content}}</p></div>
+
+    </div>
+
+	<h3>Assignment Details</h3>
+    <div class="form-group">
+
+        <label for="name" class="col-sm-2 control-label">Service Assigned</label>
+        <div class="col-sm-10"><p class="form-control-static"><span class="label label-info">{{assignment.service}}</span></p></div>
+
+        <label for="name" class="col-sm-2 control-label">Peer Name</label>
+        <div class="col-sm-10"><p class="form-control-static">{{assignment.peer.name}}</p></div>
+        
+        <label for="name" class="col-sm-2 control-label">Peer Email</label>
+        <div class="col-sm-10"><p class="form-control-static">{{assignment.peer.email}}</p></div>
+
+        <label ng-hide="assignment.status=='ASSIGNED'" for="name" class="col-sm-2 control-label">Running Time</label>
+        <div ng-hide="assignment.status=='ASSIGNED'" class="col-sm-10"><p class="form-control-static">{{assignment.runningTime}}</p></div>
+
+        <label for="name" class="col-sm-2 control-label">Status</label>
+        <div class="col-sm-10"><p class="form-control-static"><span class="label" ng-class="Util.getStatusClass(assignment.status)">{{assignment.status}}</span></p></div>
+
+    </div>
+
+	<br/>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+        	<span ng-repeat="button in actionButtons">
+	            <button ng-click="updateStatus(collective.id, assignment.peer.elementId, button.action, button.title)" class="btn" ng-class="button.clazz">{{button.title}}</button>
+        	</span>
+        </div>
+    </div>
+</form>

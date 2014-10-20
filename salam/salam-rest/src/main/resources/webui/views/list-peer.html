@@ -1,0 +1,30 @@
+<h2>Peers <a class="btn btn-primary pull-right" href="#/peer/create"><i
+        class="icon-plus-sign icon-white"></i> Create Peer</a></h2>
+
+<table class="table table-hover">
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>REST URL</th>
+        <th>Services Provided</th>
+        <th></th>
+    </tr>
+    <tr ng-repeat="peer in peers | orderBy:'elementId'">
+        <td>{{peer.elementId}}</td>
+        <td>{{peer.name}}</td>
+        <td>{{peer.email}}</td>
+        <td>{{peer.rest}}</td>
+		<td>
+			<span ng-repeat="service in peer.services" class="label label-info list-info">
+			{{service}}
+			</span>&nbsp;
+		</td>
+        <td>
+	        <button ng-click="deletePeer(peer.email)" type="button" class="btn btn-default btn-xs">
+			  <span class="glyphicon glyphicon-trash"></span>
+			</button>
+        </td>
+    </tr>
+    <tr ng-show='is_loading'><td colspan='5'><span ng-bind-html="Util.spinner()"></span></td></tr>
+</table>

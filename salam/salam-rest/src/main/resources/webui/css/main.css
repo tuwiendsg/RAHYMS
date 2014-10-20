@@ -1,0 +1,39 @@
+.span2 {
+    width: 60px;
+    display: inline-block;
+}
+
+.span4 {
+    width: 80px;
+    display: inline-block;
+    padding-top: 4px;
+}
+
+.span6 {
+    width: 180px;
+    display: inline-block;
+}
+
+.form-control {
+	width: 60%;
+	margin-bottom: 5px;
+}
+
+.list-info {
+	margin-right: 5px;
+}
+
+
+.modal.fade {
+  opacity: 1;
+}
+
+.modal.fade .modal-dialog, .modal.in .modal-dialog {
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+
+.modal-lg {
+	width: 500px;
+}

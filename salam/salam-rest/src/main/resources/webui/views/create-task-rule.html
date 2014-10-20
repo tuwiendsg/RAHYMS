@@ -1,0 +1,35 @@
+<h2>Create Task Generator Rule</h2>
+
+<form class="form-horizontal" role="form" ng-submit="createRule()">
+    <div class="form-group">
+    	<h3>Condition</h3>
+        <label for="tag" class="col-sm-2 control-label">Tag</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="tag" placeholder="Enter tag to match" ng-model="rule.tag">
+        </div>
+        <label for="severity" class="col-sm-2 control-label">Severity</label>
+        <div class="col-sm-10">
+            <select id="severity" class="form-control" ng-model="rule.severity">
+			  <option>NOTICE</option>
+			  <option>WARNING</option>
+			  <option>CRITICAL</option>
+			  <option>ALERT</option>
+			  <option>EMERGENCY</option>
+			</select>
+        </div>
+    	<h3>Consequence</h3>
+        <label for="required_services" class="col-sm-2 control-label">Required Services</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="required_services" placeholder="Enter required services (separated by comma) for the task generated" ng-model="rule.required_services">
+        </div>
+        <label for="load_factor" class="col-sm-2 control-label">Load Factor</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="load_factor" placeholder="Enter the load factor for the task generated" ng-model="rule.load_factor">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default">Create Rule</button>
+        </div>
+    </div>
+</form>
