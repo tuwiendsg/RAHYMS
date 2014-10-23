@@ -20,8 +20,9 @@ import at.ac.tuwien.dsg.salam.util.Util;
 
 public class ServiceGenerator {
 
-    private JSONObject configRoot = null;
+    private ArrayList<JSONObject> configs = new ArrayList<JSONObject>();
     private int seed;
+    private static long lastElementId = 0;
     
     // distribution generators
     private UniformRealDistribution distPropToHave;
@@ -32,11 +33,29 @@ public class ServiceGenerator {
     private UniformRealDistribution[] distSvcPropToHaves;
     private Object[] distSvcPropValues;
 
+    public ServiceGenerator(ArrayList<ConfigJson> config) {
+        for (ConfigJson json: config) {
+            configs.add(json.getRoot());
+        }
+    }
+
     public ServiceGenerator(ConfigJson config) {
-        this.configRoot = config.getRoot();
+        configs.add(config.getRoot());
     }
     
     public ArrayList<Service> generate() 
+            throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException, 
+            SecurityException, ClassNotFoundException, JSONException {
+        ArrayList<Service> allServices = new ArrayList<Service>();
+        for (JSONObject config: configs) {
+            ArrayList<Service> services = generateOneConfig(config);
+            allServices.addAll(services);
+        }
+        return allServices;
+    }
+    
+    public ArrayList<Service> generateOneConfig(JSONObject configRoot) 
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
@@ -48,6 +67,7 @@ public class ServiceGenerator {
         // config
         seed = configRoot.getInt("seed");
         int nElements = configRoot.getInt("numberOfElements");
+        String namePrefix = configRoot.has("namePrefix") ? configRoot.getString("namePrefix") : null;
         JSONObject connCfg = configRoot.getJSONObject("connection");
         JSONArray svcCfg = configRoot.getJSONArray("services");
         JSONArray propCfg = configRoot.getJSONArray("commonProperties"); 
@@ -55,7 +75,11 @@ public class ServiceGenerator {
         // generate elements
         Util.log().info("Generating " + nElements + " elements");
         for (long i=1; i<=nElements; i++) {
-            elements.add(new HumanComputingElement(i));
+            if (namePrefix==null) {
+                elements.add(new HumanComputingElement(lastElementId++));
+            } else {
+                elements.add(new HumanComputingElement(lastElementId++, namePrefix + i));
+            }
         }
         
         // generate common properties
@@ -125,8 +149,13 @@ public class ServiceGenerator {
             services = generateMultipleServices(svcCfg, elements);
         }
         
+        /*
         System.out.println("=== Generated services ===");
         printServiceList(services);
+        System.out.println("==========================");
+        */
+        System.out.println("=== Generated elements ===");
+        printElementList(elements);
         System.out.println("==========================");
         
         return services;
@@ -273,4 +302,10 @@ public class ServiceGenerator {
         
     }
     
+    public void printElementList(List<ComputingElement> elements) {
+        for (ComputingElement e: elements) {
+            System.out.println(e.detail());
+        }
+        
+    }
 }

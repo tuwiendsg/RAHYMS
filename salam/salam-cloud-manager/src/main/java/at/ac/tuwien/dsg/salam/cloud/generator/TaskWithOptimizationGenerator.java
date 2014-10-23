@@ -16,6 +16,18 @@ public class TaskWithOptimizationGenerator extends TaskGenerator {
         super(config);
     }
     
+    public TaskWithOptimizationGenerator(ArrayList<ConfigJson> configs) {
+        super(configs);
+    }
+
+    public ArrayList<TaskWithOptimization> generate(OptimizationObjective objective) 
+            throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException, 
+            SecurityException, ClassNotFoundException, JSONException {
+        ArrayList<TaskWithOptimization> roots = new ArrayList<TaskWithOptimization>();
+        return generate(objective, roots);
+    }
+    
     public ArrayList<TaskWithOptimization> generate(OptimizationObjective objective, 
             ArrayList<TaskWithOptimization> rootTasks) 
             throws InstantiationException, IllegalAccessException, 

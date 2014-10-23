@@ -1,10 +1,8 @@
-package at.ac.tuwien.dsg.salam.composer;
+package at.ac.tuwien.dsg.salam.util;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import at.ac.tuwien.dsg.salam.composer.model.Solution;
 
 public class Tracer {
 
@@ -33,12 +31,8 @@ public class Tracer {
         trace(text + "\n");
     }
 
-    public void traceln(Solution solution, String prefix) {
-        traceln(prefix + solution.trace());
-    }
-
-    public String getSolutionTraceHeader() {
-        return "solution_components,objective_value,cost,norm_cost,competency,connnectedness,mu_connnectedness,response_time,norm_response_time";
+    public String getTraceHeader() {
+        return "";
     }
 
     public void close() {

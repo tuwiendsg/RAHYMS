@@ -165,7 +165,7 @@ public class TaskService {
         List<Assignment> assignments = null;
         
         // compose collective
-        assignments = composer.compose(salamTask);
+        assignments = composer.compose(salamTask, 0);
         
         if (assignments==null || assignments.size()==0) {
             throw new CollectiveNotAvailable();
@@ -200,7 +200,7 @@ public class TaskService {
         
         // compose
         List<Assignment> assignments = null;
-        assignments = composer.compose(salamTask);
+        assignments = composer.compose(salamTask, 0);
         
         System.out.println("=== Collective created for task delegation " + salamTask + " ===");
         for (Assignment a: assignments) {

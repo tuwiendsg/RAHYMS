@@ -1,4 +1,5 @@
 package at.ac.tuwien.dsg.salam.composer;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,6 +7,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import at.ac.tuwien.dsg.salam.cloud.monitor.helper.ReliabilityTracer;
 import at.ac.tuwien.dsg.salam.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.salam.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.salam.common.interfaces.DiscovererInterface;
@@ -27,8 +29,10 @@ import at.ac.tuwien.dsg.salam.util.Util;
 
 public class Composer implements ComposerInterface {
 
-    private static Tracer globalTracer = null;
+    private static ComposerTracer globalTracer = null;
+    private static ReliabilityTracer reliabilityTracer = null;
     private static String algoName;
+    private static int taskCounter = 0;
 
     private String configFile;
     private TaskWithOptimization task;
@@ -93,9 +97,20 @@ public class Composer implements ComposerInterface {
             SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
             Date now = new Date();
             String date = sdfDate.format(now);      
-            globalTracer = new Tracer(traceFilePrefix + "global-" + date + ".csv");
+            globalTracer = new ComposerTracer(traceFilePrefix + "global-" + date + ".csv");
             globalTracer.traceln(algoName);
-            globalTracer.traceln("flag,algo_time,task,data,task," + globalTracer.getSolutionTraceHeader());
+            globalTracer.traceln("flag,algo_time,task,data,task," + globalTracer.getTraceHeader());
+        }
+
+        // init reliability tracer
+        String reliabilityTraceFilePrefix = Util.getProperty(configFile, "reliability_trace_file_prefix");
+        if (reliabilityTraceFilePrefix!=null && !reliabilityTraceFilePrefix.equals("")) {
+            Util.log().info("Initiating reliability tracer");
+            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
+            Date now = new Date();
+            String date = sdfDate.format(now);      
+            reliabilityTracer = new ReliabilityTracer(reliabilityTraceFilePrefix + date + ".csv", discoverer);
+            reliabilityTracer.traceln(reliabilityTracer.getTraceHeader());
         }
 
         // start service
@@ -120,14 +135,16 @@ public class Composer implements ComposerInterface {
         return taskWO;
     }
 
-    public List<Assignment> partialCompose(Task task, List<Role> roles) {
+    @Override
+    public List<Assignment> partialCompose(Task task, List<Role> roles, double clock) {
         TaskWithOptimization taskWO = addOptimization(task);
-        List<Assignment> assignments = partialCompose(taskWO, roles);
+        List<Assignment> assignments = partialCompose(taskWO, roles, clock);
         return assignments;
     }
 
+    @Override
     public List<Assignment> partialCompose(TaskWithOptimization task,
-            List<Role> roles) {
+            List<Role> roles, double clock) {
 
         // TODO: handle sub-task
         
@@ -172,20 +189,25 @@ public class Composer implements ComposerInterface {
         
         Solution solution = startAlgoritm();
         
-        solution.addAssignmentCounter();
+        if (reliabilityTracer!=null && constructionGraph!=null) {
+            reliabilityTracer.traceln(task, solution.getAssignments(), clock, taskCounter);
+        }
         
         return solution.getAssignments();
         
     }
 
-    public List<Assignment> compose(Task task) {
+    @Override
+    public List<Assignment> compose(Task task, double clock) {
         TaskWithOptimization taskWO = addOptimization(task);
-        List<Assignment> assignments = compose(taskWO);
+        List<Assignment> assignments = compose(taskWO, clock);
         return assignments;
     }
 
-    public List<Assignment> compose(TaskWithOptimization task) {
-        return partialCompose(task, null);
+    @Override
+    public List<Assignment> compose(TaskWithOptimization task, double clock) {
+        taskCounter++;
+        return partialCompose(task, null, clock);
     }
     
     private ConnectednessGraph generateConnectednessGraph(List<Service> services) {
@@ -205,7 +227,7 @@ public class Composer implements ComposerInterface {
 
             // init algorithm
             algorithm = (ComposerAlgorithmInterface)Class
-                    .forName("at.ac.tuwien.dsg.salam.composer.algorithm." + algoName).newInstance();
+                    .forName(this.getClass().getPackage().getName() + ".algorithm." + algoName).newInstance();
             algorithm.init(configFile, constructionGraph, this);
 
             // solve
@@ -213,7 +235,7 @@ public class Composer implements ComposerInterface {
             solution = algorithm.solve();
             long algoTime = System.nanoTime() - startTime;
 
-            Util.log().info("Solution: " + solution.toString());
+            //System.out.println("Solution: " + solution.toString());
 
             // trace
             if (globalTracer!=null) {
@@ -249,8 +271,8 @@ public class Composer implements ComposerInterface {
         OptimizationObjective objective = task.getOptObjective();
 
         // get SLOs constraints
-        double costLimit = (double) task.getObjectiveValue("cost_limit", 9999.0);
-        double deadline = (double) task.getObjectiveValue("deadline", 9999.0);
+        double costLimit = (double) task.getObjectiveValue("cost_limit", 99999);
+        double deadline = (double) task.getObjectiveValue("deadline", 99999);
         
         if (objective.getWeight("connectedness")>0 && 
                 s.size()>1 && s.getFuzzyConnectedness()==0.0) return false;
@@ -292,14 +314,16 @@ public class Composer implements ComposerInterface {
 
         // pre calculate cost and response time (required for normalization)
         ArrayList<Double> costs = null;
+        double maxCost = 0;
         if (costWeight>0) {
             costs = getCostForEachSolution(solutions);
-            Collections.max(costs);
+            maxCost = Collections.max(costs);
         }
         ArrayList<Double> responseTimes = null;
+        double maxResponseTime = 0;
         if (rtWeight>0) {
             responseTimes = getResponseTimeForEachSolution(solutions);
-            Collections.max(responseTimes);
+            maxResponseTime = Collections.max(responseTimes);
         }
 
         // calculate for each solution
@@ -332,7 +356,7 @@ public class Composer implements ComposerInterface {
             double normCostScore = 0;
             if (costWeight>0) {
                 costScore = costs.get(k);
-                double center = (double) task.getObjectiveValue("cost_limit", 9999.0);
+                double center = (double) task.getObjectiveValue("cost_limit", 99999);
                 normCostScore = center / (center + costScore);
             }
 
@@ -341,7 +365,7 @@ public class Composer implements ComposerInterface {
             double normResponseTimeScore = 0;
             if (rtWeight>0) {
                 responseTimeScore = responseTimes.get(k);
-                double center = (double) task.getObjectiveValue("deadline", 9999.0) - 
+                double center = (double) task.getObjectiveValue("deadline", 99999) - 
                         task.getSubmissionTime() * 1.0;
                 normResponseTimeScore = center / (center + responseTimeScore);
             }
@@ -378,7 +402,7 @@ public class Composer implements ComposerInterface {
             double cost = 0;
             for (SolutionComponent comp: solution.getList()) {
                 cost += (double)comp.getAssignee().getProvider().getProperties()
-                        .getValue("cost", 0.0);
+                        .getValue("cost", 0);
             }
             costs.add(cost);
         }
@@ -427,7 +451,7 @@ public class Composer implements ComposerInterface {
             // cost
             if (costWeight>0) {
                 deltaCost.add((double)comp.getAssignee().getProvider().getProperties()
-                        .getValue("cost", 0.0));
+                        .getValue("cost", 0));
             }
             // response time
             if (rtWeight>0) {
@@ -440,10 +464,10 @@ public class Composer implements ComposerInterface {
         }
 
         // calculate connectedness median
-        //double medianConnectedness = 0;
-        //if (connectednessWeight>0) {
-            //medianConnectedness = (Collections.min(deltaConnectedness) + Collections.max(deltaConnectedness)) / 2;
-        //}
+        double medianConnectedness = 0;
+        if (connectednessWeight>0) {
+            medianConnectedness = (Collections.min(deltaConnectedness) + Collections.max(deltaConnectedness)) / 2;
+        }
 
         // calculate cost median
         double medianCost = 0;
@@ -468,11 +492,8 @@ public class Composer implements ComposerInterface {
             if (connectednessWeight>0) connScore = deltaConnectedness.get(i) / (connCenter +  deltaConnectedness.get(i));
 
             double costScore = 0;
-            double costCenter = 999; 
             //if (medianCost>0) costScore = medianCost / (medianCost + deltaCost.get(i));
-            if (task.getSpecification().findObjective("cost_limit")!=null) {
-            	costCenter = (double) task.getObjectiveValue("cost_limit", 9999);
-            }
+            double costCenter = (double) task.getObjectiveValue("cost_limit", 99999);
             if (medianCost>0) costScore = costCenter / (costCenter + deltaCost.get(i));
 
             double rtScore = 0;

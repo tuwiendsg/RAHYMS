@@ -7,7 +7,7 @@ import java.util.Hashtable;
 
 import at.ac.tuwien.dsg.salam.composer.Composer;
 import at.ac.tuwien.dsg.salam.composer.Summary;
-import at.ac.tuwien.dsg.salam.composer.Tracer;
+import at.ac.tuwien.dsg.salam.composer.ComposerTracer;
 import at.ac.tuwien.dsg.salam.composer.algorithm.aco.ACOVariantInterface;
 import at.ac.tuwien.dsg.salam.composer.algorithm.aco.CrossSummary;
 import at.ac.tuwien.dsg.salam.composer.model.ConstructionGraph;
@@ -22,8 +22,8 @@ public class ACOAlgorithm implements ComposerAlgorithmInterface {
     private ACOVariantInterface acoVariant;
     private String configFile;
 
-    private Tracer rawTracer = null;
-    private Tracer summaryTracer = null;
+    private ComposerTracer rawTracer = null;
+    private ComposerTracer summaryTracer = null;
     Summary summary = new Summary();
 
     int crossSummaryLimit = 0;
@@ -67,10 +67,10 @@ public class ACOAlgorithm implements ComposerAlgorithmInterface {
 
     private void initTracer(String prefix, String currentId) {
         // enabling the following lines may cause a big size raw data, and may slow down the simulation
-        //rawTracer = new Tracer(prefix + "raw-" + currentId + ".csv");
+        //rawTracer = new ComposerTracer(prefix + "raw-" + currentId + ".csv");
         //rawTracer.traceln("flag,solution_components,objective_value,cost,norm_cost,competency,connnectedness,mu_connnectedness,response_time,norm_response_time");
 
-        //summaryTracer = new Tracer(prefix + "summary-" + currentId + ".csv");
+        //summaryTracer = new ComposerTracer(prefix + "summary-" + currentId + ".csv");
         //summaryTracer.traceln("iteration,average_branching,branching_pct,min_pheromone,max_pheromone,best_objective_value," + Summary.header());
     }
 

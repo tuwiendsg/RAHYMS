@@ -10,6 +10,7 @@
   	<module>salam-cloud-manager</module>
   	<module>salam-composer</module>
   	<module>salam-rest</module>
+  	<module>salam-simulation</module>
   </modules>
   <properties>
     <maven.compiler.source>1.7</maven.compiler.source>

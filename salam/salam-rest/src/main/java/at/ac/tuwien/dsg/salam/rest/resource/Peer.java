@@ -3,8 +3,6 @@ package at.ac.tuwien.dsg.salam.rest.resource;
 import java.util.ArrayList;
 import java.util.List;
 
-import at.ac.tuwien.dsg.salam.common.model.ComputingElement;
-
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 

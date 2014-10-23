@@ -1,5 +1,7 @@
 package at.ac.tuwien.dsg.salam.cloud.scheduler;
 
+import gridsim.GridSim;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -15,11 +17,11 @@ import at.ac.tuwien.dsg.salam.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.salam.common.interfaces.DiscovererInterface;
 import at.ac.tuwien.dsg.salam.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.salam.common.model.Assignment;
+import at.ac.tuwien.dsg.salam.common.model.Assignment.Status;
 import at.ac.tuwien.dsg.salam.common.model.Batch;
 import at.ac.tuwien.dsg.salam.common.model.Role;
 import at.ac.tuwien.dsg.salam.common.model.SCU;
 import at.ac.tuwien.dsg.salam.common.model.Task;
-import at.ac.tuwien.dsg.salam.common.model.Assignment.Status;
 import at.ac.tuwien.dsg.salam.util.ShowGraphApplet;
 import at.ac.tuwien.dsg.salam.util.Util;
 
@@ -86,7 +88,7 @@ public class Scheduler implements SchedulerInterface {
             while (task!=null) {
             
                 // try to compose
-                List<Assignment> assignments = composer.compose(task);
+                List<Assignment> assignments = composer.compose(task, GridSim.clock());
                 
                 if (assignments==null || assignments.size()==0) {
                     // unable to compose an SCU, put back at the end of the queue for retries
@@ -211,7 +213,7 @@ public class Scheduler implements SchedulerInterface {
             Role role = assignment.getRole();
             ArrayList<Role> roles = new ArrayList<Role>();
             roles.add(role);
-            List<Assignment> assignments = composer.partialCompose(task, roles);
+            List<Assignment> assignments = composer.partialCompose(task, roles, GridSim.clock());
             
             if (assignments==null || assignments.size()==0) {
                 // TODO: return failure to the consumer
@@ -250,7 +252,8 @@ public class Scheduler implements SchedulerInterface {
                 handleSuccessfulAssignment(assignment);
                 break;
             default:
-                rescheduleAssignment(assignment);                
+                // Disable rescheduling, for reliability analysis
+                //rescheduleAssignment(assignment);                
                 break;
         }
             

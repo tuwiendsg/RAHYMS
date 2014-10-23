@@ -5,22 +5,27 @@
     <artifactId>salam</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>salam-composer</artifactId>
+  <artifactId>salam-simulation</artifactId>
   <dependencies>
+  	<dependency>
+  		<groupId>at.ac.tuwien.dsg.salam</groupId>
+  		<artifactId>salam-external-lib</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
   	<dependency>
   		<groupId>at.ac.tuwien.dsg.salam</groupId>
   		<artifactId>salam-common</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
-	<dependency>
-		<groupId>org.jgrapht</groupId>
-		<artifactId>jgrapht-jdk1.5</artifactId>
-		<version>0.7.3</version>
-	</dependency>
-	<dependency>
-		<groupId>at.ac.tuwien.dsg.salam</groupId>
-		<artifactId>salam-cloud-manager</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</dependency>
+  	<dependency>
+  		<groupId>at.ac.tuwien.dsg.salam</groupId>
+  		<artifactId>salam-cloud-manager</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>at.ac.tuwien.dsg.salam</groupId>
+  		<artifactId>salam-composer</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
   </dependencies>
 </project>

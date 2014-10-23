@@ -9,7 +9,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 
 import at.ac.tuwien.dsg.salam.composer.Composer;
-import at.ac.tuwien.dsg.salam.composer.Tracer;
+import at.ac.tuwien.dsg.salam.composer.ComposerTracer;
 import at.ac.tuwien.dsg.salam.composer.model.ConstructionGraph;
 import at.ac.tuwien.dsg.salam.composer.model.Solution;
 import at.ac.tuwien.dsg.salam.composer.model.SolutionComponent;
@@ -20,7 +20,7 @@ public class GreedyLocalSearch implements ComposerAlgorithmInterface {
     private static final int SEED_SELECTOR = 2001;
     private String configFile;
     private UniformRealDistribution distSelector = null;
-    private Tracer rawTracer = null;
+    private ComposerTracer rawTracer = null;
     private ConstructionGraph cons;
     private Composer composer;
 
@@ -42,7 +42,7 @@ public class GreedyLocalSearch implements ComposerAlgorithmInterface {
     }
 
     private void initTracer(String prefix, String currentId) {
-        //rawTracer = new Tracer(prefix + "raw-" + currentId + ".csv");
+        //rawTracer = new ComposerTracer(prefix + "raw-" + currentId + ".csv");
         //rawTracer.traceln("#,flag,solution_components,objective_value,cost,norm_cost,competency,connnectedness,mu_connnectedness,response_time,norm_response_time");
     }
 

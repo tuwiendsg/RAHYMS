@@ -57,6 +57,7 @@ public class HumanComputingElement extends ComputingElement {
 
     @Override
     public String toString() {
-        return name;
+        return name + servicesToString();
+        //return name;
     }
 }

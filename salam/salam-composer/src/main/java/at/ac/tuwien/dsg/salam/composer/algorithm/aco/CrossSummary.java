@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
-import at.ac.tuwien.dsg.salam.composer.Tracer;
+import at.ac.tuwien.dsg.salam.composer.ComposerTracer;
 import at.ac.tuwien.dsg.salam.util.Util;
 
 public class CrossSummary {
@@ -46,7 +46,7 @@ public class CrossSummary {
       SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
       Date now = new Date();
       String date = sdfDate.format(now);      
-      Tracer tracer = new Tracer(traceFilePrefix + "cross-" + date + ".csv");
+      ComposerTracer tracer = new ComposerTracer(traceFilePrefix + "cross-" + date + ".csv");
       tracer.traceln("iteration,best_score_average,avg_score_average,sd_score_average,min_pheromone_average,max_pheromone_average");
       
       // trace

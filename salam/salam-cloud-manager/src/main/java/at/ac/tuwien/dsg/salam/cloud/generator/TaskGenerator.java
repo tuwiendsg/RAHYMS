@@ -22,35 +22,57 @@ import at.ac.tuwien.dsg.salam.util.ConfigJson;
 public class TaskGenerator {
 
     private Logger logger = Logger.getLogger("Generator");
-    private JSONObject configRoot = null;
+    private ArrayList<JSONObject> configs = new ArrayList<JSONObject>();
     
     // distribution generators
-    private Hashtable<String, Object> distOccurances;
-    private Hashtable<String, Object> distLoads;
-    private Hashtable<String, Object> distValues;
-    private Hashtable<String, UniformRealDistribution> distToHaves;
+    private Hashtable<String, Object> distOccurances = new Hashtable<String, Object>();
+    private Hashtable<String, Object> distLoads = new Hashtable<String, Object>();
+    private Hashtable<String, Object> distValues = new Hashtable<String, Object>();
+    private Hashtable<String, UniformRealDistribution> distToHaves = new Hashtable<String, UniformRealDistribution>();
     
     private int seed;
-    Hashtable<String, JSONObject> taskTypes;
+    Hashtable<String, JSONObject> taskTypes = null;
+
+    public TaskGenerator(ArrayList<ConfigJson> config) {
+        for (ConfigJson json: config) {
+            configs.add(json.getRoot());
+        }
+    }
 
     public TaskGenerator(ConfigJson config) {
-        this.configRoot = config.getRoot();
-        distOccurances = new Hashtable<String, Object>();
-        distLoads = new Hashtable<String, Object>();
-        distValues = new Hashtable<String, Object>();
-        distToHaves = new Hashtable<String, UniformRealDistribution>();
-        taskTypes = new Hashtable<String, JSONObject>();
+        configs.add(config.getRoot());
     }
-    
+
     public ArrayList<Task> generate() 
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
         ArrayList<Task> rootTasks = new ArrayList<Task>();
-        return generate(rootTasks);
+        ArrayList<Task> allTasks = generate(rootTasks);
+        return allTasks;
     }
 
     public ArrayList<Task> generate(ArrayList<Task> rootTasks) 
+            throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException, 
+            SecurityException, ClassNotFoundException, JSONException {
+        ArrayList<Task> allTasks = new ArrayList<Task>();
+        for (JSONObject config: configs) {
+            ArrayList<Task> tasks = generateOneConfig(config);
+            allTasks.addAll(tasks);
+        }
+        return allTasks;
+    }
+
+    private ArrayList<Task> generateOneConfig(JSONObject configRoot) 
+            throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException, 
+            SecurityException, ClassNotFoundException, JSONException {
+        ArrayList<Task> rootTasks = new ArrayList<Task>();
+        return generateOneConfig(rootTasks, configRoot);
+    }
+
+    private ArrayList<Task> generateOneConfig(ArrayList<Task> rootTasks, JSONObject configRoot) 
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
@@ -61,6 +83,7 @@ public class TaskGenerator {
         // get config
         seed = configRoot.getInt("seed");
         JSONArray taskTypeCfgs = configRoot.getJSONArray("taskTypes");
+        taskTypes = new Hashtable<String, JSONObject>();
         for (int i=0; i<taskTypeCfgs.length(); i++) {
             taskTypes.put(taskTypeCfgs.getJSONObject(i).getString("name"), 
                     taskTypeCfgs.getJSONObject(i));
