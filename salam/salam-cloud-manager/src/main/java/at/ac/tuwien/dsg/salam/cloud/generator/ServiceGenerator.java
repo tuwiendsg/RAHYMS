@@ -96,20 +96,30 @@ public class ServiceGenerator {
             // init distributions
             if (distPropToHave==null) 
                 distPropToHave = new UniformRealDistribution(new MersenneTwister(seed++), 0, 1);
+            Object propertyValue = null;
             if (type.equals("static") || type.equals("skill")) {
-                JSONObject valueCfg = prop.getJSONObject("value");
-                String clazz = GeneratorUtil.getFullClassName(valueCfg.getString("class"));
-                JSONArray params = valueCfg.getJSONArray("params");
-                if (valueCfg.has("mapping")) mapping = valueCfg.getJSONObject("mapping");
-                // TODO: distPropValue should be reusable, because we may generate streams of services
-                distPropValue = GeneratorUtil.createValueDistribution(clazz, params, seed++);
+                Object value = prop.get("value");
+                if (value instanceof JSONObject) {
+                	JSONObject valueCfg = (JSONObject)value;
+	                String clazz = GeneratorUtil.getFullClassName(valueCfg.getString("class"));
+	                JSONArray params = valueCfg.getJSONArray("params");
+	                if (valueCfg.has("mapping")) mapping = valueCfg.getJSONObject("mapping");
+	                // TODO: distPropValue should be reusable, because we may generate streams of services
+	                distPropValue = GeneratorUtil.createValueDistribution(clazz, params, seed++);
+                } else {
+                	propertyValue = value;
+                }
             }
             
             for (ComputingElement e : elements) {
                 HumanComputingElement element = (HumanComputingElement)e;
                 if (GeneratorUtil.shouldHave(distPropToHave, pToHave)) {
                     if (type.equals("static") || type.equals("skill")) {
-                        GeneratorUtil.generateProperty(element, name, type, distPropValue, mapping);
+                    	if (propertyValue!=null) {
+                    		element.getProperties().setValue(name, propertyValue);
+                    	} else {
+                    		GeneratorUtil.generateProperty(element, name, type, distPropValue, mapping);
+                    	}
                     } else if (type.equals("metric")) {
                         String ifaceClazz = prop.getString("interfaceClass");
                         MetricMonitorInterface metric = GeneratorUtil.createMetricObject(ifaceClazz);

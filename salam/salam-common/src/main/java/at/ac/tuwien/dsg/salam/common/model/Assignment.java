@@ -140,6 +140,10 @@ public class Assignment {
 
     @Override
     public String toString() {
+        return "[" + role.getFunctionality() + "->" + assignee.getProvider().getName() + "."  + assignee.getTitle() + "]";
+    }
+
+    public String toStringDetail() {
         return "[" + assignee 
                 + ", " + role.getFunctionality() 
                 + ", " + task

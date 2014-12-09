@@ -235,7 +235,7 @@ public class Composer implements ComposerInterface {
             solution = algorithm.solve();
             long algoTime = System.nanoTime() - startTime;
 
-            //System.out.println("Solution: " + solution.toString());
+            Util.log().warning("Solution: " + solution.toString());
 
             // trace
             if (globalTracer!=null) {
@@ -271,8 +271,8 @@ public class Composer implements ComposerInterface {
         OptimizationObjective objective = task.getOptObjective();
 
         // get SLOs constraints
-        double costLimit = (double) task.getObjectiveValue("cost_limit", 99999);
-        double deadline = (double) task.getObjectiveValue("deadline", 99999);
+        double costLimit = (double) task.getObjectiveValue("cost_limit", 99999.0);
+        double deadline = (double) task.getObjectiveValue("deadline", 99999.0);
         
         if (objective.getWeight("connectedness")>0 && 
                 s.size()>1 && s.getFuzzyConnectedness()==0.0) return false;
@@ -356,7 +356,7 @@ public class Composer implements ComposerInterface {
             double normCostScore = 0;
             if (costWeight>0) {
                 costScore = costs.get(k);
-                double center = (double) task.getObjectiveValue("cost_limit", 99999);
+                double center = (double) task.getObjectiveValue("cost_limit", 99999.0);
                 normCostScore = center / (center + costScore);
             }
 
@@ -365,7 +365,7 @@ public class Composer implements ComposerInterface {
             double normResponseTimeScore = 0;
             if (rtWeight>0) {
                 responseTimeScore = responseTimes.get(k);
-                double center = (double) task.getObjectiveValue("deadline", 99999) - 
+                double center = (double) task.getObjectiveValue("deadline", 99999.0) - 
                         task.getSubmissionTime() * 1.0;
                 normResponseTimeScore = center / (center + responseTimeScore);
             }
@@ -402,7 +402,7 @@ public class Composer implements ComposerInterface {
             double cost = 0;
             for (SolutionComponent comp: solution.getList()) {
                 cost += (double)comp.getAssignee().getProvider().getProperties()
-                        .getValue("cost", 0);
+                        .getValue("cost", 0.0);
             }
             costs.add(cost);
         }
@@ -451,7 +451,7 @@ public class Composer implements ComposerInterface {
             // cost
             if (costWeight>0) {
                 deltaCost.add((double)comp.getAssignee().getProvider().getProperties()
-                        .getValue("cost", 0));
+                        .getValue("cost", 0.0));
             }
             // response time
             if (rtWeight>0) {
@@ -493,7 +493,7 @@ public class Composer implements ComposerInterface {
 
             double costScore = 0;
             //if (medianCost>0) costScore = medianCost / (medianCost + deltaCost.get(i));
-            double costCenter = (double) task.getObjectiveValue("cost_limit", 99999);
+            double costCenter = (double) task.getObjectiveValue("cost_limit", 99999.0);
             if (medianCost>0) costScore = costCenter / (costCenter + deltaCost.get(i));
 
             double rtScore = 0;

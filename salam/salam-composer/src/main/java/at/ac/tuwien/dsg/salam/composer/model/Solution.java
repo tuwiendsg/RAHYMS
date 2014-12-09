@@ -151,6 +151,10 @@ public class Solution {
 
     @Override
     public String toString() {
+        return getList().toString();
+    }
+    
+    public String toStringDetail() {
         return String
                 .format(
                         "[%s, aggr=%.3f, cost=%.3f, nCost=%.3f, cmptcy=%s, connctd=%s, muConnctd=%s, time=%s, nTime=%s]",

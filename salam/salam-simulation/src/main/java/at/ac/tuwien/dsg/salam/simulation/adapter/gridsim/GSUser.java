@@ -64,7 +64,10 @@ public class GSUser extends ReservationRequester {
             reservationList.put(assignment.getId(), reservation);
             gridletList.put(assignment.getId(), gsAssignment);
         }
-        
+
+        // add assignment count
+        ComputingElement provider = assignment.getAssignee().getProvider();
+        provider.addAssignmentCount();
     }
     
     public void commitAssignment(Assignment assignment) {
@@ -80,7 +83,7 @@ public class GSUser extends ReservationRequester {
                 super.gridletSubmit(gsAssignment, assignment.getAssignee().getId());
                 ComputingElement provider = assignment.getAssignee().getProvider();
                 //System.out.println("Realibility of " + provider.getName() + "(k=" + (provider.getAssignmentCount()+1) + ") = " + provider.getMetrics().getValue("reliability", new Object[]{GridSim.clock(), true}) );
-                provider.addAssignmentCount();
+                //provider.addAssignmentCount();
             } else {
                 Util.log(this.getClass().getName()).severe("Error committing assignment " + assignment + " on reservation " + reservation);
                 assignment.setStatus(Status.FAILED);

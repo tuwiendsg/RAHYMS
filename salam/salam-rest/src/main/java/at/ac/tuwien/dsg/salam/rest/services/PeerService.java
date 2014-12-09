@@ -112,28 +112,28 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
             try {
                 addPeer("Alpha", gmailPrefix + "+alpha@gmail.com", Arrays.asList("operator"));
                 addPeer("Bravo", gmailPrefix + "+bravo@gmail.com", Arrays.asList("security"));
-                addPeer("Charlie", gmailPrefix + "+charlie@gmail.com", Arrays.asList("technician"));
+                addPeer("Charlie", gmailPrefix + "+charlie@gmail.com", Arrays.asList("technician", "project_leader"));
                 addPeer("Delta", gmailPrefix + "+delta@gmail.com", Arrays.asList("emergency_response", "security"));
                 addPeer("Echo", gmailPrefix + "+echo@gmail.com", Arrays.asList("emergency_response", "security"));
-                addPeer("Foxtrot", gmailPrefix + "+foxtrot@gmail.com", Arrays.asList("emergency_response"));
+                addPeer("Foxtrot", gmailPrefix + "+foxtrot@gmail.com", Arrays.asList("emergency_response", "project_leader"));
                 addPeer("Golf", gmailPrefix + "+golf@gmail.com", Arrays.asList("operator", "technician"));
-                addPeer("Hotel", gmailPrefix + "+hotel@gmail.com", Arrays.asList("technician", "emergency_response"));
+                addPeer("Hotel", gmailPrefix + "+hotel@gmail.com", Arrays.asList("technician", "emergency_response", "project_leader"));
                 addPeer("India", gmailPrefix + "+india@gmail.com", Arrays.asList("operator", "security"));
-                addPeer("Juliett", gmailPrefix + "+juliett@gmail.com", Arrays.asList("technician"));
+                addPeer("Juliett", gmailPrefix + "+juliett@gmail.com", Arrays.asList("technician", "project_leader"));
                 addPeer("Kilo", gmailPrefix + "+kilo@gmail.com", Arrays.asList("technician", "emergency_response"));
                 addPeer("Lima", gmailPrefix + "+lima@gmail.com", Arrays.asList("technician"));
                 addPeer("Mike", gmailPrefix + "+mike@gmail.com", Arrays.asList("operator", "emergency_response"));
-                addPeer("November", gmailPrefix + "+november@gmail.com", Arrays.asList("technician"));
+                addPeer("November", gmailPrefix + "+november@gmail.com", Arrays.asList("technician", "project_leader"));
                 addPeer("Oscar", gmailPrefix + "+oscar@gmail.com", Arrays.asList("security"));
                 addPeer("Papa", gmailPrefix + "+papa@gmail.com", Arrays.asList("operator"));
-                addPeer("Quebec", gmailPrefix + "+quebec@gmail.com", Arrays.asList("technician"));
+                addPeer("Quebec", gmailPrefix + "+quebec@gmail.com", Arrays.asList("technician", "project_leader"));
                 addPeer("Romeo", gmailPrefix + "+romeo@gmail.com", Arrays.asList("security", "emergency_response"));
                 addPeer("Sierra", gmailPrefix + "+sierra@gmail.com", Arrays.asList("operator"));
                 addPeer("Tango", gmailPrefix + "+tango@gmail.com", Arrays.asList("security"));
                 addPeer("Uniform", gmailPrefix + "+uniform@gmail.com", Arrays.asList("operator"));
                 addPeer("Venezia", gmailPrefix + "+venezia@gmail.com", Arrays.asList("technician"));
                 addPeer("Washington", gmailPrefix + "+washington@gmail.com", Arrays.asList("security", "emergency_response"));
-                addPeer("X-ray", gmailPrefix + "+xray@gmail.com", Arrays.asList("emergency_response"));
+                addPeer("X-ray", gmailPrefix + "+xray@gmail.com", Arrays.asList("emergency_response", "project_leader"));
                 addPeer("Yankee", gmailPrefix + "+yankee@gmail.com", Arrays.asList("security"));
                 addPeer("Zulu", gmailPrefix + "+zulu@gmail.com", Arrays.asList("operator"));
                 if (restUrl!=null) {

@@ -1,6 +1,6 @@
 <form class="form-horizontal">
 
-<h2>Collective #{{collective.id}}</h2>
+<h2>SCU #{{collective.id}}</h2>
 
   <div ng-show='is_loading' ng-bind-html='Util.spinner()'></div>
 
@@ -8,11 +8,11 @@
 	<label for="name" class="col-sm-2 control-label">Date Assembled</label>
 	<div class="col-sm-10"><p class="form-control-static">{{collective.timeCreated}} </p></div>
 
-	<label for="name" class="col-sm-2 control-label">Collective Status</label>
+	<label for="name" class="col-sm-2 control-label">SCU Status</label>
 	<div class="col-sm-10"><p class="form-control-static"><span class="label" ng-class="Util.getStatusClass(collective.status)">{{collective.status}}</span></p></div>
 
 	<label for="name" class="col-sm-2 control-label">Size</label>
-	<div class="col-sm-10"><p class="form-control-static">{{collective.size}} assigned peer(s)</p></div>
+	<div class="col-sm-10"><p class="form-control-static">{{collective.size}} assigned unit(s)</p></div>
 
   </div>
 
@@ -50,7 +50,7 @@
         <th class="col-md-2">Service</th>
         <th class="col-md-1">Status</th>
         <th class="col-md-2">Running Time</th>
-        <th class="col-md-1">Peer Id</th>
+        <th class="col-md-1">Unit Id</th>
         <th class="col-md-3">Name</th>
         <th class="col-md-3">Email</th>
     </tr>

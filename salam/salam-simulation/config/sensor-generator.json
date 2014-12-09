@@ -25,7 +25,7 @@
         {
             "type": "static",
             "name": "fault_rate",
-            "value": {"class": "NormalDistribution", "params": [0.02, 0.005, 1.0E-9]},   
+            "value": {"class": "NormalDistribution", "params": [0.01, 0.005, 1.0E-9]},   
             "probabilityToHave": 1.0
         },
         {

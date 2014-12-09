@@ -15,15 +15,15 @@ import at.ac.tuwien.dsg.salam.util.Tracer;
 
 public class ReliabilityTracer extends Tracer {
     
-    public static int K_MULTIPLIER = 2;
+    public static int K_MULTIPLIER = 1;
     private static int MIN_SUCCESFULL_COLLECTOR = 2;
     private static int MIN_SUCCESFULL_ASSESSOR = 1;
     private static int MIN_SUCCESFULL_SENSOR = 1;
     
     private DiscovererInterface discoverer;
-    List<Service> vsuCollector;
-    List<Service> vsuAssessor;
-    List<Service> vsuSensor;
+    List<ComputingElement> vsuCollector;
+    List<ComputingElement> vsuAssessor;
+    List<ComputingElement> vsuSensor;
     List<ComputingElement> vsuCitizen;
     List<ComputingElement> vsuSurveyor;
 
@@ -35,9 +35,12 @@ public class ReliabilityTracer extends Tracer {
     private void initVSUs() {
         // discover VSUs. we doing fixed here, because we dont specify spec for the composer. 
         // and it will be easy to study the variability if we have fixed VSU
-        vsuCollector = discoverer.discoverServices(new Functionality("Collector"), new Specification());
-        vsuAssessor = discoverer.discoverServices(new Functionality("Assessor"), new Specification());
-        vsuSensor = discoverer.discoverServices(new Functionality("Sensor"), new Specification());
+        List<Service> collectors = discoverer.discoverServices(new Functionality("Collector"), new Specification());
+        List<Service> assessors = discoverer.discoverServices(new Functionality("Assessor"), new Specification());
+        List<Service> sensors = discoverer.discoverServices(new Functionality("Sensor"), new Specification());
+        vsuCollector = ComputingElement.getElementsFromServices(collectors);
+        vsuAssessor = ComputingElement.getElementsFromServices(assessors);
+        vsuSensor = ComputingElement.getElementsFromServices(sensors);
         vsuCitizen = findElementWithName("Citizen");
         vsuSurveyor = findElementWithName("Surveyor");
         
@@ -66,11 +69,11 @@ public class ReliabilityTracer extends Tracer {
         }
         
         // VSU reliability
-        double rCollector = ReliabilityCalculator.dynamicService(vsuCollector, MIN_SUCCESFULL_COLLECTOR, true, clock);
-        double rAssessor = ReliabilityCalculator.dynamicService(vsuAssessor, MIN_SUCCESFULL_ASSESSOR, true, clock);
-        double rSensor = ReliabilityCalculator.dynamicService(vsuSensor, MIN_SUCCESFULL_SENSOR, true, clock);
-        double rCitizen = ReliabilityCalculator.dynamic(vsuCitizen, 1, true, clock);
-        double rSurveyor = ReliabilityCalculator.dynamic(vsuSurveyor, 1, true, clock);
+        double rCollector = ReliabilityCalculator.dynamic(vsuCollector, MIN_SUCCESFULL_COLLECTOR, false, clock);
+        double rAssessor = ReliabilityCalculator.dynamic(vsuAssessor, MIN_SUCCESFULL_ASSESSOR, false, clock);
+        double rSensor = ReliabilityCalculator.dynamic(vsuSensor, MIN_SUCCESFULL_SENSOR, false, clock);
+        double rCitizen = ReliabilityCalculator.dynamic(vsuCitizen, 1, false, clock);
+        double rSurveyor = ReliabilityCalculator.dynamic(vsuSurveyor, 1, false, clock);
         
         // aggregate R
         // case of human only, machine only, and mixed collective are uniformly distributed
@@ -81,11 +84,24 @@ public class ReliabilityTracer extends Tracer {
 
         System.out.println((k*K_MULTIPLIER) + "," + aggregateR);
         
-        traceln((clock-ReliabilityCalculator.startClock) + "," + (k*K_MULTIPLIER) + "," + task.getId() + "," + task.getName() + "," + aggregateR + "," + rCollector + "," + rAssessor + "," + rSensor + "," + rCitizen + "," + rSurveyor);
+        // average
+        double avgCollector = ReliabilityCalculator.average(vsuCollector, false, clock);
+        double avgAssessor = ReliabilityCalculator.average(vsuAssessor, false, clock);
+        double avgSensor = ReliabilityCalculator.average(vsuSensor, false, clock);
+        double avgCitizen = ReliabilityCalculator.average(vsuCitizen, false, clock);
+        double avgSurveyor = ReliabilityCalculator.average(vsuSurveyor, false, clock);
+
+        double avgCollectorCount = ReliabilityCalculator.averageAssignmentCounter(vsuCollector, clock);
+        double avgAssessorCount = ReliabilityCalculator.averageAssignmentCounter(vsuAssessor, clock);
+        double avgSensorCount = ReliabilityCalculator.averageAssignmentCounter(vsuSensor, clock);
+        double avgCitizenCount = ReliabilityCalculator.averageAssignmentCounter(vsuCitizen, clock);
+        double avgSurveyorCount = ReliabilityCalculator.averageAssignmentCounter(vsuSurveyor, clock);
+        
+        traceln((clock-ReliabilityCalculator.startClock) + "," + (k*K_MULTIPLIER) + "," + task.getId() + "," + task.getName() + "," + aggregateR + "," + rCollector + "," + rAssessor + "," + rSensor + "," + rCitizen + "," + rSurveyor + "," + avgCollector + "," + avgAssessor + "," + avgSensor + "," + avgCitizen + "," + avgSurveyor + "," + avgCollectorCount + "," + avgAssessorCount + "," + avgSensorCount + "," + avgCitizenCount + "," + avgSurveyorCount);
     }
     
     public String getTraceHeader() {
-        return "clock,k,task_id,task_name,r_aggregate,r_collector,r_assessor,r_sensor,r_citizen,r_surveyor";
+        return "clock,k,task_id,task_name,r_aggregate,r_collector,r_assessor,r_sensor,r_citizen,r_surveyor,avg_collector,avg_assessor,avg_sensor,avg_citizen,avg_surveyor,avg_collector_count,avg_assessor_count,avg_sensor_count,avg_citizen_count,avg_surveyor_count";
     }
     
     private List<ComputingElement> findElementWithName(String name) {

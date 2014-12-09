@@ -90,7 +90,7 @@ public class ServiceManagerOnMemory implements
     public List<Service> retrieveServices(Functionality functionality) {
         List<Service> services = new ArrayList<Service>();
         for (Service s: serviceCache) {
-            if (s.getFunctionality().equals(functionality)) {
+            if (s.getFunctionality().equals(functionality) || functionality==null) {
                 services.add(s);
             }
         }

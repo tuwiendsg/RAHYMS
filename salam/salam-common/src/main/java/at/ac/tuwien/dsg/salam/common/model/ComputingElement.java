@@ -251,5 +251,17 @@ public class ComputingElement {
     public void addAssignmentCount() {
         this.assignmentCount++;
     }
+    
+    public static List<ComputingElement> getElementsFromServices(List<Service> services) {
+        // get list of elements from services
+        List<ComputingElement> elements = new ArrayList<ComputingElement>();
+        for (Service service: services) {
+            ComputingElement provider = service.getProvider();
+            if (!elements.contains(provider)) {
+                elements.add(provider);
+            }
+        }
+    	return elements;
+    }
 
 }

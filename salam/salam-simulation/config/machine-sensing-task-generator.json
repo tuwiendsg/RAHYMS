@@ -5,7 +5,7 @@
             "name": "MachineSensing",
             "description": "MachineSensing",
             "isRootTask": true,
-            "tasksOccurance": {"class": "java.lang.Integer", "params": [5], "sampleMethod": "doubleValue"},
+            "tasksOccurance": {"class": "java.lang.Integer", "params": [10], "sampleMethod": "doubleValue"},
             "load": {"class": "NormalDistribution", "params": [3, 0.5, 1.0E-9]},  
             "roles": [
                 {   

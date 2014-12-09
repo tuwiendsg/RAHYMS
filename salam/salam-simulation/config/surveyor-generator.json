@@ -10,7 +10,7 @@
     "services": [
         {   
             "functionality": "Collector",
-            "probabilityToHave": 1.0,
+            "probabilityToHave": 0.7,
             "properties": [
                 {
                     "type": "skill",
@@ -22,7 +22,7 @@
         },
         {   
             "functionality": "Assessor",
-            "probabilityToHave": 1.0,
+            "probabilityToHave": 0.5,
             "properties": [
                 {
                     "type": "skill",
@@ -44,6 +44,12 @@
             "type": "static",
             "name": "fault_probability",
             "value": {"class": "NormalDistribution", "params": [0.05, 0.01, 1.0E-9]},   
+            "probabilityToHave": 1.0
+        },
+        {
+            "type": "static",
+            "name": "assignment_priority",
+            "value": 3,   
             "probabilityToHave": 1.0
         },
         {

@@ -67,4 +67,24 @@ public class ReliabilityCalculator {
         }
         return dynamic(elements, minSuccess, isCountingForNextK, clock);
     }
+
+    public static double average(List<ComputingElement> elements, boolean isCountingForNextK, double clock) {
+    	double sum = 0.0;
+    	int n = 0;
+        for (ComputingElement element: elements) {
+        	sum += single(element, isCountingForNextK, clock);
+        	n++;
+        }
+    	return (sum / n);
+    }
+
+    public static double averageAssignmentCounter(List<ComputingElement> elements, double clock) {
+    	double sum = 0.0;
+    	int n = 0;
+        for (ComputingElement element: elements) {
+        	sum += element.getAssignmentCount();
+        	n++;
+        }
+    	return (sum / n);
+    }
 }

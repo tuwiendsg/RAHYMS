@@ -1,4 +1,4 @@
-<h2>Collectives</h2>
+<h2>SCUs</h2>
 
 <table class="table table-hover">
     <tr>
@@ -6,7 +6,7 @@
         <th class="col-md-2">Date Assembled</th>
         <th class="col-md-1">Status</th>
         <th class="col-md-3">Task</th>
-        <th class="col-md-5">Peers</th>
+        <th class="col-md-5">Units</th>
         <th class="col-md-1"></th>
     </tr>
     <tr ng-repeat="collective in collectives | orderBy:'id':true">
@@ -23,7 +23,7 @@
       		</div>
         </td>
         <td>
-		    <button class="btn btn-default btn-xs span4" ng-click="showPeers = !showPeers">{{collective.assignments.length}} peer(s)</button> 
+		    <button class="btn btn-default btn-xs span4" ng-click="showPeers = !showPeers">{{collective.assignments.length}} unit(s)</button> 
 		    <div ng-hide="!showPeers">
 		    	<span ng-repeat="assignment in collective.assignments">		    
      				<span class="label span4" ng-class="Util.getStatusClass(assignment.status)">{{assignment.status}}</span>

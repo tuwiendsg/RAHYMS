@@ -93,7 +93,7 @@ public class Util {
 
     public static Logger log() {
     	Logger log = log(Util.class.getName());
-    	log.setLevel(Level.OFF);
+    	log.setLevel(Level.WARNING);
     	return log;
     }
 }

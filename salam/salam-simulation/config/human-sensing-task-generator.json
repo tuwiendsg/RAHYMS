@@ -5,14 +5,15 @@
             "name": "HumanSensing",
             "description": "HumanSensing",
             "isRootTask": true,
-            "tasksOccurance": {"class": "java.lang.Integer", "params": [5], "sampleMethod": "doubleValue"},
+            "tasksOccurance": {"class": "java.lang.Integer", "params": [20], "sampleMethod": "doubleValue"},
             "load": {"class": "NormalDistribution", "params": [3, 0.5, 1.0E-9]},  
             "roles": [
                 {   
                     "functionality": "Collector",
                     "probabilityToHave": 1.0,
                     "relativeLoadRatio": 1.0,
-                    "specification": [ 
+                    "specification": [],
+                    "_specification": [ 
                         {
                             "type": "skill",
                             "name": "skill_collector",
@@ -26,9 +27,10 @@
                 {   
                     "functionality": "Assessor",
                     "probabilityToHave": 1.0,
-                    "relativeLoadRatio": 0.8,
+                    "relativeLoadRatio": 1.0,
                     "dependsOn": ["*Collector"],
-                    "specification": [ 
+                    "specification": [],
+                    "_specification": [ 
                         {
                             "type": "skill",
                             "name": "skill_assessor",
@@ -45,7 +47,7 @@
                 {
                     "type": "static",
                     "name": "deadline",
-                    "value": {"class": "NormalDistribution", "params": [1000, 10, 1.0E-9]},
+                    "value": {"class": "NormalDistribution", "params": [10000, 10, 1.0E-9]},
                     "probabilityToHave": 1.0
                 },
                 {

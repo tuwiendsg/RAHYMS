@@ -22,7 +22,7 @@
         },
         {   
             "functionality": "Assessor",
-            "probabilityToHave": 0.7,
+            "probabilityToHave": 0.5,
             "properties": [
                 {
                     "type": "skill",
@@ -44,6 +44,12 @@
             "type": "static",
             "name": "fault_probability",
             "value": {"class": "NormalDistribution", "params": [0.30, 0.10, 1.0E-9]},   
+            "probabilityToHave": 1.0
+        },
+        {
+            "type": "static",
+            "name": "assignment_priority",
+            "value": 1,   
             "probabilityToHave": 1.0
         },
         {

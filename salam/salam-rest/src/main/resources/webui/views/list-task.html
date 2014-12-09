@@ -9,7 +9,7 @@
         <th class="col-md-1">Tag</th>
         <th class="col-md-1">Severity</th>
         <th class="col-md-3">Content</th>
-        <th class="col-md-2">Assigned Collective</th>
+        <th class="col-md-2">Assigned SCU</th>
     </tr>
     <tr ng-repeat="task in tasks | orderBy:'id':true">
         <td>{{task.id}}</td>
@@ -18,7 +18,7 @@
         <td>{{task.tag}}</td>
         <td>{{task.severity}}</td>
         <td>{{task.content}}</td>
-        <td><button class="btn btn-link btn-xs" ng-click="$location.path('/collective/' + task.collectiveId)">Collective #{{task.collectiveId}}</button></td>
+        <td><button class="btn btn-link btn-xs" ng-click="$location.path('/collective/' + task.collectiveId)">SCU #{{task.collectiveId}}</button></td>
     </tr>
     <tr ng-show='is_loading'><td colspan='7'><span ng-bind-html="Util.spinner()"></span></td></tr>
 </table>

@@ -55,11 +55,18 @@ public class SolutionComponent extends Assignment {
 
     @Override
     public String toString() {
+        if (getAssignee()==null || getTask()==null) return "[" + level + "]";
+        else {
+            return super.toString();
+        }
+    }
+
+    public String toStringDetail() {
         //if (worker==null || job==null) return "SolutionComponent [level=" + level + "]";
         //else return "SolutionComponent [level=" + level + ", job=" + job + ", worker=" + worker.getId() + "]";
         if (getAssignee()==null || getTask()==null) return "Comp [" + level + "]";
         else {
-            String s = super.toString();
+            String s = super.toStringDetail();
             return "[ level " + level + ", " + s + ", pheromone " + pheromone + "]";
         }
     }
