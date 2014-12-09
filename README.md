@@ -1,34 +1,35 @@
-SALAM v2.0
-==========
+RAHYMS v1.0
+===========
 
-A SociAL compute unit (SCU) runtime frAmework and siMulation
+Runtime and Analytics for HYbrid coMpute unitS
 
 ## What does it do?
 
-This repository provides SCU runtime components and an SCU simulation based on GridSim.
+This repository provides runtime components and analytic tools for Hybrid Compute Units (HCU). It also provides an HCU simulation based on GridSim.
 
 It contains the following components:
 
-* Social Compute Unit (SCU) and Individual Compute Unit (ICU) meta model, which consists of
+* Hybrid Compute Unit (HCU) and Individual Compute Unit (ICU) meta model, which consists of
   * ICU with their profiles: skills, static properties, metrics
   * ICU connectedness
   * Task specification containing requirements that can be matched againts ICU profiles
-  * Roles of each SCU member in the task and their dependencies
+  * Roles of each HCU member in the task and their dependencies
 
 * Generators
   * ICU generators with configurable distribution of skills, properties, and connectedness
   * Task and role generator with configurable distribution of task requirements
 
-* SCU middleware components:
+* HCU middleware components:
   * ICU cloud manager and discovery service
   * Task scheduler
-  * SCU composer (adopted from the provisioning engine from the ICSOC paper)
+  * HCU composer (adopted from the provisioning engine from the <a href='http://www.infosys.tuwien.ac.at/research/viecom/papers/ICSOC2013-SCUProvisioning.pdf'>ICSOC 2014 paper</a>)
   * Metrics monitor
   * Metrics exporter to WEKA arff format for learning and prediction
+  * HCU reliabililty analysis engine
 
-* A REST API and a Web UI for reading, updating, and creating SCU (collective), ICU (peer), and tasks.
+* A REST API and a Web UI for reading, updating, and creating HCU (collective), ICU (peer), and tasks.
 
-* An integration with smartcom (https://github.com/tuwiendsg/SmartCom) for sending and receiving message to/from peers.
+* An integration with SmartCom (https://github.com/tuwiendsg/SmartCom) for sending and receiving message to/from peers.
 
 * A GridSim-based simulation controller
 
@@ -37,7 +38,7 @@ It contains the following components:
 * Compilation and configuration:
   * Run mvn install on smartcom project
   * Run mvn install on salam project
-  * To configure SCU composer, REST API, and Web UI: change configuration files on salam\salam-rest\config.
+  * To configure HCU composer, REST API, and Web UI: change configuration files on salam\salam-rest\config.
   * To configure gridsim simulation: 
 * To run the program:
 	- Running REST API and Web UI: 
@@ -46,4 +47,4 @@ It contains the following components:
 	- Running smartcom software peer: 
 	  execute smartcom-salam\smartcom-salam-demo\src\main\java\at\ac\tuwien\dsg\smartsociety\demo\peer\PeerApplication
 	- Running simulation: 
-	  execute SCUGridSim\src\scu\run\RunSimulation.java.
+	  run \salam\salam-simulation\src\main\java\at\ac\tuwien\dsg\salam\simulation\RunSimulation.java.
