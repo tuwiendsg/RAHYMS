@@ -29,3 +29,6 @@ target/
 
 #bin folders
 bin
+
+*.csv
+*.xlsx

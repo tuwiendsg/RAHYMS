@@ -1,0 +1,53 @@
+{
+    "seed": 1001,
+    "taskTypes": [
+        { 
+            "name": "MachineSensing",
+            "description": "MachineSensing",
+            "isRootTask": true,
+            "tasksOccurance": {"class": "java.lang.Integer", "params": [10], "sampleMethod": "doubleValue"},
+            "load": {"class": "NormalDistribution", "params": [3, 0.5, 1.0E-9]},  
+            "roles": [
+                {   
+                    "functionality": "Sensor",
+                    "probabilityToHave": 1.0,
+                    "relativeLoadRatio": 1.0,
+                    "specification": [ 
+                    ]
+                }
+            ],
+            "subTaskTypes": [],
+            "specification": [
+                {
+                    "type": "static",
+                    "name": "deadline",
+                    "value": {"class": "NormalDistribution", "params": [1000, 10, 1.0E-9]},
+                    "probabilityToHave": 1.0
+                },
+                {
+                    "type": "static",
+                    "name": "cost_limit",
+                    "value": {"class": "NormalDistribution", "params": [1000, 1, 1.0E-9]},
+                    "probabilityToHave": 1.0
+                },
+                {
+                    "type": "static",
+                    "name": "connectedness",
+                    "value": {"class": "UniformIntegerDistribution", "params": [0, 1], 
+                              "mapping": {"0": "poor", "1": "fair", "2": "good", "3": "very_good"}},
+                    "probabilityToHave": 1.0
+                },
+                {
+                    "type": "static",
+                    "name": "location",
+                    "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                                "mapping": {"0": "Sector-A", "1": "Sector-B", "2": "Sector-C"}},
+                    "probabilityToHave": 1.0,
+                    "comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator"
+                }                        
+            ] 
+        }
+        
+    ]
+    
+}
