@@ -104,5 +104,11 @@ public class Batch {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Batch [id=" + id + ", assignments=" + assignments + ", task="
+                + task + "]";
+    }
+
     
 }

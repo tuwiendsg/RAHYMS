@@ -4,8 +4,8 @@ public class Assignment {
     
     public enum Status {
         IDLE (100, "Idle"),
-        RESERVED (110, "Reserved"),
-        READY (120, "Ready"),
+        NOTIFIED (110, "Notified"),
+        ASSIGNED (120, "Assigned"),
         RUNNING (200, "Running"),
         SUSPENDED (300, "Suspended"),
         SUCCESSFUL (410, "Successful"),

@@ -1,11 +1,11 @@
-package at.ac.tuwien.dsg.hcu.cloud.monitor;
+package at.ac.tuwien.dsg.hcu.cloud.metric;
 
-import at.ac.tuwien.dsg.hcu.cloud.monitor.helper.ReliabilityCalculator;
-import at.ac.tuwien.dsg.hcu.common.interfaces.MetricMonitorInterface;
+import at.ac.tuwien.dsg.hcu.cloud.metric.helper.ReliabilityCalculator;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MetricInterface;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 
-public class ReliabilityMonitor implements MetricMonitorInterface {
+public class ReliabilityMetric implements MetricInterface {
 
     @Override
     public Object measure(Service service, String name, Object[] params) {

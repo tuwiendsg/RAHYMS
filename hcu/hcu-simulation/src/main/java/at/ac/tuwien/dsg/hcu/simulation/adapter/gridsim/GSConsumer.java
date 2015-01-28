@@ -17,6 +17,7 @@ import org.json.JSONException;
 
 import at.ac.tuwien.dsg.hcu.cloud.generator.ServiceGenerator;
 import at.ac.tuwien.dsg.hcu.cloud.generator.TaskWithOptimizationGenerator;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
@@ -42,6 +43,7 @@ public class GSConsumer extends ReservationRequester {
     private static GSMiddleware gsMiddleware;
     
     private static String configFile;
+    private static MonitorInterface monitorInterface;
     
     // we need to know the number of services generated to wait until all services 
     // have been registered
@@ -131,10 +133,11 @@ public class GSConsumer extends ReservationRequester {
             shutdownGridStatisticsEntity();
             shutdownUserEntity();
             terminateIOEntities();
+            monitorInterface.getRuleEngine().terminate();
 
             System.out.println("RESULT: ");
             for (Task task: list) {
-                System.out.println(task);
+                //System.out.println(task);
                 //String stat = task.getStat().dump();
                 //System.out.println(stat);
             }
@@ -179,6 +182,7 @@ public class GSConsumer extends ReservationRequester {
     public static void start(String configurationFile,
             SchedulerInterface scheduler,
             ServiceManagerInterface manager,
+            MonitorInterface monitor,
             ArrayList<ConfigJson> taskGeneratorConfig,
             ArrayList<ConfigJson> serviceGeneratorConfig) {
         
@@ -187,6 +191,7 @@ public class GSConsumer extends ReservationRequester {
         try {
             
             configFile = configurationFile;
+            monitorInterface = monitor;
             
             // number of grid users, i.e., itself
             // this is necessary for GridSim for waiting until all users finish
@@ -200,7 +205,7 @@ public class GSConsumer extends ReservationRequester {
             GridSim.init(numUser, calendar, traceFlag, false);
 
             // Create a new Middleware as GIS entity    
-            gsMiddleware = new GSMiddleware(manager, scheduler);
+            gsMiddleware = new GSMiddleware(manager, scheduler, monitor);
             GridSim.setGIS(gsMiddleware);
 
             // Creates grid resource entities (i.e., HCU services)

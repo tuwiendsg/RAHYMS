@@ -40,6 +40,14 @@ public class SCU {
     public void setProperties(Properties properties) {
         this.properties = properties;
     }
+    
+    public int getId() {
+        return this.batch.getId();
+    }
+
+    public Task getTask() {
+        return this.batch.getTask();
+    }
 
     @Override
     public int hashCode() {
@@ -64,6 +72,11 @@ public class SCU {
         } else if (!batch.equals(other.batch))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "SCU [" + batch + "]";
     }
     
     

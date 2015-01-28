@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-import at.ac.tuwien.dsg.hcu.cloud.monitor.helper.ReliabilityTracer;
+import at.ac.tuwien.dsg.hcu.cloud.metric.helper.ReliabilityTracer;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;

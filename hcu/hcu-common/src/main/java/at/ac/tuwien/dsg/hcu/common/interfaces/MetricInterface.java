@@ -3,7 +3,7 @@ package at.ac.tuwien.dsg.hcu.common.interfaces;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 
-public interface MetricMonitorInterface {
+public interface MetricInterface {
 
     // measurement
     public Object measure(Service service, String name, Object[] params);

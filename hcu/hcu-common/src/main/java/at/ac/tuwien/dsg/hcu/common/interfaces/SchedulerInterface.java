@@ -6,6 +6,7 @@ import at.ac.tuwien.dsg.hcu.common.model.Task;
 public interface SchedulerInterface {
 
     public void setCloudUserInterface(CloudUserInterface cloudUserInterface);
+    public void setMonitorInterface(MonitorInterface monitorInterface);
     
     public void submitTask(Task task);
     public void notifyExecutionResult(Assignment assignment, Assignment.Status status);

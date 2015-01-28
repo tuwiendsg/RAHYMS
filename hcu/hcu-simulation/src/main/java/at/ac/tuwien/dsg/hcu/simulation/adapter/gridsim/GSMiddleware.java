@@ -9,30 +9,37 @@ import gridsim.GridSimTags;
 import java.util.Hashtable;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.CloudUserInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
-import at.ac.tuwien.dsg.hcu.common.model.Task;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment.Status;
+import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
+import at.ac.tuwien.dsg.hcu.common.model.Task;
+import at.ac.tuwien.dsg.hcu.monitor.stream.EventType;
+import at.ac.tuwien.dsg.hcu.monitor.stream.UnitStream;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class GSMiddleware extends GridInformationService implements CloudUserInterface {
 
     protected ServiceManagerInterface manager;
     protected SchedulerInterface scheduler;
+    protected MonitorInterface monitor;
     
     protected Hashtable<Integer, GSTask> taskList;
     protected Hashtable<Integer, Integer> ownerList;
     protected GSUser user;
 
-    public GSMiddleware(ServiceManagerInterface manager, SchedulerInterface scheduler) throws Exception {
+    public GSMiddleware(ServiceManagerInterface manager, SchedulerInterface scheduler, MonitorInterface monitor) throws Exception {
         super("GSMiddleware", GridSimTags.DEFAULT_BAUD_RATE);
         this.manager = manager;
         this.scheduler = scheduler;
+        this.monitor = monitor;
         scheduler.setCloudUserInterface(this);
+        scheduler.setMonitorInterface(monitor);
         this.taskList = new Hashtable<Integer, GSTask>();
         this.ownerList = new Hashtable<Integer, Integer>();
-        user = new GSUser(this);
+        user = new GSUser(this, monitor);
     }
 
     @Override
@@ -80,7 +87,12 @@ public class GSMiddleware extends GridInformationService implements CloudUserInt
     }
     
     private void handleRegistration(GSService service) {
-        manager.registerService(service.getService());       
+        ComputingElement element = manager.retrieveElement(service.getService().getProvider().getId());
+        if (element==null) {
+            // new unit, send Unit CREATED event
+            monitor.sendEvent(new UnitStream(EventType.CREATED, GridSim.clock(), element));
+        }
+        manager.registerService(service.getService());
     }
     
     private void handleSubmittedTask(GSTask task) {
@@ -90,13 +102,13 @@ public class GSMiddleware extends GridInformationService implements CloudUserInt
         
         // now, let the scheduler handles it
         //task.getTask().setSubmissionTime(Sim_system.clock() + 5); // give some room for processing
-        task.getTask().setSubmissionTime(Sim_system.clock());
+        task.getTask().setSubmissionTime(GridSim.clock());
         scheduler.submitTask(task.getTask());
     }
     
     private void handleFinishedAssignment(Assignment assignment) {
         //assignment.setFinishTime(Sim_system.clock() + 5);
-        assignment.setFinishTime(Sim_system.clock());
+        assignment.setFinishTime(GridSim.clock());
         scheduler.notifyExecutionResult(assignment, assignment.getStatus());
     }
 
@@ -142,7 +154,7 @@ public class GSMiddleware extends GridInformationService implements CloudUserInt
 
     @Override
     public void commitAssignment(Assignment assignment) {
-        assignment.setCommitTime(Sim_system.clock());
+        assignment.setCommitTime(GridSim.clock());
         super.send(user.get_id(), GridSimTags.SCHEDULE_NOW, GSConstants.COMMIT_ASSIGNMENT, assignment);
     }
 
@@ -187,5 +199,4 @@ public class GSMiddleware extends GridInformationService implements CloudUserInt
         
     }
 
-    
 }

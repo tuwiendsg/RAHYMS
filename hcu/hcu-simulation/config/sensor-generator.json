@@ -3,6 +3,7 @@
     "numberOfElements": 50,
     "namePrefix": "Sensor",
     "singleElementSingleServices": false,
+    "type": "machine",
     "connection": {
 	    "probabilityToConnect": 1.0,
 	    "weight": {"class": "NormalDistribution", "params": [10, 1, 1.0E-9]}
@@ -31,7 +32,13 @@
         {
             "type": "metric",
             "name": "reliability",
-            "interfaceClass": "at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor",   
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.cloud.metric.ReliabilityMetric",   
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "metric",
+            "name": "utilization",
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.cloud.metric.UtilizationMetric",   
             "probabilityToHave": 1.0
         },                
         {
@@ -50,19 +57,19 @@
         {
             "type": "metric",
             "name": "response_time",
-            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor.GSAvailabilityMonitor",   
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.metric.GSAvailabilityMetric",   
             "probabilityToHave": 1.0
         },                
         {
             "type": "metric",
             "name": "execution_time",
-            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor.GSAvailabilityMonitor",   
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.metric.GSAvailabilityMetric",   
             "probabilityToHave": 1.0
         },                
         {
             "type": "metric",
             "name": "earliest_availability",
-            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor.GSAvailabilityMonitor",   
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.metric.GSAvailabilityMetric",   
             "probabilityToHave": 1.0
         }
     ]

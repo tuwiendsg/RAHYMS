@@ -1,19 +1,19 @@
-package at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor;
+package at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.metric;
 
-import at.ac.tuwien.dsg.hcu.common.interfaces.MetricMonitorInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MetricInterface;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSReservationPolicy;
 
-public class GSAvailabilityMonitor implements MetricMonitorInterface {
+public class GSAvailabilityMetric implements MetricInterface {
 
-    private static GSAvailabilityMonitor _instance;
+    private static GSAvailabilityMetric _instance;
 
-    public GSAvailabilityMonitor() {
+    public GSAvailabilityMetric() {
     }
     
-    public static GSAvailabilityMonitor getInstance() {
-        if (_instance==null) _instance = new GSAvailabilityMonitor();
+    public static GSAvailabilityMetric getInstance() {
+        if (_instance==null) _instance = new GSAvailabilityMetric();
         return _instance;
     }
 

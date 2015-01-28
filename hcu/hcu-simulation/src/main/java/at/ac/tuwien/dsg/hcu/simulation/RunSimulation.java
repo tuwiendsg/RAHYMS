@@ -12,9 +12,11 @@ import at.ac.tuwien.dsg.hcu.cloud.scheduler.Scheduler;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.composer.Composer;
+import at.ac.tuwien.dsg.hcu.monitor.MonitorManager;
 import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSConsumer;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
@@ -51,9 +53,10 @@ public class RunSimulation {
             ComposerInterface composer = new Composer(Util.getProperty(configFile, "composer_config"), 
                     manager, discoverer, dp);
             SchedulerInterface scheduler = new Scheduler(composer, dp);
+            MonitorInterface monitor = new MonitorManager();
 
-            // start the consumer
-            GSConsumer.start(configFile, scheduler, manager, taskConfig, svcConfig);
+            // start the consumer, using GridSim the consumer also acts as controller
+            GSConsumer.start(configFile, scheduler, manager, monitor, taskConfig, svcConfig);
             
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -1,25 +1,25 @@
-package at.ac.tuwien.dsg.hcu.cloud.monitor;
+package at.ac.tuwien.dsg.hcu.cloud.metric;
 
 import java.util.Hashtable;
 
 import at.ac.tuwien.dsg.hcu.cloud.generator.AvailabilityGenerator;
-import at.ac.tuwien.dsg.hcu.common.interfaces.MetricMonitorInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MetricInterface;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
-public class AvailabilityMonitor implements MetricMonitorInterface {
+public class AvailabilityMetric implements MetricInterface {
 
     public static int NOT_AVAILABLE = 0;
     public static int AVAILABLE = 1;
     public static int BUSY = 2;
     
-    private static AvailabilityMonitor _instance;
+    private static AvailabilityMetric _instance;
     private static AvailabilityGenerator generator;
     private Hashtable<Long, String> availabilityCache;
 
-    public AvailabilityMonitor() {
+    public AvailabilityMetric() {
         availabilityCache = new Hashtable<Long, String>();
     }
 
@@ -27,8 +27,8 @@ public class AvailabilityMonitor implements MetricMonitorInterface {
         generator = new AvailabilityGenerator(config);
     }
 
-    public static AvailabilityMonitor getInstance() {
-        if (_instance==null) _instance = new AvailabilityMonitor();
+    public static AvailabilityMetric getInstance() {
+        if (_instance==null) _instance = new AvailabilityMetric();
         return _instance;
     }
 
