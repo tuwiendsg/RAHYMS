@@ -1,10 +1,13 @@
 package at.ac.tuwien.dsg.hcu.monitor.listener.utilization;
 
+import gridsim.GridSim;
+
 import java.util.HashMap;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.monitor.listener.ListenerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.stream.CollectiveStream;
+import at.ac.tuwien.dsg.hcu.util.Tracer;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
 import com.espertech.esper.client.EPServiceProvider;
@@ -27,13 +30,13 @@ public class HCUUtilizationListener implements ListenerInterface {
 
         // measure HCU utilization
         expression = "INSERT INTO HCUUtilization "
-                        + "SELECT CollectiveStream.*, count(*) cnt, avg(value) as value FROM "
+                        + "SELECT CollectiveStream.*, avg(value) as value FROM "
                         + "CollectiveStream(type!=EventType.FINISHED, type!=EventType.FAILED).std:unique(collective.id) as CollectiveStream "
                         + "JOIN AssignmentStream(type=EventType.ASSIGNED).win:keepall() as AssignmentStream "
                         + "ON CollectiveStream.task=AssignmentStream.task "
                         + "JOIN Utilization.std:unique(unit.id) "
                         + "ON AssignmentStream.unit=Utilization.unit "
-                        + "GROUP BY CollectiveStream.task";
+                        + "GROUP BY CollectiveStream.collective";
         epService.getEPAdministrator().createEPL(expression)
         .addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents) {
@@ -45,7 +48,7 @@ public class HCUUtilizationListener implements ListenerInterface {
         });
 
         // listen utilization
-        expression = "SELECT * FROM HCUUtilization ";
+        expression = "SELECT * FROM HCUUtilization.std:groupwin(collective.id).win:length(1) ";
         epService.getEPAdministrator().createEPL(expression)
         .addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents) {
@@ -57,6 +60,15 @@ public class HCUUtilizationListener implements ListenerInterface {
                     collectiveStream.setMetricName("utilization");
                     collectiveStream.setMetricValue(hcuUtil.get("value"));
                     _monitor.getRuleEngine().insertFact(collectiveStream);
+                    // trace
+                    Tracer.traceln("hcu_utilization", String.format(
+                            "%s,%s,%.3f,%d,%s",
+                            collectiveStream.getCollective().getId(),
+                            GridSim.clock(),
+                            hcuUtil.get("value"),
+                            collectiveStream.getCollective().getBatch().getAssignments().size(),
+                            collectiveStream.getType()
+                    ));
                 }
             }
         });

@@ -16,7 +16,7 @@ public class Util {
     private static Properties properties = null;
     private static String lastPropFile = "";
 
-    private static void initProperties(String file) {
+    private static Properties initProperties(String file) {
         if (properties==null || !lastPropFile.equals(file)) {
             properties = new Properties(); 
             try { 
@@ -26,10 +26,13 @@ public class Util {
                 System.out.println(e);
             }
         }
+        return properties;
     }
 
     public static String getProperty(String file, String key) {
-        initProperties(file);
+        if (initProperties(file)==null) {
+            return null;
+        }
         return properties.getProperty(key);
     }
 

@@ -13,6 +13,9 @@ import at.ac.tuwien.dsg.hcu.common.model.Task;
 import at.ac.tuwien.dsg.hcu.common.sla.Specification;
 import at.ac.tuwien.dsg.hcu.util.Tracer;
 
+/**
+ * TODO: make this reliability analyzer generic 
+ */
 public class ReliabilityTracer extends Tracer {
     
     public static int K_MULTIPLIER = 1;
@@ -27,11 +30,18 @@ public class ReliabilityTracer extends Tracer {
     List<ComputingElement> vsuCitizen;
     List<ComputingElement> vsuSurveyor;
 
-    public ReliabilityTracer(String file, DiscovererInterface discoverer) {
+    public ReliabilityTracer(String file) {
         super(file);
-        this.discoverer = discoverer;
     }
     
+    public DiscovererInterface getDiscoverer() {
+        return discoverer;
+    }
+
+    public void setDiscoverer(DiscovererInterface discoverer) {
+        this.discoverer = discoverer;
+    }
+
     private void initVSUs() {
         // discover VSUs. we doing fixed here, because we dont specify spec for the composer. 
         // and it will be easy to study the variability if we have fixed VSU

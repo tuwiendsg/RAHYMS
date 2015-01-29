@@ -42,7 +42,6 @@ public class GSConsumer extends ReservationRequester {
     private static String NAME = "GSConsumer";
     private static GSMiddleware gsMiddleware;
     
-    private static String configFile;
     private static MonitorInterface monitorInterface;
     
     // we need to know the number of services generated to wait until all services 
@@ -50,14 +49,13 @@ public class GSConsumer extends ReservationRequester {
     private static int numServices;
     
     private TaskWithOptimizationGenerator taskGen;
-    private int nCycle;
-    private int waitBetweenCycles;
+    private int nCycle = 1;
+    private int waitBetweenCycles = 1;
+    private String exportArffTo;
         
     private GSConsumer(ArrayList<ConfigJson> taskGeneratorConfig) throws Exception {
         super(NAME, 560);
         taskGen = new TaskWithOptimizationGenerator(taskGeneratorConfig);
-        nCycle = Integer.parseInt(Util.getProperty(configFile, "number_of_cycles"));
-        waitBetweenCycles = Integer.parseInt(Util.getProperty(configFile, "wait_between_cycles"));
     }
 
     /**
@@ -143,10 +141,9 @@ public class GSConsumer extends ReservationRequester {
             }
             
             // dump weka file
-            String exportTo = Util.getProperty(configFile, "export_arff_to");
-            if (exportTo!=null){
-                Util.log().info("DUMPING WEKA ARFF");
-                WekaExporter.export(list, exportTo);
+            if (exportArffTo!=null && !exportArffTo.trim().equals("")){
+                Util.log().info("DUMPING WEKA ARFF to " + exportArffTo);
+                WekaExporter.export(list, exportArffTo);
             }
             
 
@@ -179,18 +176,22 @@ public class GSConsumer extends ReservationRequester {
         super.send( super.output, GridSimTags.SCHEDULE_NOW, GSConstants.SUBMIT_TASK, data);
     }
 
-    public static void start(String configurationFile,
+    public static void start(
             SchedulerInterface scheduler,
             ServiceManagerInterface manager,
             MonitorInterface monitor,
             ArrayList<ConfigJson> taskGeneratorConfig,
-            ArrayList<ConfigJson> serviceGeneratorConfig) {
+            ArrayList<ConfigJson> serviceGeneratorConfig,
+            int nCycle,
+            int waitBetweenCycle,
+            String exportArffTo,
+            boolean debug
+    ) {
         
         Util.log().info("Initializing " + NAME);
 
         try {
             
-            configFile = configurationFile;
             monitorInterface = monitor;
             
             // number of grid users, i.e., itself
@@ -214,11 +215,14 @@ public class GSConsumer extends ReservationRequester {
             // Creates this consumer, as a grid user
             GSConsumer user = new GSConsumer(taskGeneratorConfig);
             // once created, it will be registered to the infoService, 
-            // and body() will be executed when the simulation starts 
+            // and body() will be executed when the simulation starts
+            
+            user.nCycle = nCycle;
+            user.waitBetweenCycles = waitBetweenCycle;
+            user.exportArffTo = exportArffTo;
 
             // start simulation
             Util.log().info("Starting simulation");
-            boolean debug = Boolean.parseBoolean(Util.getProperty(configFile, "debug"));
             GridSim.startGridSimulation(debug);
             
             // simulation finished

@@ -1,0 +1,21 @@
+{
+    "title": "Infrastucture sensing (R over K analysis)",
+    "numberOfCycles": 334,
+    "waitBetweenCycle": 1,
+    "service_generator": {
+        "basedir": "service-generator/",
+        "files": [
+            "sensor-generator.json",
+            "citizen-generator.json",
+            "surveyor-generator.json"
+        ]
+    },
+    "task_generator": {
+        "basedir": "task-generator/",
+        "files": [
+            "human-sensing-task-generator.json",
+            "machine-sensing-task-generator.json",
+            "mixed-sensing-task-generator.json"
+        ]
+    }
+}

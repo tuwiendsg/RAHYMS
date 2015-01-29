@@ -2,6 +2,7 @@ package at.ac.tuwien.dsg.hcu.monitor;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.RuleEngineInterface;
+import at.ac.tuwien.dsg.hcu.monitor.listener.FinishListener;
 import at.ac.tuwien.dsg.hcu.monitor.listener.CollectiveListener;
 import at.ac.tuwien.dsg.hcu.monitor.listener.ListenerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.listener.utilization.HCUUtilizationListener;
@@ -39,7 +40,7 @@ public class MonitorManager implements MonitorInterface {
         };
 
     // define rules
-    private static String ruleFile = "D:\\study\\my research\\experiments\\RAHYMS\\hcu\\hcu-monitor\\rules\\monitoring_rules.drl";
+    private static String ruleFile = "../hcu-monitor/rules/monitoring_rules.drl";
     
     private static MonitorManager instance = null;
 
@@ -80,7 +81,7 @@ public class MonitorManager implements MonitorInterface {
         // initialize rule engine
         ruleEngine = new RuleEngine(ruleFile);
         ruleEngine.start();
-
+        
     }
 
     public static MonitorManager getInstance() {

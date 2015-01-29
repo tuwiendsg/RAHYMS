@@ -1,0 +1,26 @@
+{
+    "title": "Monitoring infrastucture sensing and analysis",
+    "numberOfCycles": 1,
+    "waitBetweenCycle": 1,
+    "service_generator": {
+        "basedir": "service-generator/",
+        "files": [
+            "sensor-generator.json",
+            "sensor-network-generator.json",
+            "data-analytic-service-generator.json",
+            "citizen-generator.json",
+            "surveyor-generator.json",
+            "people-coordination-service-generator.json",
+            "expert-analyst-generator.json",
+            "inspector-generator.json"
+        ]
+    },
+    "task_generator": {
+        "basedir": "task-generator/",
+        "files": [
+            "human-sensing-task-generator.json",
+            "machine-sensing-task-generator.json",
+            "mixed-sensing-task-generator.json"
+        ]
+    }
+}

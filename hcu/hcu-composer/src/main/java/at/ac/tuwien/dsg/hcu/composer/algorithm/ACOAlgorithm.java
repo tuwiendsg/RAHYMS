@@ -40,7 +40,7 @@ public class ACOAlgorithm implements ComposerAlgorithmInterface {
         System.out.println("ACO Variant: " + acoVariantName + ".");
         try {
             acoVariant = (ACOVariantInterface)Class.forName(
-                    "scu.composer.algorithm.aco." + acoVariantName).newInstance();
+                    "at.ac.tuwien.dsg.hcu.composer.algorithm.aco." + acoVariantName).newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {

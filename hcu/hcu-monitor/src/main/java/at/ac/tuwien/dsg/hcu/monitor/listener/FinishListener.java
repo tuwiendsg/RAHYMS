@@ -8,7 +8,7 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
-public class CollectiveListener implements ListenerInterface {
+public class FinishListener implements ListenerInterface {
 
     private EPStatement statement;
 
@@ -17,13 +17,13 @@ public class CollectiveListener implements ListenerInterface {
 
         String expression;
 
-        expression = "SELECT * FROM CollectiveStream";
+        expression = "DELETE FROM CollectiveStream WHERE type=EventType.FINISHED ";
         epService.getEPAdministrator().createEPL(expression)
         .addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 int i = 0;
                 for (EventBean event: newEvents) {
-                    Util.log().warning("Collective [" + (i++) + "]: " + event.getUnderlying());
+                    Util.log().warning("DELETE [" + (i++) + "]: " + event.getUnderlying());
                 }
             }
         });

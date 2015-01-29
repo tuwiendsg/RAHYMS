@@ -193,19 +193,24 @@ public class TaskGenerator {
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
-        
-        Hashtable<String, Role> roles = new Hashtable<String, Role>(); 
-        Hashtable<String, JSONArray> dependecies = new Hashtable<String, JSONArray>();
+        createRoles(rolesCfg, task, parentPath, new Hashtable<String, Role>(), new Hashtable<String, JSONArray>());
+    }
+
+    private void createRoles(JSONArray rolesCfg, Task task, String parentPath, Hashtable<String, Role> roles, Hashtable<String, JSONArray> dependecies) 
+            throws InstantiationException, IllegalAccessException, 
+            IllegalArgumentException, InvocationTargetException, 
+            SecurityException, ClassNotFoundException, JSONException {
         
         // iterate roles
         for (int i=0; i<rolesCfg.length(); i++) {
 
             // get role config
             JSONObject roleCfg = rolesCfg.getJSONObject(i);
-            String func = roleCfg.getString("functionality");
+            String func = roleCfg.has("functionality") ? roleCfg.getString("functionality") : null;
+            JSONArray funcSet = roleCfg.has("functionality_set") ? roleCfg.getJSONArray("functionality_set") : null;
             double pRoleToHave = roleCfg.getDouble("probabilityToHave");
             double loadRatio = roleCfg.has("relativeLoadRatio") ? roleCfg.getDouble("relativeLoadRatio") : 1.0;
-            JSONArray specCfg = roleCfg.getJSONArray("specification");
+            JSONArray specCfg = roleCfg.has("specification") ? roleCfg.getJSONArray("specification") : null;
             String currentRolePath = parentPath + "/{r}" + func;
             if (roleCfg.has("dependsOn")) {
                 dependecies.put(func, roleCfg.getJSONArray("dependsOn"));
@@ -221,17 +226,25 @@ public class TaskGenerator {
             
             if (GeneratorUtil.shouldHave(distRoleToHave, pRoleToHave)) {
                 
-                // create role
-                Role role = new Role(new Functionality(func));
-                task.addUpdateRole(role);
-                roles.put(func, role);
+                if (funcSet!=null) {
+                    // recursively call createRoles
+                    createRoles(funcSet, task, parentPath, roles, dependecies);
+                }
                 
-                // create spec
-                Specification spec = createSpecification(specCfg, currentRolePath);
-                role.setSpecification(spec);
-                
-                // set load
-                role.setLoad(loadRatio * task.getLoad());
+                else {
+                    // create role
+                    Role role = new Role(new Functionality(func));
+                    task.addUpdateRole(role);
+                    roles.put(func, role);
+                    
+                    // create spec
+                    Specification spec = createSpecification(specCfg, currentRolePath);
+                    role.setSpecification(spec);
+                    
+                    // set load
+                    role.setLoad(loadRatio * task.getLoad());
+                    
+                }
                 
             }
             
@@ -259,9 +272,14 @@ public class TaskGenerator {
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
+
         // create spec
         Specification spec = new Specification();
         
+        if (specCfg==null) {
+            return spec;
+        }
+
         // iterate spec
         for (int j=0; j<specCfg.length(); j++) {
             

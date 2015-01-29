@@ -14,6 +14,39 @@
                     "relativeLoadRatio": 1.0,
                     "specification": [ 
                     ]
+                },
+                {   
+                    "functionality": "SensorNW",
+                    "probabilityToHave": 1.0,
+                    "relativeLoadRatio": 0.2,
+                    "specification": [ 
+                    ]
+                },
+                {
+                    "functionality": "DataAnalytic",
+                    "probabilityToHave": 1.0,
+                    "relativeLoadRatio": 0.7,
+                    "specification": [ 
+                    ]
+                },
+                {   
+                    "functionality_set": [
+                        {
+                            "functionality": "Analyst",
+                            "probabilityToHave": 1.0,
+                            "relativeLoadRatio": 2.0,
+                            "specification": [ 
+                            ]
+                        },
+                        {
+                            "functionality": "Inspector",
+                            "probabilityToHave": 1.0,
+                            "relativeLoadRatio": 2.5,
+                            "specification": [ 
+                            ]
+                        }
+                    ],
+                    "probabilityToHave": 0.3
                 }
             ],
             "subTaskTypes": [],

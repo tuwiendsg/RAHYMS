@@ -24,6 +24,7 @@ import at.ac.tuwien.dsg.hcu.composer.model.ConnectednessGraph;
 import at.ac.tuwien.dsg.hcu.composer.model.ConstructionGraph;
 import at.ac.tuwien.dsg.hcu.composer.model.Solution;
 import at.ac.tuwien.dsg.hcu.composer.model.SolutionComponent;
+import at.ac.tuwien.dsg.hcu.util.Tracer;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
 
@@ -90,27 +91,13 @@ public class Composer implements ComposerInterface {
         algoName = Util.getProperty(configFile, "algorithm");
         Util.log().info("[Composer] Initializing using " + algoName + " algorithm");
 
-        // init tracer
-        String traceFilePrefix = Util.getProperty(configFile, "trace_file_prefix");
-        if (traceFilePrefix!=null && !traceFilePrefix.equals("")) {
-            Util.log().info("Initiating tracer");
-            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
-            Date now = new Date();
-            String date = sdfDate.format(now);      
-            globalTracer = new ComposerTracer(traceFilePrefix + "global-" + date + ".csv");
-            globalTracer.traceln(algoName);
-            globalTracer.traceln("flag,algo_time,task,data,task," + globalTracer.getTraceHeader());
-        }
+        // get composer tracer
+        globalTracer = (ComposerTracer) Tracer.getTracer("composer");
 
-        // init reliability tracer
-        String reliabilityTraceFilePrefix = Util.getProperty(configFile, "reliability_trace_file_prefix");
-        if (reliabilityTraceFilePrefix!=null && !reliabilityTraceFilePrefix.equals("")) {
-            Util.log().info("Initiating reliability tracer");
-            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
-            Date now = new Date();
-            String date = sdfDate.format(now);      
-            reliabilityTracer = new ReliabilityTracer(reliabilityTraceFilePrefix + date + ".csv", discoverer);
-            reliabilityTracer.traceln(reliabilityTracer.getTraceHeader());
+        // get reliability tracer
+        reliabilityTracer = (ReliabilityTracer) Tracer.getTracer("reliability");
+        if (reliabilityTracer!=null) {
+            reliabilityTracer.setDiscoverer(discoverer);
         }
 
         // start service
@@ -189,7 +176,7 @@ public class Composer implements ComposerInterface {
         
         Solution solution = startAlgoritm();
         
-        if (reliabilityTracer!=null && constructionGraph!=null) {
+        if (constructionGraph!=null) {
             reliabilityTracer.traceln(task, solution.getAssignments(), clock, taskCounter);
         }
         
