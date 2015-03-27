@@ -1,5 +1,6 @@
 package at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.metric;
 
+import gridsim.GridSim;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MetricInterface;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
@@ -49,7 +50,8 @@ public class GSAvailabilityMetric implements MetricInterface {
                         duration = (double) params[2];
                     }
                     double response = measureResposeTime(element, start, load, duration);
-                    result = response;
+                    //result = response;
+                    result = response - GridSim.clock();
                 }
                 break;
             case "execution_time":

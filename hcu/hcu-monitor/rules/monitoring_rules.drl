@@ -1,5 +1,6 @@
 package at.ac.tuwien.dsg.hcu.monitor
  
+import at.ac.tuwien.dsg.hcu.common.model.*;
 import at.ac.tuwien.dsg.hcu.monitor.stream.*;
 import at.ac.tuwien.dsg.hcu.monitor.action.*;
 
@@ -9,8 +10,8 @@ import at.ac.tuwien.dsg.hcu.monitor.action.*;
 rule "MaxUtilViolated"
 no-loop true
     when
-        collectiveStream : CollectiveStream(metricName=="utilization", metricValue>=0.2)
+        collective : SCU(getProperty("utilization", 0.0)>=0.2)
     then
-        Action.handleUtilizationOverload(collectiveStream.getCollective(), collectiveStream.getMetricValue());
+        Action.handleUtilizationOverload(collective);
 end
 

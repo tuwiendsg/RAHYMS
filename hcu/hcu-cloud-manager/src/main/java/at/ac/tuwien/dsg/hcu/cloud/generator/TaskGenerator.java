@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import at.ac.tuwien.dsg.hcu.common.model.Functionality;
+import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
 import at.ac.tuwien.dsg.hcu.common.model.Role;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
 import at.ac.tuwien.dsg.hcu.common.sla.Objective;
@@ -64,7 +65,7 @@ public class TaskGenerator {
         return allTasks;
     }
 
-    private ArrayList<Task> generateOneConfig(JSONObject configRoot) 
+    protected ArrayList<Task> generateOneConfig(JSONObject configRoot) 
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
@@ -93,6 +94,11 @@ public class TaskGenerator {
         for (JSONObject curTaskTypeCfg: taskTypes.values()) {
             if (curTaskTypeCfg.getBoolean("isRootTask")) {
                 tasks = createTask(curTaskTypeCfg, null, "", 1.0, rootTasks);
+            }
+            // set optimization objective
+            OptimizationObjective objective = createOptimizationObjective(curTaskTypeCfg);
+            for (Task t: tasks) {
+                t.setOptimizationObjective(objective);
             }
         }
         
@@ -169,7 +175,7 @@ public class TaskGenerator {
             createRoles(rolesCfg, task, currentPath);
             
             // create specification
-            JSONArray specCfg = taskTypeCfg.getJSONArray("specification");
+            JSONArray specCfg = taskTypeCfg.has("specification") ? taskTypeCfg.getJSONArray("specification") : null;
             Specification spec = createSpecification(specCfg, currentPath);
             task.setSpecification(spec);
             
@@ -189,11 +195,27 @@ public class TaskGenerator {
         return tasks;
     }
     
+    private OptimizationObjective createOptimizationObjective(JSONObject taskTypeCfg) {
+        OptimizationObjective objective = new OptimizationObjective();
+        if (taskTypeCfg.has("optimizationObjective")) {
+            JSONArray objList = taskTypeCfg.getJSONArray("optimizationObjective");
+            for (int i=0; i<objList.length(); i++) {
+                String name = objList.getJSONObject(i).getString("name");
+                Double value = objList.getJSONObject(i).getDouble("value");
+                objective.setWeight(name, value);
+            }
+        }
+        return objective;
+    }
+    
     private void createRoles(JSONArray rolesCfg, Task task, String parentPath) 
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
-        createRoles(rolesCfg, task, parentPath, new Hashtable<String, Role>(), new Hashtable<String, JSONArray>());
+        Hashtable<String, Role> roles = new Hashtable<String, Role>();
+        Hashtable<String, JSONArray> dependencies = new Hashtable<String, JSONArray>();
+        createRoles(rolesCfg, task, parentPath, roles, dependencies);
+        createDependencies(roles, dependencies);
     }
 
     private void createRoles(JSONArray rolesCfg, Task task, String parentPath, Hashtable<String, Role> roles, Hashtable<String, JSONArray> dependecies) 
@@ -231,10 +253,11 @@ public class TaskGenerator {
                     createRoles(funcSet, task, parentPath, roles, dependecies);
                 }
                 
-                else {
+                else if (func!=null) {
                     // create role
                     Role role = new Role(new Functionality(func));
                     task.addUpdateRole(role);
+                    System.out.println(task);
                     roles.put(func, role);
                     
                     // create spec
@@ -249,7 +272,9 @@ public class TaskGenerator {
             }
             
         }
-        
+    }
+    
+    private void createDependencies(Hashtable<String, Role> roles, Hashtable<String, JSONArray> dependecies) {
         // role dependency
         for (String func: dependecies.keySet()) {
             Role me = roles.get(func); 

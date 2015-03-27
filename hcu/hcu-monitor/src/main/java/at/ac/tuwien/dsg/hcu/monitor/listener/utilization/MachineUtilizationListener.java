@@ -23,10 +23,12 @@ public class MachineUtilizationListener implements ListenerInterface {
         expression = 
                 "INSERT INTO Utilization "
                         //+ "SELECT unit, task, cast(unit.getMetric('utilization', 0.0), double) as value "
-                        + "SELECT unit, cast(unit.getMetric('utilization', 0.0), double) as value "
-                        + "FROM AssignmentStream("
-                        + "  type=EventType.ASSIGNED"
-                        + "  ,unit.type=2"
+                        + "SELECT type, unit, cast(unit.getMetric('utilization', 0.0), double) as value "
+                        + "FROM AssignmentStreamWindow("
+                        + " type=EventType.ASSIGNED OR "
+                        + " type=EventType.FINISHED OR"
+                        + " type=EventType.FAILED,"
+                        + " unit.type=2"
                         + ") ";
         epService.getEPAdministrator().createEPL(expression)
         .addListener(new UpdateListener() {

@@ -5,8 +5,14 @@
             "name": "MachineSensing",
             "description": "MachineSensing",
             "isRootTask": true,
-            "tasksOccurance": {"class": "java.lang.Integer", "params": [10], "sampleMethod": "doubleValue"},
+            "tasksOccurance": {"class": "java.lang.Integer", "params": [5], "sampleMethod": "doubleValue"},
             "load": {"class": "NormalDistribution", "params": [3, 0.5, 1.0E-9]},  
+            "optimizationObjective": [
+                {"name": "skill", "value": 0.0},
+                {"name": "cost", "value": 1.0},
+                {"name": "time", "value": 1.0},
+                {"name": "connectedness", "value": 0.0}
+            ],
             "roles": [
                 {   
                     "functionality": "Sensor",
@@ -29,7 +35,7 @@
                     "specification": [ 
                     ]
                 },
-                {   
+                {
                     "functionality_set": [
                         {
                             "functionality": "Analyst",

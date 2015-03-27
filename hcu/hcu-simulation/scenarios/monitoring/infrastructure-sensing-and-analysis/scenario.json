@@ -1,7 +1,7 @@
 {
     "title": "Monitoring infrastucture sensing and analysis",
-    "numberOfCycles": 1,
-    "waitBetweenCycle": 1,
+    "numberOfCycles": 100,
+    "waitBetweenCycle": 15,
     "service_generator": {
         "basedir": "service-generator/",
         "files": [
@@ -19,8 +19,10 @@
         "basedir": "task-generator/",
         "files": [
             "human-sensing-task-generator.json",
-            "machine-sensing-task-generator.json",
-            "mixed-sensing-task-generator.json"
+            "machine-sensing-task-generator.json"
+        ],
+        "#files": [
+            "human-sensing-task-generator.json"
         ]
     }
 }

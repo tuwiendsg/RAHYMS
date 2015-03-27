@@ -15,10 +15,7 @@ public class Batch {
     // create batch from a task with empty assignees
     public Batch(Task task) {
         this();
-        for (Role r: task.getAllRoles()) {
-            Assignment a = new Assignment(null, task, r);
-            addAssignment(a);
-        }
+        assignments = task.createEmptyAssignments();
         this.task = task;
     }
     

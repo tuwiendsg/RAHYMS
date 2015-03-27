@@ -8,7 +8,7 @@ public class UtilizationMetric implements MetricInterface {
     
     // TODO: measured machine utilization based on the queue load
     
-    private static final int MAX_ASSIGNMENT = 10;
+    private static final int MAX_ASSIGNMENT = 50;
 
     @Override
     public Object measure(Service service, String name, Object[] params) {

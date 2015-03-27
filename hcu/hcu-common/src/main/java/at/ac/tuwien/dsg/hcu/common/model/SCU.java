@@ -41,12 +41,46 @@ public class SCU {
         this.properties = properties;
     }
     
+    public Object getProperty(String name) {
+        return getProperty(name, null);
+    }
+
+    public Object getProperty(String name, Object _default) {
+        return getProperties().getValue(name, _default);
+    }
+
+    public void setProperty(String name, Object value) {
+        getProperties().setValue(name, value);
+    }
+
     public int getId() {
         return this.batch.getId();
     }
 
     public Task getTask() {
         return this.batch.getTask();
+    }
+    
+    public Task.Status getStatus() {
+        return this.getTask().getStatus();
+    };
+    
+    public String debugUtilization() {
+        String result = "";
+        for (Assignment a: this.batch.getAssignments()) {
+            if (!result.equals("")) {
+                result += ",";
+            }
+            ComputingElement unit = a.getAssignee().getProvider();
+            String unitDesc = String.format("%s[%s:%s]", unit.getName(), a.getRole(), a.getStatus());
+            if (unit instanceof HumanComputingElement) {
+                //result += unit.getName() + "," + unit.getProperty("AssignmentCount")  + "," + unit.getProperty("FinishedCount");
+                result += unitDesc + "," + unit.getAssignmentCount()  + "," + unit.getFinishedCount();
+            } else {
+                result += unitDesc + "," + unit.getMetric("utilization", 0.0);
+            }
+        }
+        return result;
     }
 
     @Override

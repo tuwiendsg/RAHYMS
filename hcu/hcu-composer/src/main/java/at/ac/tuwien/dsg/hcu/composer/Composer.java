@@ -1,9 +1,7 @@
 package at.ac.tuwien.dsg.hcu.composer;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -14,11 +12,10 @@ import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.Connection;
+import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
 import at.ac.tuwien.dsg.hcu.common.model.Role;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
-import at.ac.tuwien.dsg.hcu.common.model.optimization.OptimizationObjective;
-import at.ac.tuwien.dsg.hcu.common.model.optimization.TaskWithOptimization;
 import at.ac.tuwien.dsg.hcu.composer.algorithm.ComposerAlgorithmInterface;
 import at.ac.tuwien.dsg.hcu.composer.model.ConnectednessGraph;
 import at.ac.tuwien.dsg.hcu.composer.model.ConstructionGraph;
@@ -30,13 +27,13 @@ import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class Composer implements ComposerInterface {
 
-    private static ComposerTracer globalTracer = null;
+    private static ComposerTracer composerTracer = null;
     private static ReliabilityTracer reliabilityTracer = null;
     private static String algoName;
     private static int taskCounter = 0;
 
     private String configFile;
-    private TaskWithOptimization task;
+    private Task task;
     private ConstructionGraph constructionGraph;
     private ConnectednessGraph connectednessGraph;
     
@@ -61,11 +58,11 @@ public class Composer implements ComposerInterface {
         this.dp = dp;
     }
 
-    public TaskWithOptimization getTask() {
+    public Task getTask() {
         return task;
     }
 
-    public void setTask(TaskWithOptimization task) {
+    public void setTask(Task task) {
         this.task = task;
     }
 
@@ -92,7 +89,7 @@ public class Composer implements ComposerInterface {
         Util.log().info("[Composer] Initializing using " + algoName + " algorithm");
 
         // get composer tracer
-        globalTracer = (ComposerTracer) Tracer.getTracer("composer");
+        composerTracer = (ComposerTracer) Tracer.getTracer("composer");
 
         // get reliability tracer
         reliabilityTracer = (ReliabilityTracer) Tracer.getTracer("reliability");
@@ -106,42 +103,19 @@ public class Composer implements ComposerInterface {
 
     }
     
-    private TaskWithOptimization addOptimization(Task task) {
-        TaskWithOptimization taskWO;
-        if (task instanceof TaskWithOptimization) {
-            taskWO = (TaskWithOptimization) task;
-        } else {
-            taskWO = new TaskWithOptimization(task);
-            OptimizationObjective objective = new OptimizationObjective();
-            objective.setWeight("skill", 1.0);
-            objective.setWeight("connectedness", 1.0);
-            objective.setWeight("cost", 1.0);
-            objective.setWeight("time", 1.0);
-            taskWO.setOptObjective(objective);
-        }
-        return taskWO;
-    }
-
     @Override
-    public List<Assignment> partialCompose(Task task, List<Role> roles, double clock) {
-        TaskWithOptimization taskWO = addOptimization(task);
-        List<Assignment> assignments = partialCompose(taskWO, roles, clock);
-        return assignments;
-    }
-
-    @Override
-    public List<Assignment> partialCompose(TaskWithOptimization task,
+    public List<Assignment> partialCompose(Task task,
             List<Role> roles, double clock) {
 
         // TODO: handle sub-task
         
         // check objective weight
-        if (task.getOptObjective().getWeight("skill") + 
-                task.getOptObjective().getWeight("connectedness") +
-                task.getOptObjective().getWeight("cost") +
-                task.getOptObjective().getWeight("time") <= 0) {
+        if (task.getOptimizationObjective().getWeight("skill") + 
+                task.getOptimizationObjective().getWeight("connectedness") +
+                task.getOptimizationObjective().getWeight("cost") +
+                task.getOptimizationObjective().getWeight("time") <= 0) {
             Util.log().info("Invalid objective!");
-            if (globalTracer!=null) globalTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"Invalid objective!\"");
+            if (composerTracer!=null) composerTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"Invalid objective!\"");
             return new ArrayList<Assignment>();
         }
 
@@ -157,7 +131,7 @@ public class Composer implements ComposerInterface {
 
         if (constructionGraph==null) {
             Util.log().warning("No feasible solution found!");
-            if (globalTracer!=null) globalTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"No feasible solution found!\"");
+            if (composerTracer!=null) composerTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"No feasible solution found!\"");
             return null;
         }
 
@@ -176,7 +150,7 @@ public class Composer implements ComposerInterface {
         
         Solution solution = startAlgoritm();
         
-        if (constructionGraph!=null) {
+        if (reliabilityTracer!=null && constructionGraph!=null) {
             reliabilityTracer.traceln(task, solution.getAssignments(), clock, taskCounter);
         }
         
@@ -186,13 +160,6 @@ public class Composer implements ComposerInterface {
 
     @Override
     public List<Assignment> compose(Task task, double clock) {
-        TaskWithOptimization taskWO = addOptimization(task);
-        List<Assignment> assignments = compose(taskWO, clock);
-        return assignments;
-    }
-
-    @Override
-    public List<Assignment> compose(TaskWithOptimization task, double clock) {
         taskCounter++;
         return partialCompose(task, null, clock);
     }
@@ -225,19 +192,19 @@ public class Composer implements ComposerInterface {
             //Util.log().warning("Solution: " + solution.toString());
 
             // trace
-            if (globalTracer!=null) {
+            if (composerTracer!=null) {
                 String data = "";
                 if (solution!=null && solution.size()>0) {
                     data = solution.getData();
                 }
                 String flag = "";
                 if (this.isSolutionFeasible(solution)) flag = "f"; 
-                globalTracer.trace(flag + "," + algoTime + ","+task.getName()+","
+                composerTracer.trace(flag + "," + algoTime + ","+task.getName()+","
                         +data+",\"" + task.toString() + "\",");
                 if (solution!=null && solution.size()>0) {
-                    globalTracer.traceln(solution, "");
+                    composerTracer.traceln(solution, "");
                 } else {
-                    globalTracer.traceln("Algo can't find solution!"); 
+                    composerTracer.traceln("Algo can't find solution!"); 
                 }
             }
 
@@ -255,7 +222,7 @@ public class Composer implements ComposerInterface {
 
     public boolean isSolutionFeasible(Solution s) {
         
-        OptimizationObjective objective = task.getOptObjective();
+        OptimizationObjective objective = task.getOptimizationObjective();
 
         // get SLOs constraints
         double costLimit = (double) task.getObjectiveValue("cost_limit", 99999.0);
@@ -288,7 +255,7 @@ public class Composer implements ComposerInterface {
 
     public Hashtable<Solution,Double> calculateObjectiveValues(ArrayList<Solution> solutions) {
 
-        OptimizationObjective objective = task.getOptObjective();
+        OptimizationObjective objective = task.getOptimizationObjective();
         
         String connectednessQuality = (String) task.getObjectiveValue("connectedness", "poor");
         Hashtable<Solution,Double> objectiveValues = new Hashtable<Solution,Double>();
@@ -416,7 +383,7 @@ public class Composer implements ComposerInterface {
         double prevRT = 0;
 
         // get objective weights
-        OptimizationObjective objective = task.getOptObjective();
+        OptimizationObjective objective = task.getOptimizationObjective();
         double competencyWeight = objective.getWeight("skill");
         double connectednessWeight = objective.getWeight("connectedness");
         double rtWeight = objective.getWeight("time");

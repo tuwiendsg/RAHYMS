@@ -18,7 +18,7 @@ import at.ac.tuwien.dsg.hcu.util.Tracer;
  */
 public class ReliabilityTracer extends Tracer {
     
-    public static int K_MULTIPLIER = 1;
+    public static int K_MULTIPLIER = 2;
     private static int MIN_SUCCESFULL_COLLECTOR = 2;
     private static int MIN_SUCCESFULL_ASSESSOR = 1;
     private static int MIN_SUCCESFULL_SENSOR = 1;
@@ -79,11 +79,11 @@ public class ReliabilityTracer extends Tracer {
         }
         
         // VSU reliability
-        double rCollector = ReliabilityCalculator.dynamic(vsuCollector, MIN_SUCCESFULL_COLLECTOR, false, clock);
-        double rAssessor = ReliabilityCalculator.dynamic(vsuAssessor, MIN_SUCCESFULL_ASSESSOR, false, clock);
-        double rSensor = ReliabilityCalculator.dynamic(vsuSensor, MIN_SUCCESFULL_SENSOR, false, clock);
-        double rCitizen = ReliabilityCalculator.dynamic(vsuCitizen, 1, false, clock);
-        double rSurveyor = ReliabilityCalculator.dynamic(vsuSurveyor, 1, false, clock);
+        double rCollector = ReliabilityCalculator.dynamic(vsuCollector, MIN_SUCCESFULL_COLLECTOR, true, clock);
+        double rAssessor = ReliabilityCalculator.dynamic(vsuAssessor, MIN_SUCCESFULL_ASSESSOR, true, clock);
+        double rSensor = ReliabilityCalculator.dynamic(vsuSensor, MIN_SUCCESFULL_SENSOR, true, clock);
+        double rCitizen = ReliabilityCalculator.dynamic(vsuCitizen, 1, true, clock);
+        double rSurveyor = ReliabilityCalculator.dynamic(vsuSurveyor, 1, true, clock);
         
         // aggregate R
         // case of human only, machine only, and mixed collective are uniformly distributed

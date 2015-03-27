@@ -2,8 +2,10 @@ package at.ac.tuwien.dsg.hcu.monitor;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.RuleEngineInterface;
-import at.ac.tuwien.dsg.hcu.monitor.listener.FinishListener;
+import at.ac.tuwien.dsg.hcu.common.model.Task;
 import at.ac.tuwien.dsg.hcu.monitor.listener.CollectiveListener;
+import at.ac.tuwien.dsg.hcu.monitor.listener.FinishListener;
+import at.ac.tuwien.dsg.hcu.monitor.listener.AssignmentListener;
 import at.ac.tuwien.dsg.hcu.monitor.listener.ListenerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.listener.utilization.HCUUtilizationListener;
 import at.ac.tuwien.dsg.hcu.monitor.listener.utilization.HumanUtilizationListener;
@@ -33,10 +35,12 @@ public class MonitorManager implements MonitorInterface {
     // define event listeners
     @SuppressWarnings("unchecked")
     private static Class<ListenerInterface>[] eventListeners =  new Class[]{
+        CollectiveListener.class,
+        AssignmentListener.class,
         HumanUtilizationListener.class,
         MachineUtilizationListener.class,
         HCUUtilizationListener.class,
-        CollectiveListener.class
+        FinishListener.class
         };
 
     // define rules
@@ -48,25 +52,57 @@ public class MonitorManager implements MonitorInterface {
     private EPServiceProvider epService = null;
     private RuleEngine ruleEngine = null;
     
-    public MonitorManager() {
-        this(eventTypes, eventListeners);
+    private boolean enabled = false;
+    private boolean initialized = false;
+    
+    public MonitorManager(boolean monitoringEnabled) {
+        this.enabled = monitoringEnabled;
+        if (monitoringEnabled) {
+            initMonitorManager(eventTypes, eventListeners);
+            ruleEngine.start();
+        }
+    }
+    
+    public void enable() {
+        if (!enabled) {
+            initMonitorManager(eventTypes, eventListeners);
+            ruleEngine.start();
+            enabled = true;
+        }
     }
 
-    private MonitorManager(Class[] eventTypes, Class[] eventListeners) {
+    public void disable() {
+        if (enabled) {
+            ruleEngine.stop();
+            enabled = false;
+        }
+    }
 
+    public void initMonitorManager(Class[] eventTypes, Class[] eventListeners) {
+
+        if (initialized) {
+            return;
+        }
+        
         Util.log("Setting up event processor engine");
 
         // initialize configuration
         configuration = new Configuration();
+        configuration.getEngineDefaults().getExpression().setUdfCache(false);
+        configuration.addPlugInSingleRowFunction("collectiveStatus", CollectiveStream.class.getName(), "getCollectiveStatus");
         configuration.addImport("at.ac.tuwien.dsg.hcu.monitor.stream.*");
         configuration.addImport("at.ac.tuwien.dsg.hcu.common.model.*");
+        configuration.addImport("at.ac.tuwien.dsg.hcu.common.model.Task.Status");
         for (Class clazz: eventTypes) {
             configuration.addEventType(clazz);
         }
-
+        
         // initialize EP engine
         epService = EPServiceProviderManager.getProvider(ENGINE_URI, configuration);
         epService.initialize();
+        
+        // run create windows
+        WindowsCreator.run(epService);
         
         // initialize listeners
         for (Class clazz: eventListeners) {
@@ -80,20 +116,14 @@ public class MonitorManager implements MonitorInterface {
         
         // initialize rule engine
         ruleEngine = new RuleEngine(ruleFile);
-        ruleEngine.start();
         
-    }
-
-    public static MonitorManager getInstance() {
-        if (instance==null) {
-            instance = new MonitorManager();
-        }
-        return instance;
     }
 
     @Override
     public void sendEvent(Object obj) {
-        epService.getEPRuntime().sendEvent(obj);
+        if (enabled) {
+            epService.getEPRuntime().sendEvent(obj);
+        }
     }
 
     public RuleEngineInterface getRuleEngine() {

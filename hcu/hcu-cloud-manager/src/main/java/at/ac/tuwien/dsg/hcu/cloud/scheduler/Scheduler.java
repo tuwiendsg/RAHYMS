@@ -61,12 +61,12 @@ public class Scheduler implements SchedulerInterface {
     
     public void queue(Task task) {
         // verify dependencies
-        Batch batch = new Batch(task);
-        if (!dp.verify(batch.getAssignments())) {
+        List<Assignment> assignments = task.createEmptyAssignments();
+        if (!dp.verify(assignments)) {
             Util.log().severe("INVALID dependency detected! Roles dependencies must be acyclic and does not have multi-edges.");
 
             // debug, show the graph
-            ListenableDirectedWeightedGraph<Assignment, DefaultWeightedEdge> graph = dp.generateGraph(batch.getAssignments());
+            ListenableDirectedWeightedGraph<Assignment, DefaultWeightedEdge> graph = dp.generateGraph(assignments);
             if (graph!=null) {
                 ShowGraphApplet<Assignment, DefaultWeightedEdge> applet = new ShowGraphApplet<Assignment, DefaultWeightedEdge>();
                 applet.showGraph(graph);

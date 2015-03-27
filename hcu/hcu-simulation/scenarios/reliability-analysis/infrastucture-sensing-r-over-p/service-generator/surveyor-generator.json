@@ -43,7 +43,13 @@
         {
             "type": "static",
             "name": "fault_probability",
-            "value": {"class": "NormalDistribution", "params": [0.05, 0.01, 1.0E-9]},   
+            "value": {"class": "NormalDistribution", "params": [0.25, 0.01, 1.0E-9]},   
+            "probabilityToHave": 1.0
+        },
+        {
+            "type": "static",
+            "name": "assignment_priority",
+            "value": 3,   
             "probabilityToHave": 1.0
         },
         {

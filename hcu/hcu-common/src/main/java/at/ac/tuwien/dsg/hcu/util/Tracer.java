@@ -103,7 +103,10 @@ public class Tracer {
             
             // read config
             JSONObject tracerCfg = root.getJSONObject(i);
-            String name = tracerCfg.getString("name");
+            String name = tracerCfg.has("name") ? tracerCfg.getString("name") : null;
+            if (name==null) {
+                continue;
+            }
             String filePrefix = tracerCfg.getString("file_prefix");
             String clazz = tracerCfg.getString("class");
             String header = tracerCfg.has("header") ? tracerCfg.getString("header") : null;

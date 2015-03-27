@@ -20,7 +20,7 @@
         {
             "type": "static",
             "name": "performance_rating",
-            "value": {"class": "NormalDistribution", "params": [0.97, 0.01, 1.0E-9]},   
+            "value": {"class": "NormalDistribution", "params": [0.8, 0.2, 1.0E-9]},   
             "probabilityToHave": 1.0
         },
         {
@@ -44,7 +44,7 @@
         {
             "type": "static",
             "name": "cost",
-            "value": {"class": "NormalDistribution", "params": [3, 0.5, 1.0E-9]},   
+            "value": {"class": "NormalDistribution", "params": [3, 1.5, 1.0E-9]},   
             "probabilityToHave": 1.0
         },                
         {

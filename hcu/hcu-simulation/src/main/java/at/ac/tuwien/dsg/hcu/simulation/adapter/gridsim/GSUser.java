@@ -56,8 +56,8 @@ public class GSUser extends ReservationRequester {
         int numPE = 1;
         Util.log().info("Sending reservation to " + destId + ", " + assignment);
         // give some time, since simulation time may have been shifted a bit
-        duration = duration + 3;
-        startTime = startTime + 2;
+        duration = duration + 4;
+        startTime = startTime + 1;
         Reservation reservation = super.createReservation(startTime, (int)duration, numPE, destId);
         Util.log().info("Reservation result = " + reservation +
                 ", for " + assignment);
@@ -70,7 +70,7 @@ public class GSUser extends ReservationRequester {
             gridletList.put(assignment.getId(), gsAssignment);
         }
 
-        // add assignment count
+        // add assignment count, should be added here so that it becomes effective on next task
         ComputingElement provider = assignment.getAssignee().getProvider();
         provider.addAssignmentCount();
         
@@ -152,6 +152,12 @@ public class GSUser extends ReservationRequester {
     }
     
     public void returnAssignment(Assignment assignment) {
+        // remove from reservation list and gridlet list
+        reservationList.remove(assignment.getId());
+        gridletList.remove(assignment.getId());
+        // add finish count
+        assignment.getAssignee().getProvider().addFinishedCount();
+        // returning to the middleware
         if (middleware!=null) {
             Util.log().info("Returning assignment to middleware");
             super.send(middleware.get_id(), GridSimTags.SCHEDULE_NOW, GSConstants.RETURN_ASSIGNMENT, assignment);
@@ -189,14 +195,14 @@ public class GSUser extends ReservationRequester {
                 case GSConstants.RESERVE_ASSIGNMENT:
                     Assignment assignment1 = (Assignment)ev.get_data();
                     Util.log().info("RESERVE_ASSIGNMENT, " + assignment1);
-                    reserveAssignment(assignment1);
                     assignment1.setStatus(Status.NOTIFIED);
+                    reserveAssignment(assignment1);
                     break;
                 case GSConstants.COMMIT_ASSIGNMENT:
                     Assignment assignment2 = (Assignment)ev.get_data();
                     Util.log().info("COMMIT_ASSIGNMENT, " + assignment2);
-                    commitAssignment(assignment2);
                     assignment2.setStatus(Status.ASSIGNED);
+                    commitAssignment(assignment2);
                     break;
                 case GSConstants.FORECAST_RESPONSE_TIME:
                     GSAssignment assignment3 = (GSAssignment)ev.get_data();

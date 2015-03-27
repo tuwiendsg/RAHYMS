@@ -13,14 +13,6 @@
                     "probabilityToHave": 1.0,
                     "relativeLoadRatio": 1.0,
                     "specification": [ 
-                        {
-                            "type": "skill",
-                            "name": "skill_collector",
-                            "value": {"class": "UniformIntegerDistribution", "params": [0, 1], 
-                                        "mapping": {"0": "poor", "1": "fair", "2": "good", "3": "very_good"}},
-                            "probabilityToHave": 1.0,
-                            "comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator"
-                        }                        
                     ]
                 },
                 {   
@@ -29,14 +21,6 @@
                     "relativeLoadRatio": 0.8,
                     "dependsOn": ["*Collector"],
                     "specification": [ 
-                        {
-                            "type": "skill",
-                            "name": "skill_assessor",
-                            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
-                                        "mapping": {"0": "poor", "1": "fair", "2": "good", "3": "very_good"}},
-                            "probabilityToHave": 1.0,
-                            "comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator"
-                        }
                     ]
                 }
             ],

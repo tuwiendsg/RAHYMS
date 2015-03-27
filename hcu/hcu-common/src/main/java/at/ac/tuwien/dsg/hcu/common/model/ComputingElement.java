@@ -90,6 +90,18 @@ public class ComputingElement {
         autoUpdate();
     }
     
+    public Object getProperty(String name) {
+        return getProperty(name, null);
+    }
+
+    public Object getProperty(String name, Object _default) {
+        return getProperties().getValue(name, _default);
+    }
+
+    public void setProperty(String name, Object value) {
+        getProperties().setValue(name, value);
+    }
+
     public List<Connection> getConnections() {
         return connections;
     }
@@ -263,6 +275,10 @@ public class ComputingElement {
     
     public int getFinishedCount() {
         return finishedCount;
+    }
+
+    public int getActiveAssignmentCount() {
+        return assignmentCount - finishedCount;
     }
     
     public static List<ComputingElement> getElementsFromServices(List<Service> services) {

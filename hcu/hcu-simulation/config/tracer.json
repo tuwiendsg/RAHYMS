@@ -1,20 +1,27 @@
 [
     {
         "name": "reliability",
-        "file_prefix": "traces/reliability/",
+        "#file_prefix": "traces/reliability/test-basic/",
+        "file_prefix": "traces/reliability/r-over-p/sorted-surveyor(p=0.25)-",
         "class": "at.ac.tuwien.dsg.hcu.cloud.metric.helper.ReliabilityTracer",
     },
     {
         "name": "composer",
-        "file_prefix": "traces/composer/",
+        "file_prefix": "traces/composer/sorted-FairDistribution-composer-",
         "class": "at.ac.tuwien.dsg.hcu.composer.ComposerTracer",
     },
     {
-        "name": "hcu_utilization",
+        "#name": "hcu_util_detail",
         "header": "id,clock,utilization",
-        "file_prefix": "traces/monitor/hcu-util-",
+        "file_prefix": "traces/Cycle100-Task10-Wait15/GreedyLocalSearch-util-",
         "class": "at.ac.tuwien.dsg.hcu.util.Tracer",
         "unique": true
-    }
-    
+    },
+    {
+        "#name": "hcu_util_aggregate",
+        "header": "clock,count,avg,min,max,median,avedev,stddev",
+        "file_prefix": "traces/Cycle100-Task10-Wait15/GreedyLocalSearch-util-agg-",
+        "class": "at.ac.tuwien.dsg.hcu.util.Tracer",
+        "unique": true
+    },
 ]

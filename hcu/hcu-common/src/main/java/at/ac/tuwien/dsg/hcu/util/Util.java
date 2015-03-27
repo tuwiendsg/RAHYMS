@@ -75,28 +75,29 @@ public class Util {
     public static double Double(Object o) {
         return Double(o, 0.0);
     }
-    
+
     public static Logger log(String loggerName) {
-    	Logger log = LogManager.getLogManager().getLogger(loggerName);
-    	if (log==null) {
-    		log = Logger.getLogger(loggerName);
-    		// remove existing handler
-    		log.setUseParentHandlers(false);
-			for(Handler handler : log.getHandlers()){
-				log.removeHandler(handler);
-			}
-			// add new handler
-    		Handler hd = new ConsoleHandler();
-			hd.setFormatter(new LogFormatter());
-			log.addHandler(hd);
-    		LogManager.getLogManager().addLogger(log);
-    	}
+        Logger log = LogManager.getLogManager().getLogger(loggerName);
+        if (log==null) {
+            log = Logger.getLogger(loggerName);
+            // remove existing handler
+            log.setUseParentHandlers(false);
+            for(Handler handler : log.getHandlers()){
+                log.removeHandler(handler);
+            }
+            // add new handler
+            Handler hd = new ConsoleHandler();
+            hd.setFormatter(new LogFormatter());
+            log.addHandler(hd);
+            LogManager.getLogManager().addLogger(log);
+        }
         return log;
     }
 
     public static Logger log() {
-    	Logger log = log(Util.class.getName());
-    	log.setLevel(Level.WARNING);
-    	return log;
+        Logger log = log(Util.class.getName());
+        //log.setLevel(Level.WARNING);
+        log.setLevel(Level.INFO);
+        return log;
     }
 }

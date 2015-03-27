@@ -32,7 +32,7 @@ public class CollectiveStream extends BaseStream {
         this.collective = collective;
         this.task = collective.getTask();
     }
-
+    
     @Override
     public String toString() {
         return "CollectiveStream [type=" + type + ", metric(" + metricName + ")=" + metricValue + ", collective=" + collective + "]";

@@ -209,7 +209,7 @@ public class ACOAlgorithm implements ComposerAlgorithmInterface {
 
         // return result
         if (feasibleSolutions.size()==0) {
-            System.out.println("No feasible solution found!");
+            System.out.println("ACO can't find feasible solution!");
             return new Solution();
         } else if (perfectSolution!=null) {
             perfectSolution.setData("*" + c);

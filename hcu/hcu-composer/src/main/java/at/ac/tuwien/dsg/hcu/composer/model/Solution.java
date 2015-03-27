@@ -192,11 +192,6 @@ public class Solution {
         return true;
     }
     
-    public void addAssignmentCounter() {
-    	for (SolutionComponent comp: list) {
-    		comp.getAssignee().getProvider().addAssignmentCount();
-    	}
-    }
 
 
 }

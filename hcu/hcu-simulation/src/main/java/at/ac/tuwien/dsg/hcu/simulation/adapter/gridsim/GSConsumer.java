@@ -16,14 +16,13 @@ import java.util.List;
 import org.json.JSONException;
 
 import at.ac.tuwien.dsg.hcu.cloud.generator.ServiceGenerator;
-import at.ac.tuwien.dsg.hcu.cloud.generator.TaskWithOptimizationGenerator;
+import at.ac.tuwien.dsg.hcu.cloud.generator.TaskGenerator;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
+import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
-import at.ac.tuwien.dsg.hcu.common.model.optimization.OptimizationObjective;
-import at.ac.tuwien.dsg.hcu.common.model.optimization.TaskWithOptimization;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
 import at.ac.tuwien.dsg.hcu.util.WekaExporter;
@@ -48,14 +47,14 @@ public class GSConsumer extends ReservationRequester {
     // have been registered
     private static int numServices;
     
-    private TaskWithOptimizationGenerator taskGen;
+    private TaskGenerator taskGen;
     private int nCycle = 1;
     private int waitBetweenCycles = 1;
     private String exportArffTo;
         
     private GSConsumer(ArrayList<ConfigJson> taskGeneratorConfig) throws Exception {
         super(NAME, 560);
-        taskGen = new TaskWithOptimizationGenerator(taskGeneratorConfig);
+        taskGen = new TaskGenerator(taskGeneratorConfig);
     }
 
     /**
@@ -79,15 +78,9 @@ public class GSConsumer extends ReservationRequester {
             
             int nTask = 0;
             
-            OptimizationObjective objective = new OptimizationObjective();
-            objective.setWeight("skill", 0.0);
-            objective.setWeight("connectedness", 0.0);
-            objective.setWeight("cost", 0.0);
-            objective.setWeight("time", 1.0);
-
             for (int i=0; i<nCycle; i++) {
 
-                ArrayList<TaskWithOptimization> tasks = taskGen.generate(objective);
+                ArrayList<Task> tasks = taskGen.generate();
                 
                 Util.log().info("Generating tasks: " + tasks.size() + " tasks");
 
@@ -119,7 +112,7 @@ public class GSConsumer extends ReservationRequester {
             List<Task> list = new ArrayList<Task>();
             for (int i=0; i<nTask; i++) {
                 Gridlet gl = super.gridletReceive();
-                Util.log().info("Receiving Gridlet " + gl);
+                Util.log().info("Receiving gridlet " + gl);
                 if (gl!=null) list.add(((GSTask)gl).getTask());
             }
             
@@ -131,14 +124,29 @@ public class GSConsumer extends ReservationRequester {
             shutdownGridStatisticsEntity();
             shutdownUserEntity();
             terminateIOEntities();
-            monitorInterface.getRuleEngine().terminate();
+            if (monitorInterface!=null) {
+                if (monitorInterface.getRuleEngine()!=null) {
+                    monitorInterface.getRuleEngine().terminate();
+                }
+            }
 
+            int success = 0;
+            int failed = 0;
             System.out.println("RESULT: ");
             for (Task task: list) {
-                //System.out.println(task);
+                System.out.println(task);
+               if (task.getStatus()==Task.Status.SUCCESSFUL) {
+                   success++;
+               }
+               if (task.getStatus()==Task.Status.FAILED) {
+                   failed++;
+               }
                 //String stat = task.getStat().dump();
                 //System.out.println(stat);
             }
+            System.out.println("Successfull tasks = " + success);
+            System.out.println("Failed tasks = " + failed);
+            System.out.println("Total tasks = " + list.size());
             
             // dump weka file
             if (exportArffTo!=null && !exportArffTo.trim().equals("")){

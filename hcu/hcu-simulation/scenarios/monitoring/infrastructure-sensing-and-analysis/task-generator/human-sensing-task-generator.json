@@ -5,15 +5,20 @@
             "name": "HumanSensing",
             "description": "HumanSensing",
             "isRootTask": true,
-            "tasksOccurance": {"class": "java.lang.Integer", "params": [20], "sampleMethod": "doubleValue"},
-            "load": {"class": "NormalDistribution", "params": [3, 0.5, 1.0E-9]},  
+            "tasksOccurance": {"class": "java.lang.Integer", "params": [5], "sampleMethod": "doubleValue"},
+            "load": {"class": "NormalDistribution", "params": [3, 0.5, 1.0E-9]},
+            "optimizationObjective": [
+                {"name": "skill", "value": 1.0},
+                {"name": "cost", "value": 1.0},
+                {"name": "time", "value": 1.0},
+                {"name": "connectedness", "value": 0.0}
+            ],
             "roles": [
                 {   
                     "functionality": "Collector",
                     "probabilityToHave": 1.0,
                     "relativeLoadRatio": 1.0,
-                    "specification": [],
-                    "_specification": [ 
+                    "specification": [ 
                         {
                             "type": "skill",
                             "name": "skill_collector",
@@ -28,9 +33,8 @@
                     "functionality": "Assessor",
                     "probabilityToHave": 1.0,
                     "relativeLoadRatio": 1.0,
-                    "dependsOn": ["*Collector"],
-                    "specification": [],
-                    "_specification": [ 
+                    "_dependsOn": ["*Collector"],
+                    "specification": [ 
                         {
                             "type": "skill",
                             "name": "skill_assessor",
@@ -40,6 +44,50 @@
                             "comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator"
                         }
                     ]
+                },
+                {
+                    "functionality": "PeoplePlatform",
+                    "probabilityToHave": 1.0,
+                    "relativeLoadRatio": 0.2,
+                    "specification": [ 
+                    ]
+                },
+                {
+                    "functionality_set": [
+                        {
+                            "functionality": "Analyst",
+                            "probabilityToHave": 1.0,
+                            "relativeLoadRatio": 2.0,
+                            "_dependsOn": ["*Assessor"],
+                            "specification": [ 
+		                        {
+		                            "type": "skill",
+		                            "name": "skill_analyst",
+		                            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+		                                        "mapping": {"0": "poor", "1": "fair", "2": "good", "3": "very_good"}},
+		                            "probabilityToHave": 1.0,
+		                            "comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator"
+		                        }
+		                    ]
+                        },
+                        {
+                            "functionality": "Inspector",
+                            "probabilityToHave": 1.0,
+                            "relativeLoadRatio": 2.5,
+                            "_dependsOn": ["*Analyst"],
+                            "specification": [ 
+                                {
+                                    "type": "skill",
+                                    "name": "skill_inspector",
+                                    "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                                                "mapping": {"0": "poor", "1": "fair", "2": "good", "3": "very_good"}},
+                                    "probabilityToHave": 1.0,
+                                    "comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator"
+                                }
+                             ]
+                        }
+                    ],
+                    "probabilityToHave": 0.3
                 }
             ],
             "subTaskTypes": [],

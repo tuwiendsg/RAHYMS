@@ -18,6 +18,7 @@ import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
+import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
 import at.ac.tuwien.dsg.hcu.composer.Composer;
 import at.ac.tuwien.dsg.hcu.monitor.MonitorManager;
 import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSConsumer;
@@ -66,16 +67,14 @@ public class Simulation {
         
         // tracer config
         String tracerConfigFile = Util.getProperty(config, "tracer_config");
-        if (tracerConfigFile==null) {
-            System.out.println("tracer_config not specified");
-            return false;
-        }
-        try {
-            tracerConfig = new ConfigJsonArray(tracerConfigFile);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-            System.out.println("Invalid tracer_config");
-            return false;
+        if (tracerConfigFile!=null) {
+            try {
+                tracerConfig = new ConfigJsonArray(tracerConfigFile);
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+                System.out.println("Invalid tracer_config");
+                return false;
+            }
         }
 
         // composer config
@@ -109,15 +108,19 @@ public class Simulation {
             }
             
             // init tracers
-            Tracer.initFromConfig(tracerConfig);
-    
+            if (tracerConfig!=null) {
+                Tracer.initFromConfig(tracerConfig);
+            }
+            
             // init components
             manager = new ServiceManagerOnMemory();
             discoverer = new Discoverer(manager);
             dp = new DependencyProcessor();
             composer = new Composer(composerConfig, manager, discoverer, dp);
             scheduler = new Scheduler(composer, dp);
-            monitor = new MonitorManager();
+            
+            boolean monitoringEnabled = Boolean.parseBoolean(Util.getProperty(config, "monitor"));
+            monitor = new MonitorManager(monitoringEnabled);
         
         } catch (FileNotFoundException e) {
             e.printStackTrace();
