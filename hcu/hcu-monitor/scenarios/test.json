@@ -1,0 +1,94 @@
+{
+    "title": "Testing GridSim Monitoring Simulation",
+    "monitoring_agents":
+    [
+        {
+            "name": "csv_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVMonitoringAdapter",
+                "config":
+                {
+                    "csv_file": "data/4.2.2015/10.99.0.18.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "Time ",
+                        "offset": -1422885048,
+                        "convert_function": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.Converter.perMil"
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseMonitoringProducer",
+                "config":
+                {
+                    
+                }
+            },
+            "topics":
+            [
+                {
+                    "name": "cpu_idle",
+                    "config":
+                    {
+                        "csv_col": "cpu_idle "
+                    }
+                },
+                {
+                    "name": "utilization",
+                    "config":
+                    {
+                        "csv_col": "cpu_idle ",
+                        "convert_function" : "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.Converter.idleToUtil"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "csv_consumer",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpMonitoringConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_agent",
+                        "topic": "cpu_idle",
+                        "config":
+                        {
+                        }
+                    }
+                ],
+                "config":
+                {
+                    
+                }
+            }
+        },
+        {
+            "name": "csv_consumer_2",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.NotSoDumpMonitoringConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_agent",
+                        "topic": "utilization",
+                        "config":
+                        {
+                        }
+                    }
+                ],
+                "config":
+                {
+                    
+                }
+            }
+        }
+    ]
+}

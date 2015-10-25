@@ -29,6 +29,7 @@ public class Composer implements ComposerInterface {
 
     private static ComposerTracer composerTracer = null;
     private static ReliabilityTracer reliabilityTracer = null;
+    private static AssignmentTracer assignmentTracer = null;
     private static String algoName;
     private static int taskCounter = 0;
 
@@ -97,6 +98,11 @@ public class Composer implements ComposerInterface {
             reliabilityTracer.setDiscoverer(discoverer);
         }
 
+        assignmentTracer = (AssignmentTracer) Tracer.getTracer("assignment");
+        if (assignmentTracer!=null) {
+            assignmentTracer.setDiscoverer(discoverer);
+        }
+
         // start service
         //Endpoint.publish("http://localhost:8082/Composer", new ProvisionerWS());
         //logger.info("Composer Service started using " + algoName + " algorithm.");
@@ -154,6 +160,10 @@ public class Composer implements ComposerInterface {
             reliabilityTracer.traceln(task, solution.getAssignments(), clock, taskCounter);
         }
         
+        if (assignmentTracer!=null && constructionGraph!=null) {
+            assignmentTracer.traceln();
+        }
+
         return solution.getAssignments();
         
     }

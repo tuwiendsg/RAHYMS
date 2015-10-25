@@ -11,6 +11,10 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 public class Util {
 
     private static Properties properties = null;
@@ -99,5 +103,14 @@ public class Util {
         //log.setLevel(Level.WARNING);
         log.setLevel(Level.INFO);
         return log;
+    }
+
+    public static Object eval(String expression, Object... arguments) throws ScriptException {
+        ScriptEngineManager engineManager = new ScriptEngineManager();
+        ScriptEngine engine = engineManager.getEngineByName("JavaScript");
+        for (int i=0; i<arguments.length; i++) {
+            expression = expression.replaceAll("%" + (i+1), arguments[i].toString());
+        }
+        return engine.eval(expression);
     }
 }
