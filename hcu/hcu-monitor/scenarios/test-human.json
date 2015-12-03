@@ -10,7 +10,7 @@
                 "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
                 "config":
                 {
-                    "csv_file": "data/ibm-scu-2015-11-09-09-14-22-083-firstpart.csv",
+                    "csv_file": "data/scu/scu-2015-11-09-09-14-22-083.csv",
                     "csv_time_cfg":
                     {
                         "csv_col": "time",
