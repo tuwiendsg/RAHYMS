@@ -36,6 +36,7 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
     private String filePath;
     private String timeCol;
     private long timeOffset = 0;
+    private double timeScale = 1.0;
     private String timeFormat;
     private String timeExpression;
     private String timeFunction;
@@ -87,6 +88,7 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
                         agent.getProducer().publish(topicData);
                     }
                 }
+                agent.stop();
             }
         }
         return dataList;
@@ -96,13 +98,13 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
         return tick(true);
     }
     
-    private Double getNormalizedValue(String svalue, Double offset, String expression, String function, String format) throws ParseException, ScriptException {
+    private Object getNormalizedValue(String svalue, Double offset, Double scale, String expression, String function, String format) throws ParseException, ScriptException {
         Double result = null;
         if (expression!=null) {
             result = (double)Util.eval(expression, svalue);
         }
         else if (function!=null) {
-            Method method = getMethod(function);
+            Method method = Util.getMethod(function);
             try {
                 result = (double)method.invoke(null, svalue);
             } catch (IllegalAccessException e) {
@@ -117,35 +119,59 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
             // only for time-formatted data
             SimpleDateFormat dateFormat = new SimpleDateFormat(format);
             Date date = dateFormat.parse(svalue);
-            result = (double)date.getTime();
+            result = (double)date.getTime()/1000;
         } else {
-            result = Double.parseDouble(svalue);
+            try {
+                result = Double.parseDouble(svalue);
+            }
+            catch (NumberFormatException e) {
+                // just let result as String as it is
+                return svalue;
+            }
         }
         if (offset!=null) {
             result += offset;
+        }
+        if (scale!=null) {
+            result *= scale;
         }
         return result;
     }
     
     @SuppressWarnings("unchecked")
     private Data getTopicData(Map<String, Object> recordData, Map<String, Object> config) {
-        HashMap<String, Object> metaData = (HashMap<String, Object>) recordData.get("metadata");
+        Map<String, Object> metaData = (HashMap<String, Object>) recordData.get("metadata");
         Data data = new Data();
+        data.getMetaData().setAll(metaData);
         Map<String, Object> values = (Map<String, Object>) recordData.get("values");
         String svalue = (String) values.get(config.get("csv_col"));
-        metaData.put("originalData", svalue);
+        data.setMetaData("originalData", svalue);
         try {
-            Double value = getNormalizedValue(
+            Object value = getNormalizedValue(
                     svalue,
                     (Double)config.get("offset"),
-                    (String)config.get("convert_expression"),
-                    (String)config.get("convert_function"),
+                    (Double)config.get("scale"),
+                    (String)config.get("expression"),
+                    (String)config.get("function"),
                     (String)config.get("format"));
             data.setValue(value);
         } catch (ParseException | ScriptException e) {
             data.setValue(null);
         }
-        data.setMetaData(metaData);
+        // retrieve additional metadata
+        List<Map<String, Object>> metadataConfig = (List<Map<String, Object>>) config.get("metadata");
+        if (metadataConfig!=null) {
+            for (Map<String, Object> mcfg: metadataConfig) {
+                String name = (String) mcfg.get("name");
+                String col = (String) mcfg.get("csv_col");
+                if (col!=null) {
+                    String mvalue = (String) values.get(col);
+                    if (mvalue!=null) {
+                        data.setMetaData(name!=null?name:col, mvalue);
+                    }
+                }
+            }
+        }
         return data;
     }
     
@@ -157,16 +183,19 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
         try {
             // get time data
             String stime = record.get(timeCol);
-            time = getNormalizedValue(stime, (double) timeOffset, timeExpression, timeFunction, timeFormat);
+            time = (Double) getNormalizedValue(stime, (double) timeOffset, timeScale, timeExpression, timeFunction, timeFormat);
             // read values
             for (String col: cols) {
                 values.put(col, record.get(col));
             }
         } catch (NumberFormatException e) {
+            System.out.println(e);
             metaData.put("originalTimeData", record.get(timeCol));
         } catch (ParseException e) {
+            System.out.println(e);
             metaData.put("originalTimeData", record.get(timeCol));
         } catch (ScriptException e) {
+            System.out.println(e);
             metaData.put("originalTimeData", record.get(timeCol));
         }
         metaData.put("counter", record.getRecordNumber());
@@ -191,10 +220,11 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
                 case CFG_SET_CSV_TIME_CFG:
                     HashMap<String, Object> timeCfg = (HashMap<String, Object>) value;
                     timeCol = (String)timeCfg.get("csv_col");
-                    timeOffset = (Integer)timeCfg.get("offset");
+                    timeOffset = (Integer)timeCfg.getOrDefault("offset", 0);
+                    timeScale = (Double)timeCfg.getOrDefault("scale", 1.0);
                     timeFormat = (String)timeCfg.get("format");
-                    timeExpression = (String)timeCfg.get("convert_expression");
-                    timeFunction = (String)timeCfg.get("convert_function");
+                    timeExpression = (String)timeCfg.get("expression");
+                    timeFunction = (String)timeCfg.get("function");
                     break;
                 case CFG_TICK:
                     tick();
@@ -227,34 +257,6 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
         this.agent = agent;
     }
     
-    private Method getMethod(String function) {
-
-        // get class name and method name
-        int dotPos = function.lastIndexOf(".");
-        String className = null;
-        String methodName = null;
-        if (dotPos==-1) {
-            className = this.getClass().getCanonicalName();
-            methodName = function;
-        } else {
-            className = function.substring(0, dotPos);
-            methodName = function.substring(dotPos+1);
-        }
-
-        Method method = null;
-        try {
-            Class<?> clazz = Class.forName(className);
-            method = clazz.getMethod(methodName, String.class);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        }
-        return method;
-    }
-
     @Override
     public void addTopic(String topicName, HashMap<String, Object> config) {
         topics.put(topicName, config);
@@ -262,6 +264,17 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
         if (!dataCol.contains(col)) {
             dataCol.add(col);
         }
-        
+        // retrieve additional metadata cols
+        List<Map<String, Object>> metadataConfig = (List<Map<String, Object>>) config.get("metadata");
+        if (metadataConfig!=null) {
+            for (Map<String, Object> mcfg: metadataConfig) {
+                String mcol = (String) mcfg.get("csv_col");
+                if (mcol!=null) {
+                    if (!dataCol.contains(mcol)) {
+                        dataCol.add(mcol);
+                    }
+                }
+            }
+        }
     }
 }

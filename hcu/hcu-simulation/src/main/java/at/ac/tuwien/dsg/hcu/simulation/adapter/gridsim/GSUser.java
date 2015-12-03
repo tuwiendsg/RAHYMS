@@ -21,8 +21,8 @@ import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment.Status;
-import at.ac.tuwien.dsg.hcu.monitor.stream.AssignmentStream;
-import at.ac.tuwien.dsg.hcu.monitor.stream.EventType;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.AssignmentStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.EventType;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class GSUser extends ReservationRequester {

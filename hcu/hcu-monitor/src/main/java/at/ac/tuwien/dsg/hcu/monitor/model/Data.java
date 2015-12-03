@@ -1,26 +1,27 @@
 package at.ac.tuwien.dsg.hcu.monitor.model;
 
 import java.util.HashMap;
+import java.util.Map;
 
-public class Data {
+public class Data implements Cloneable {
     
     String name = null;
-    Double value = null;
-    HashMap<String, Object> metaData = null;
+    Object value = null;
+    MetaData metaData = new MetaData();
 
-    public Double getValue() {
+    public Object getValue() {
         return value;
     }
-    public void setValue(Double value) {
+    public void setValue(Object value) {
         this.value = value;
     }
-    public HashMap<String, Object> getMetaData() {
+    public MetaData getMetaData() {
         return metaData;
     }
     public Object getMetaData(String key) {
         return metaData.get(key);
     }
-    public void setMetaData(HashMap<String, Object> metaData) {
+    public void setMetaData(MetaData metaData) {
         this.metaData = metaData;
     }
     public String getName() {
@@ -31,10 +32,7 @@ public class Data {
     }
     
     public void setMetaData(String key, Object value) {
-        if (metaData==null) {
-            metaData = new HashMap<String, Object>();
-        }
-        metaData.put(key, value);
+        metaData.set(key, value);
     }
     @Override
     public String toString() {
@@ -45,4 +43,28 @@ public class Data {
     public int getSize() {
         return 8 + name.length();
     }
+    
+    public Double getDoubleValue() {
+        Double doubleVal = null;
+        try {
+            doubleVal = (Double)value;
+        } catch (ClassCastException e) {
+            // try Integer
+            try {
+                Integer longVal = (Integer)value;
+                doubleVal = longVal * 1.0;
+            } catch (ClassCastException e2) {
+                System.out.println(e2);
+            }
+        }
+        return doubleVal;
+    }
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Data result = (Data)super.clone();
+        // TODO: check deep copying
+        return result;
+    }
+    
 }

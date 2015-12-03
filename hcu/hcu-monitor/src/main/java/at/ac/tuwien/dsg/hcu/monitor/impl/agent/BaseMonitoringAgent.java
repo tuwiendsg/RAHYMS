@@ -14,6 +14,7 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
     protected MonitoringConsumerInterface consumer;
     protected HashMap<String, Object> config;
     protected String name;
+    protected boolean isRunning = false;
     
     public BaseMonitoringAgent() {
     }
@@ -45,6 +46,7 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
         if (consumer!=null) {
             consumer.start();
         }
+        isRunning = true;
     }
 
     public boolean isConsumer() {
@@ -59,6 +61,7 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
         if (consumer!=null) {
             consumer.stop();
         }
+        isRunning = false;
     }
 
     @Override
@@ -112,7 +115,7 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
     @Override
     public void setProducer(MonitoringProducerInterface producer) {
         this.producer = producer;
-        this.producer.setMonitoringAgent(this);
+        this.producer.setAgent(this);
         if (config!=null) {
             this.producer.adjust(config);
         }
@@ -121,7 +124,7 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
     @Override
     public void setConsumer(MonitoringConsumerInterface consumer) {
         this.consumer = consumer;
-        this.consumer.setMonitoringAgent(this);
+        this.consumer.setAgent(this);
         if (config!=null) {
             this.consumer.adjust(config);
         }
@@ -147,6 +150,11 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
         if (consumer!=null) {
             consumer.addTopic(topicName, config);
         }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return isRunning;
     }
 
     

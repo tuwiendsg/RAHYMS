@@ -14,10 +14,10 @@ import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment.Status;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.EventType;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.UnitStream;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
-import at.ac.tuwien.dsg.hcu.monitor.stream.EventType;
-import at.ac.tuwien.dsg.hcu.monitor.stream.UnitStream;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class GSMiddleware extends GridInformationService implements CloudUserInterface {

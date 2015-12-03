@@ -13,7 +13,7 @@ public class DumpMonitoringConsumer extends BaseMonitoringConsumer {
     
     @Override
     public void receive(Data data) {
-        System.out.println(GridSim.clock() + ": " + data);
+        System.out.println("[Dumper] " + GridSim.clock() + ": " + data);
     }
 
     @Override

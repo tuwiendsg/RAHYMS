@@ -11,7 +11,7 @@ public class NotSoDumpMonitoringConsumer extends BaseMonitoringConsumer {
     
     @Override
     public void receive(Data data) {
-        System.out.println("I AIN'T NO DUMP: " + data.getName() + "=" + data.getValue());
+        System.out.println("I AIN'T NO DUMP: " + data.getValue());
     }
 
     @Override
@@ -28,12 +28,6 @@ public class NotSoDumpMonitoringConsumer extends BaseMonitoringConsumer {
 
     @Override
     public void adjust(HashMap<String, Object> config) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void addTopic(String topicName, HashMap<String, Object> config) {
         // TODO Auto-generated method stub
         
     }

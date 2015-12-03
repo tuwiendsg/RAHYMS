@@ -3,6 +3,7 @@ package at.ac.tuwien.dsg.hcu.monitor;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -10,10 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RunMonitoringSimulation {
 
-    private static String DEFAULT_SCENARIO = "scenarios/test.json";
+    private static String DEFAULT_SCENARIO = "scenarios/test-human.json";
+    private static String DEFAULT_LOG4J_CONFIG = "log4j.properties";
 
     public static void main(String[] args) {
         
+        System.setProperty("log4j.configuration", DEFAULT_LOG4J_CONFIG);
+
         String scenario = DEFAULT_SCENARIO;
         if (args.length>0) {
             scenario = args[0];
@@ -23,7 +27,9 @@ public class RunMonitoringSimulation {
             
             // parse json scenario
             ObjectMapper mapper = new ObjectMapper();
-            Map<String,Object> scenarioConfig = mapper.readValue(new File(scenario), Map.class);
+            String content = new Scanner(new File(scenario)).useDelimiter("\\Z").next();
+            content = content.replaceAll("\n", "");
+            Map<String,Object> scenarioConfig = mapper.readValue(content, Map.class);
             
             // run simulation
             Simulation simulation = new Simulation();

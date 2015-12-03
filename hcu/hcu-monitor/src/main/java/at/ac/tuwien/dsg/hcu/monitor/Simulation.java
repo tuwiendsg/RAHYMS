@@ -10,6 +10,7 @@ import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAdapterInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringProducerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.model.Quality;
 import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
 
 public class Simulation {
@@ -34,6 +35,10 @@ public class Simulation {
             producerAgents = new ArrayList<MonitoringAgentInterface>();
             List<HashMap<String, Object>> agentConfig = (List<HashMap<String, Object>>) config.get("monitoring_agents");
             for (HashMap<String, Object> cfg: agentConfig) {
+                
+                if (cfg.containsKey("enabled") && (Boolean)cfg.get("enabled")==false) {
+                    continue;
+                }
                 
                 // get agent config
                 String agentClassName = (String) cfg.get("class");
@@ -78,6 +83,7 @@ public class Simulation {
                     // manage subscription
                     // NOTE: config sequence matters, the producing agent must already be created before
                     ArrayList<HashMap<String, Object>> subscriptions = (ArrayList<HashMap<String, Object>>) consumerCfg.get("subscriptions");
+                    // TODO: support circular subscription
                     if (subscriptions!=null) {
                         for (HashMap<String, Object> subscriptionCfg: subscriptions) {
                             String to = (String) subscriptionCfg.get("to");
@@ -85,12 +91,16 @@ public class Simulation {
                             String topic = (String) subscriptionCfg.get("topic");
                             HashMap<String, Object> _subscriptionCfg = (HashMap<String, Object>) subscriptionCfg.get("config");
                             if (to==null || topic==null || destAgent==null) {
-                                System.err.println("Invalid subscription\n");
-                                return false;
+                                System.err.println(String.format("Invalid subscription, to:%s, topic:%s, skipping...\n", to, topic));
+                                continue;
                             }
                             Subscription subscription = new Subscription();
                             subscription.setTopic(topic);
                             subscription.setConfig(_subscriptionCfg);
+                            HashMap<String, Object> subscriptionQuality = (HashMap<String, Object>) subscriptionCfg.get("quality");
+                            if (subscriptionQuality!=null) {
+                                subscription.setQuality(new Quality(subscriptionQuality));
+                            }
                             consumer.subscribeTo(destAgent.getProducer(), subscription);
                         }
                     }

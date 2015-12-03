@@ -68,6 +68,7 @@ public class Tracer {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public static Tracer createTracer(String name, String filePrefix, Class clazz, String header, boolean uniqueMode) {
         
         // init tracer
@@ -78,9 +79,13 @@ public class Tracer {
         Tracer tracer = null;
         try {
             // instantiate
-            tracer = (Tracer) clazz
-                    .getConstructor(new Class[]{String.class})
-                    .newInstance(filePrefix + date + ".csv");
+            if (clazz==null) {
+                tracer = new Tracer(filePrefix + date + ".csv");
+            } else {
+                tracer = (Tracer) clazz
+                        .getConstructor(new Class[]{String.class})
+                        .newInstance(filePrefix + date + ".csv");
+            }
             tracer.setUniqueMode(uniqueMode);
             // trace header
             tracer.traceln(header!=null ? header : tracer.getTraceHeader());

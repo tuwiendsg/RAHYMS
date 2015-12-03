@@ -4,6 +4,7 @@ import gridsim.parallel.log.LogFormatter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -113,4 +114,36 @@ public class Util {
         }
         return engine.eval(expression);
     }
+
+    public static Method getMethod(String function) {
+
+        // get class name and method name
+        int dotPos = function.lastIndexOf(".");
+        String className = function.substring(0, dotPos);
+        String methodName = function.substring(dotPos+1);
+
+        Method method = null;
+        try {
+            Class<?> clazz = Class.forName(className);
+            Method[] methods = clazz.getMethods();
+            for (Method m: methods) {
+                if (m.getName().equals(methodName)) {
+                    method = m;
+                    break;
+                }
+            }
+            if (method==null) {
+                throw new NoSuchMethodException("Method not found: " + methodName);
+            }
+            //method = clazz.getMethod(methodName, String.class);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        return method;
+    }
+
 }

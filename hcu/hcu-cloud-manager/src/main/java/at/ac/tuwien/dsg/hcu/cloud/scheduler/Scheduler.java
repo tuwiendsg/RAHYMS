@@ -18,13 +18,13 @@ import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment.Status;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.AssignmentStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.CollectiveStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.EventType;
 import at.ac.tuwien.dsg.hcu.common.model.Batch;
 import at.ac.tuwien.dsg.hcu.common.model.Role;
 import at.ac.tuwien.dsg.hcu.common.model.SCU;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
-import at.ac.tuwien.dsg.hcu.monitor.stream.AssignmentStream;
-import at.ac.tuwien.dsg.hcu.monitor.stream.CollectiveStream;
-import at.ac.tuwien.dsg.hcu.monitor.stream.EventType;
 import at.ac.tuwien.dsg.hcu.util.ShowGraphApplet;
 import at.ac.tuwien.dsg.hcu.util.Util;
 

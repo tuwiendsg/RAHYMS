@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import at.ac.tuwien.dsg.hcu.monitor.QualityEngine;
+import at.ac.tuwien.dsg.hcu.monitor.gridsim.GSWaker;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringProducerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
@@ -12,7 +14,7 @@ import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
 public class BaseMonitoringProducer implements MonitoringProducerInterface {
 
     protected Map<Integer, Subscription> register;
-    protected Map<String, Object> topics = new HashMap<String, Object>();
+    protected Map<String, HashMap<String, Object>> topics = new HashMap<String, HashMap<String, Object>>();
     protected int lastId = 0;
     protected MonitoringAgentInterface agent;
     
@@ -23,8 +25,14 @@ public class BaseMonitoringProducer implements MonitoringProducerInterface {
     @Override
     public void publish(Data data) {
         for (Subscription subscription: register.values() ) {
-            if (subscription.getTopic().trim().equalsIgnoreCase(data.getName().trim())) {
-                subscription.getConsumer().receive(data);
+            if (subscription.getTopic().trim().equalsIgnoreCase(data.getName().trim()) ||
+                    data.getMetaData("eof")!=null) {
+                QualityEngine qualityEngine = QualityEngine.getInstance(subscription);
+                if (qualityEngine!=null) {
+                    qualityEngine.receive(data);
+                } else {
+                    subscription.getConsumer().receive(data);
+                }
             }
         }
     }
@@ -47,14 +55,17 @@ public class BaseMonitoringProducer implements MonitoringProducerInterface {
         
         // adjust agent config, necessary?
         if (subscription.getConfig()!=null) {
-            agent.getAdapter().adjust(subscription.getConfig());
+            agent.adjust(subscription.getConfig());
         }
+        
+        // create QualityEngine for this subscription
+        new QualityEngine(subscription);
         
         return id;
     }
 
     @Override
-    public void setMonitoringAgent(MonitoringAgentInterface agent) {
+    public void setAgent(MonitoringAgentInterface agent) {
         this.agent = agent;
     }
 
@@ -72,6 +83,11 @@ public class BaseMonitoringProducer implements MonitoringProducerInterface {
     @Override
     public void addTopic(String topicName, HashMap<String, Object> config) {
         topics.put(topicName, config);
+    }
+
+    @Override
+    public MonitoringAgentInterface getAgent() {
+        return agent;
     }
 
 }

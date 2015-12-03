@@ -22,5 +22,6 @@ public interface MonitoringAgentInterface {
     public String getName();
     public void setName(String name);
     public void addTopic(String topicName, HashMap<String, Object> config);
+    public boolean isRunning();
     
 }

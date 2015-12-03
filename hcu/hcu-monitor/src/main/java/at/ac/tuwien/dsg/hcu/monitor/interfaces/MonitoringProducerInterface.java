@@ -16,6 +16,7 @@ public interface MonitoringProducerInterface {
     public void publish(List<Data> data);
     
     // internal methods
-    public void setMonitoringAgent(MonitoringAgentInterface agent);
+    public void setAgent(MonitoringAgentInterface agent);
+    public MonitoringAgentInterface getAgent();
     public void addTopic(String topicName, HashMap<String, Object> config);
 }

@@ -10,6 +10,13 @@ public class Subscription {
     private MonitoringConsumerInterface consumer;
     private String topic;
     private HashMap<String, Object> config;
+    private Quality quality;
+    
+    private static int lastId = 0;
+    
+    public Subscription() {
+        id = ++lastId;
+    }
     
     public MonitoringConsumerInterface getConsumer() {
         return consumer;
@@ -48,7 +55,13 @@ public class Subscription {
     public void setId(Integer id) {
         this.id = id;
     }
-    
-    
+
+    public Quality getQuality() {
+        return quality;
+    }
+
+    public void setQuality(Quality quality) {
+        this.quality = quality;
+    }
     
 }

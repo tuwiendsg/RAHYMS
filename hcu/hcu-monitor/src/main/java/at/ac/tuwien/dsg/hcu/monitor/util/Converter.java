@@ -1,4 +1,4 @@
-package at.ac.tuwien.dsg.hcu.monitor.impl.adapter;
+package at.ac.tuwien.dsg.hcu.monitor.util;
 
 public class Converter {
 
