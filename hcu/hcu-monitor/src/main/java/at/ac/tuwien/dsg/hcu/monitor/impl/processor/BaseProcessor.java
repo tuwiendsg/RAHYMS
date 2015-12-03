@@ -8,7 +8,7 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringConsumerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProcessorInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.MetaData;
@@ -18,7 +18,7 @@ public abstract class BaseProcessor implements ProcessorInterface {
 
     protected EPStatement statement;
     protected EPServiceProvider epService;
-    protected MonitoringConsumerInterface consumer;
+    protected ConsumerInterface consumer;
     protected String topicName;
 
     @Override
@@ -33,7 +33,7 @@ public abstract class BaseProcessor implements ProcessorInterface {
     }
 
     @Override
-    public void initiate(EPServiceProvider epService, MonitoringConsumerInterface consumer, String topic,
+    public void initiate(EPServiceProvider epService, ConsumerInterface consumer, String topic,
             HashMap<String, Object> args) {
         this.epService = epService;
         this.consumer = consumer;

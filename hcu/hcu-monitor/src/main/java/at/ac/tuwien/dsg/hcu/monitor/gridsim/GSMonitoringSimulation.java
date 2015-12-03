@@ -7,7 +7,7 @@ import java.util.List;
 import org.json.JSONException;
 
 import at.ac.tuwien.dsg.hcu.monitor.QualityEngine;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.Wakeable;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.Waker;
 import at.ac.tuwien.dsg.hcu.util.Util;
@@ -26,7 +26,7 @@ public class GSMonitoringSimulation extends GridSim {
         super(NAME, 560);
     }
     
-    public static void startSimulation(List<MonitoringAgentInterface> producerAgents, boolean debug) {
+    public static void startSimulation(List<AgentInterface> producerAgents, boolean debug) {
         
         try {
             // INITIALIZATION
@@ -42,7 +42,7 @@ public class GSMonitoringSimulation extends GridSim {
             
             // create GSMonitoringAgent for all producing agents, auto register to GridSim
             numAgents = producerAgents.size();
-            for (MonitoringAgentInterface agent: producerAgents) {
+            for (AgentInterface agent: producerAgents) {
                 new GSMonitoringAgent(agent);
             }
             

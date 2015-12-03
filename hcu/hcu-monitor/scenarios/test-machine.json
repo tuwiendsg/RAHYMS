@@ -4,10 +4,10 @@
     [
         {
             "name": "csv_agent",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
             "adapter":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVMonitoringAdapter",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
                 "config":
                 {
                     "csv_file": "data/4.2.2015/10.99.0.18.csv",
@@ -22,7 +22,7 @@
             },
             "producer":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseMonitoringProducer",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
                 "config": {}
             },
             "topics":
@@ -47,10 +47,10 @@
         {
             "enabled": true,
             "name": "event_based_agent",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
             "consumer":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.EventBasedMonitoringConsumer",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.EventBasedConsumer",
                 "subscriptions":
                 [
                     {
@@ -63,7 +63,7 @@
             },
             "producer":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseMonitoringProducer",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
                 "config": {}
             },
             "topics":
@@ -72,9 +72,10 @@
                     "name": "avg_util",
                     "config":
                     {
-                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.UtilizationProcessor",
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
                         "args": {
-                            "aggregate": "avg"
+                            "aggregate": "avg(doubleValue)",
+                            "from": "Data"
                         }
                     }
                 }
@@ -82,10 +83,10 @@
         },
         {
             "name": "csv_consumer",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
             "consumer":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpMonitoringConsumer",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpConsumer",
                 "subscriptions":
                 [
                     {

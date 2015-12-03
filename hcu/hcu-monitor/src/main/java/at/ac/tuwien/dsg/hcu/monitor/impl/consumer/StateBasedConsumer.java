@@ -11,16 +11,16 @@ import java.util.Map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
-import at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedMonitoringConsumer.StateHistory.HistoryEntry;
+import at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedConsumer.StateHistory.HistoryEntry;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.Wakeable;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.Waker;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.MetaData;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
-public class StateBasedMonitoringConsumer extends EventBasedMonitoringConsumer implements Wakeable {
+public class StateBasedConsumer extends EventBasedConsumer implements Wakeable {
     
-    protected static final String DEFAULT_STATE_ENGINE_URI = "dsg.tuwien.ac.at/hcu/monitor/impl/consumer/StateBasedMonitoringConsumer";
+    protected static final String DEFAULT_STATE_ENGINE_URI = "dsg.tuwien.ac.at/hcu/monitor/impl/consumer/StateBasedConsumer";
     protected static Waker waker;
     
     protected List<Transition> transitions;
@@ -29,7 +29,7 @@ public class StateBasedMonitoringConsumer extends EventBasedMonitoringConsumer i
     protected Double windowSize = 0.0;
     protected int lastWakeId = 0;
     
-    public StateBasedMonitoringConsumer() {
+    public StateBasedConsumer() {
         super();
         history = new HashMap<String, StateHistory>();
         transitions = new ArrayList<Transition>();

@@ -19,19 +19,19 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAdapterInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AdapterInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
-public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
+public class CSVAdapter implements AdapterInterface {
 
     public static final String CFG_SET_CSV_FILE = "csv_file";
     public static final String CFG_SET_CSV_TIME_CFG = "csv_time_cfg";    
     public static final String CFG_TICK = "tick";
     
     private CSVParser parser = null;
-    private MonitoringAgentInterface agent = null;
+    private AgentInterface agent = null;
     
     private String filePath;
     private String timeCol;
@@ -253,7 +253,7 @@ public class CSVMonitoringAdapter implements MonitoringAdapterInterface {
     }
 
     @Override
-    public void setMonitoringAgent(MonitoringAgentInterface agent) {
+    public void setMonitoringAgent(AgentInterface agent) {
         this.agent = agent;
     }
     

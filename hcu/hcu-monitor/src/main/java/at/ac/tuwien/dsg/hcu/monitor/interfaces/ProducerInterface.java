@@ -6,7 +6,7 @@ import java.util.List;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
 
-public interface MonitoringProducerInterface {
+public interface ProducerInterface {
 
     public int subscribe(Subscription subscription); // returns the subscription id
     public void adjust(HashMap<String, Object> config);
@@ -16,7 +16,7 @@ public interface MonitoringProducerInterface {
     public void publish(List<Data> data);
     
     // internal methods
-    public void setAgent(MonitoringAgentInterface agent);
-    public MonitoringAgentInterface getAgent();
+    public void setAgent(AgentInterface agent);
+    public AgentInterface getAgent();
     public void addTopic(String topicName, HashMap<String, Object> config);
 }

@@ -2,36 +2,36 @@ package at.ac.tuwien.dsg.hcu.monitor.impl.agent;
 
 import java.util.HashMap;
 
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAdapterInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringConsumerInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringProducerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AdapterInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProducerInterface;
 
-public class BaseMonitoringAgent implements MonitoringAgentInterface {
+public class BaseAgent implements AgentInterface {
 
-    protected MonitoringAdapterInterface adapter;
-    protected MonitoringProducerInterface producer;
-    protected MonitoringConsumerInterface consumer;
+    protected AdapterInterface adapter;
+    protected ProducerInterface producer;
+    protected ConsumerInterface consumer;
     protected HashMap<String, Object> config;
     protected String name;
     protected boolean isRunning = false;
     
-    public BaseMonitoringAgent() {
+    public BaseAgent() {
     }
 
-    public BaseMonitoringAgent(String name, HashMap<String, Object> config) {
+    public BaseAgent(String name, HashMap<String, Object> config) {
         setName(name);
         setConfig(config);
     }
     
-    public BaseMonitoringAgent(String name, HashMap<String, Object> config, MonitoringAdapterInterface adapter, MonitoringProducerInterface producer) {
+    public BaseAgent(String name, HashMap<String, Object> config, AdapterInterface adapter, ProducerInterface producer) {
         setName(name);
         setConfig(config);
         setAdapter(adapter);
         setProducer(producer);
     }
 
-    public BaseMonitoringAgent(String name, HashMap<String, Object> config, MonitoringConsumerInterface consumer, MonitoringProducerInterface producer) {
+    public BaseAgent(String name, HashMap<String, Object> config, ConsumerInterface consumer, ProducerInterface producer) {
         setName(name);
         setConfig(config);
         setConsumer(consumer);
@@ -78,17 +78,17 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
     }
 
     @Override
-    public MonitoringProducerInterface getProducer() {
+    public ProducerInterface getProducer() {
         return producer;
     }
     
     @Override
-    public MonitoringConsumerInterface getConsumer() {
+    public ConsumerInterface getConsumer() {
         return consumer;
     }
 
     @Override
-    public MonitoringAdapterInterface getAdapter() {
+    public AdapterInterface getAdapter() {
         return adapter;
     }
 
@@ -113,7 +113,7 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
     }
 
     @Override
-    public void setProducer(MonitoringProducerInterface producer) {
+    public void setProducer(ProducerInterface producer) {
         this.producer = producer;
         this.producer.setAgent(this);
         if (config!=null) {
@@ -122,7 +122,7 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
     }
 
     @Override
-    public void setConsumer(MonitoringConsumerInterface consumer) {
+    public void setConsumer(ConsumerInterface consumer) {
         this.consumer = consumer;
         this.consumer.setAgent(this);
         if (config!=null) {
@@ -131,7 +131,7 @@ public class BaseMonitoringAgent implements MonitoringAgentInterface {
     }
 
     @Override
-    public void setAdapter(MonitoringAdapterInterface adapter) {
+    public void setAdapter(AdapterInterface adapter) {
         this.adapter = adapter;
         this.adapter.setMonitoringAgent(this);
         if (config!=null) {

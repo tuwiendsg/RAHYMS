@@ -6,12 +6,12 @@ import java.util.Map;
 
 import com.espertech.esper.client.EPServiceProvider;
 
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringConsumerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 
 public class Correlator extends BaseProcessor {
 
     @Override
-    public void initiate(EPServiceProvider epService, MonitoringConsumerInterface consumer, String topic, HashMap<String, Object> args) {
+    public void initiate(EPServiceProvider epService, ConsumerInterface consumer, String topic, HashMap<String, Object> args) {
 
         super.initiate(epService, consumer, topic, args);
         

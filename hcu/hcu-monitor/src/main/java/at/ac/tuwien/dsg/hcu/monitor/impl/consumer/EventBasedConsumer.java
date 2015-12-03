@@ -15,9 +15,9 @@ import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProcessorInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.MetaData;
 
-public class EventBasedMonitoringConsumer extends BaseMonitoringConsumer {
+public class EventBasedConsumer extends BaseConsumer {
 
-    protected static final String DEFAULT_ENGINE_URI = "dsg.tuwien.ac.at/hcu/monitor/impl/consumer/EventBasedMonitoringConsumer"; 
+    protected static final String DEFAULT_ENGINE_URI = "dsg.tuwien.ac.at/hcu/monitor/impl/consumer/EventBasedConsumer"; 
 
     protected Configuration configuration = null;
     protected EPServiceProvider epService = null;

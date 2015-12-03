@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedMonitoringConsumer.StateHistory;
-import at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedMonitoringConsumer.StateHistory.HistoryEntry;
+import at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedConsumer.StateHistory;
+import at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedConsumer.StateHistory.HistoryEntry;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 
 public class StateMetricCalculator {

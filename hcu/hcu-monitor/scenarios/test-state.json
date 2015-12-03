@@ -4,10 +4,10 @@
     [
         {
             "name": "csv_agent",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
             "adapter":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVMonitoringAdapter",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
                 "config":
                 {
                     "csv_file": "data/test-state.csv",
@@ -19,7 +19,7 @@
             },
             "producer":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseMonitoringProducer",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
                 "config": {}
             },
             "topics":
@@ -42,10 +42,10 @@
         {
             "enabled": true,
             "name": "state_based_agent",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
             "consumer":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedMonitoringConsumer",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedConsumer",
                 "subscriptions":
                 [
                     {
@@ -67,7 +67,7 @@
             },
             "producer":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseMonitoringProducer",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
                 "config": {}
             },
             "topics":
@@ -87,10 +87,10 @@
         },
         {
             "name": "csv_consumer",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseMonitoringAgent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
             "consumer":
             {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpMonitoringConsumer",
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpConsumer",
                 "subscriptions":
                 [
                     {

@@ -6,18 +6,18 @@ import java.util.List;
 import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.monitor.gridsim.GSMonitoringSimulation;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAdapterInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringConsumerInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringProducerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AdapterInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProducerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Quality;
 import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
 
 public class Simulation {
 
     String title = "HCS Monitoring Simulation";
-    HashMap<String, MonitoringAgentInterface> agents;
-    List<MonitoringAgentInterface> producerAgents;
+    HashMap<String, AgentInterface> agents;
+    List<AgentInterface> producerAgents;
     
     @SuppressWarnings("unchecked")
     public boolean init(Map<String, Object> config) {
@@ -31,8 +31,8 @@ public class Simulation {
         
         // create agents
         try {
-            agents = new HashMap<String, MonitoringAgentInterface>();
-            producerAgents = new ArrayList<MonitoringAgentInterface>();
+            agents = new HashMap<String, AgentInterface>();
+            producerAgents = new ArrayList<AgentInterface>();
             List<HashMap<String, Object>> agentConfig = (List<HashMap<String, Object>>) config.get("monitoring_agents");
             for (HashMap<String, Object> cfg: agentConfig) {
                 
@@ -53,7 +53,7 @@ public class Simulation {
                 
                 // instantiate agent
                 Class<?> agentClazz = Class.forName(agentClassName);
-                MonitoringAgentInterface agent = (MonitoringAgentInterface) agentClazz.newInstance();
+                AgentInterface agent = (AgentInterface) agentClazz.newInstance();
                 agent.setName((String) cfg.getOrDefault("name", "AGENT_" + (agents.size()+1)));
                 // instantiate adapter
                 if (adapterCfg!=null) {
@@ -64,7 +64,7 @@ public class Simulation {
                         return false;
                     }
                     Class<?> adapterClazz = Class.forName(adapterClassName);
-                    MonitoringAdapterInterface adapter = (MonitoringAdapterInterface) adapterClazz.newInstance();
+                    AdapterInterface adapter = (AdapterInterface) adapterClazz.newInstance();
                     adapter.adjust(_adapterCfg);
                     agent.setAdapter(adapter);
                 } 
@@ -77,7 +77,7 @@ public class Simulation {
                         return false;
                     }
                     Class<?> consumerClazz = Class.forName(consumerClassName);
-                    MonitoringConsumerInterface consumer = (MonitoringConsumerInterface) consumerClazz.newInstance();
+                    ConsumerInterface consumer = (ConsumerInterface) consumerClazz.newInstance();
                     consumer.adjust(_consumerCfg);
                     agent.setConsumer(consumer);
                     // manage subscription
@@ -87,7 +87,7 @@ public class Simulation {
                     if (subscriptions!=null) {
                         for (HashMap<String, Object> subscriptionCfg: subscriptions) {
                             String to = (String) subscriptionCfg.get("to");
-                            MonitoringAgentInterface destAgent = agents.get(to);
+                            AgentInterface destAgent = agents.get(to);
                             String topic = (String) subscriptionCfg.get("topic");
                             HashMap<String, Object> _subscriptionCfg = (HashMap<String, Object>) subscriptionCfg.get("config");
                             if (to==null || topic==null || destAgent==null) {
@@ -114,7 +114,7 @@ public class Simulation {
                         return false;
                     }
                     Class<?> producerClazz = Class.forName(producerClassName);
-                    MonitoringProducerInterface producer = (MonitoringProducerInterface) producerClazz.newInstance();
+                    ProducerInterface producer = (ProducerInterface) producerClazz.newInstance();
                     producer.adjust(_producerCfg);
                     agent.setProducer(producer);
                     producerAgents.add(agent);
@@ -148,7 +148,7 @@ public class Simulation {
         
         System.out.println("Running " + title + "...");
         // start all agents
-        for (MonitoringAgentInterface agent: agents.values()) {
+        for (AgentInterface agent: agents.values()) {
             agent.start();
         }
         // start simulation

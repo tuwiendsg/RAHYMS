@@ -2,12 +2,12 @@ package at.ac.tuwien.dsg.hcu.monitor.model;
 
 import java.util.HashMap;
 
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringConsumerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 
 public class Subscription {
 
     private Integer id;
-    private MonitoringConsumerInterface consumer;
+    private ConsumerInterface consumer;
     private String topic;
     private HashMap<String, Object> config;
     private Quality quality;
@@ -18,11 +18,11 @@ public class Subscription {
         id = ++lastId;
     }
     
-    public MonitoringConsumerInterface getConsumer() {
+    public ConsumerInterface getConsumer() {
         return consumer;
     }
     
-    public void setConsumer(MonitoringConsumerInterface consumer) {
+    public void setConsumer(ConsumerInterface consumer) {
         this.consumer = consumer;
     }
     

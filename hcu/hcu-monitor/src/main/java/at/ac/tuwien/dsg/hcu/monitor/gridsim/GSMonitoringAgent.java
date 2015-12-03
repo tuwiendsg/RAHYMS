@@ -8,14 +8,14 @@ import gridsim.GridSim;
 import gridsim.GridSimCore;
 import gridsim.GridSimTags;
 import gridsim.IO_data;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 
 public class GSMonitoringAgent extends GridSimCore {
 
-    private MonitoringAgentInterface agent;
+    private AgentInterface agent;
     
-    public GSMonitoringAgent(MonitoringAgentInterface agent) throws Exception {
+    public GSMonitoringAgent(AgentInterface agent) throws Exception {
         super(agent.getName(), 100.0);
         this.agent = agent;
     }

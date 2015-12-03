@@ -6,19 +6,19 @@ import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.monitor.QualityEngine;
 import at.ac.tuwien.dsg.hcu.monitor.gridsim.GSWaker;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringProducerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProducerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
 
-public class BaseMonitoringProducer implements MonitoringProducerInterface {
+public class BaseProducer implements ProducerInterface {
 
     protected Map<Integer, Subscription> register;
     protected Map<String, HashMap<String, Object>> topics = new HashMap<String, HashMap<String, Object>>();
     protected int lastId = 0;
-    protected MonitoringAgentInterface agent;
+    protected AgentInterface agent;
     
-    public BaseMonitoringProducer() {
+    public BaseProducer() {
         register = new HashMap<Integer, Subscription>();
     }
 
@@ -65,7 +65,7 @@ public class BaseMonitoringProducer implements MonitoringProducerInterface {
     }
 
     @Override
-    public void setAgent(MonitoringAgentInterface agent) {
+    public void setAgent(AgentInterface agent) {
         this.agent = agent;
     }
 
@@ -86,7 +86,7 @@ public class BaseMonitoringProducer implements MonitoringProducerInterface {
     }
 
     @Override
-    public MonitoringAgentInterface getAgent() {
+    public AgentInterface getAgent() {
         return agent;
     }
 

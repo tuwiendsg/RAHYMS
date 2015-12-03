@@ -7,7 +7,7 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringConsumerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.MetaData;
 import at.ac.tuwien.dsg.hcu.util.Util;
@@ -15,7 +15,7 @@ import at.ac.tuwien.dsg.hcu.util.Util;
 public class Aggregator extends BaseProcessor {
 
     @Override
-    public void initiate(EPServiceProvider epService, MonitoringConsumerInterface consumer, String topic, HashMap<String, Object> args) {
+    public void initiate(EPServiceProvider epService, ConsumerInterface consumer, String topic, HashMap<String, Object> args) {
 
         super.initiate(epService, consumer, topic, args);
         String aggregate = (String) args.get("aggregate");

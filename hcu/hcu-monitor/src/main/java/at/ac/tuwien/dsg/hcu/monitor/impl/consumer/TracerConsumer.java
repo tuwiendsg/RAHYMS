@@ -7,15 +7,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringProducerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProducerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
 import at.ac.tuwien.dsg.hcu.util.Tracer;
 
-public class TracerConsumer extends BaseMonitoringConsumer {
+public class TracerConsumer extends BaseConsumer {
 
-    protected MonitoringAgentInterface agent;
+    protected AgentInterface agent;
     protected Tracer tracer;
     protected String tracerName;
     protected List<String> sources = new LinkedList<String>();
@@ -50,7 +50,7 @@ public class TracerConsumer extends BaseMonitoringConsumer {
     }
 
     @Override
-    public void subscribeTo(MonitoringProducerInterface producer,
+    public void subscribeTo(ProducerInterface producer,
             Subscription subscription) {
         super.subscribeTo(producer, subscription);
         sources.add(subscription.getTopic());

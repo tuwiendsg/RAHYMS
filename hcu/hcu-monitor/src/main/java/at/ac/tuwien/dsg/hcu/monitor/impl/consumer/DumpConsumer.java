@@ -1,17 +1,19 @@
 package at.ac.tuwien.dsg.hcu.monitor.impl.consumer;
 
+import gridsim.GridSim;
+
 import java.util.HashMap;
 
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.MonitoringAgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 
-public class NotSoDumpMonitoringConsumer extends BaseMonitoringConsumer {
+public class DumpConsumer extends BaseConsumer {
 
-    protected MonitoringAgentInterface agent;
+    protected AgentInterface agent;
     
     @Override
     public void receive(Data data) {
-        System.out.println("I AIN'T NO DUMP: " + data.getValue());
+        System.out.println("[Dumper] " + GridSim.clock() + ": " + data);
     }
 
     @Override
@@ -28,6 +30,12 @@ public class NotSoDumpMonitoringConsumer extends BaseMonitoringConsumer {
 
     @Override
     public void adjust(HashMap<String, Object> config) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void addTopic(String topicName, HashMap<String, Object> config) {
         // TODO Auto-generated method stub
         
     }
