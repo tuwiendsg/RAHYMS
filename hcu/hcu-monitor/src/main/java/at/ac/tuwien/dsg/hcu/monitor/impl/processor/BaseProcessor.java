@@ -12,7 +12,6 @@ import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProcessorInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.MetaData;
-import at.ac.tuwien.dsg.hcu.util.Util;
 
 public abstract class BaseProcessor implements ProcessorInterface {
 
@@ -41,7 +40,7 @@ public abstract class BaseProcessor implements ProcessorInterface {
     }
 
     protected class BaseListener implements UpdateListener {
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings({ "rawtypes" })
         @Override
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
             int i = 0;
@@ -54,7 +53,7 @@ public abstract class BaseProcessor implements ProcessorInterface {
                 data.setValue(value);
                 data.setMetaData(metaData);
                 
-                consumer.getAgent().getProducer().publish(data);
+                consumer.getAgent().getBroker().publish(data);
             }
         }
         

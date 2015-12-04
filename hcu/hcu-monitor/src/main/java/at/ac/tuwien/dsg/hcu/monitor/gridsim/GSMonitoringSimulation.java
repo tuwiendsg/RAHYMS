@@ -1,5 +1,6 @@
 package at.ac.tuwien.dsg.hcu.monitor.gridsim;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,8 +9,7 @@ import org.json.JSONException;
 
 import at.ac.tuwien.dsg.hcu.monitor.QualityEngine;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.Wakeable;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.Waker;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.BrokerInterface;
 import at.ac.tuwien.dsg.hcu.util.Util;
 import eduni.simjava.Sim_system;
 import gridsim.GridSim;
@@ -21,12 +21,13 @@ public class GSMonitoringSimulation extends GridSim {
     private static String NAME = "GSMonitoringSimulation";
     
     private static int numAgents = 0;
+    private static List<GSMonitoringBroker> brokers;
 
     public GSMonitoringSimulation() throws Exception {
         super(NAME, 560);
     }
     
-    public static void startSimulation(List<AgentInterface> producerAgents, boolean debug) {
+    public static void startSimulation(List<AgentInterface> producerAgents, List<BrokerInterface> brokers, boolean debug) {
         
         try {
             // INITIALIZATION
@@ -49,7 +50,15 @@ public class GSMonitoringSimulation extends GridSim {
             // create waker
             GSWaker waker = GSWaker.getInstance();
             QualityEngine.setWaker(waker);
+            numAgents++;
     
+            // create broker
+            GSMonitoringSimulation.brokers = new ArrayList<GSMonitoringBroker>();
+            for (BrokerInterface broker: brokers) {
+                GSMonitoringSimulation.brokers.add(new GSMonitoringBroker(broker));
+                numAgents++;
+            }
+
             // start simulation
             Util.log().info("Starting simulation");
             GridSim.startGridSimulation(debug);
@@ -83,7 +92,7 @@ public class GSMonitoringSimulation extends GridSim {
 
         try {
             
-            // start all agents
+            // start all GSMonitoringAgent
             for (int agentId: agentList) {
                 try {
                     GSMonitoringAgent agent = (GSMonitoringAgent)Sim_system.get_entity(agentId);
@@ -101,6 +110,7 @@ public class GSMonitoringSimulation extends GridSim {
                     try {
                         agent = (GSMonitoringAgent)Sim_system.get_entity(agentId);
                     } catch (ClassCastException e) {
+                        // only wait for GSMonitoringAgent
                     }
                     if (agent !=null && !agent.isFinished()) {
                         allFinished = false;
@@ -114,6 +124,9 @@ public class GSMonitoringSimulation extends GridSim {
             
             // shutting entities
             GSWaker.getInstance().finish();
+            for (GSMonitoringBroker broker: brokers) {
+                broker.finish();
+            }
             shutdownGridStatisticsEntity();
             shutdownUserEntity();
             terminateIOEntities();

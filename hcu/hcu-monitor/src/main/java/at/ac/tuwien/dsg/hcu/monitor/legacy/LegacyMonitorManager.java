@@ -1,26 +1,26 @@
-package at.ac.tuwien.dsg.hcu.monitor;
+package at.ac.tuwien.dsg.hcu.monitor.legacy;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.RuleEngineInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
-import at.ac.tuwien.dsg.hcu.monitor.listener.CollectiveListener;
-import at.ac.tuwien.dsg.hcu.monitor.listener.FinishListener;
-import at.ac.tuwien.dsg.hcu.monitor.listener.AssignmentListener;
-import at.ac.tuwien.dsg.hcu.monitor.listener.ListenerInterface;
-import at.ac.tuwien.dsg.hcu.monitor.listener.utilization.HCUUtilizationListener;
-import at.ac.tuwien.dsg.hcu.monitor.listener.utilization.HumanUtilizationListener;
-import at.ac.tuwien.dsg.hcu.monitor.listener.utilization.MachineUtilizationListener;
-import at.ac.tuwien.dsg.hcu.monitor.stream.AssignmentStream;
-import at.ac.tuwien.dsg.hcu.monitor.stream.BaseStream;
-import at.ac.tuwien.dsg.hcu.monitor.stream.CollectiveStream;
-import at.ac.tuwien.dsg.hcu.monitor.stream.UnitStream;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.AssignmentListener;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.CollectiveListener;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.FinishListener;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.ListenerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.utilization.HCUUtilizationListener;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.utilization.HumanUtilizationListener;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.utilization.MachineUtilizationListener;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.AssignmentStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.BaseStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.CollectiveStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.UnitStream;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 
-public class MonitorManager implements MonitorInterface {
+public class LegacyMonitorManager implements MonitorInterface {
 
     private static final String ENGINE_URI = "dsg.tuwien.ac.at/hcu/monitor/MonitorManager"; 
 
@@ -46,16 +46,16 @@ public class MonitorManager implements MonitorInterface {
     // define rules
     private static String ruleFile = "../hcu-monitor/rules/monitoring_rules.drl";
     
-    private static MonitorManager instance = null;
+    private static LegacyMonitorManager instance = null;
 
     private Configuration configuration = null;
     private EPServiceProvider epService = null;
-    private RuleEngine ruleEngine = null;
+    private LegacyRuleEngine ruleEngine = null;
     
     private boolean enabled = false;
     private boolean initialized = false;
     
-    public MonitorManager(boolean monitoringEnabled) {
+    public LegacyMonitorManager(boolean monitoringEnabled) {
         this.enabled = monitoringEnabled;
         if (monitoringEnabled) {
             initMonitorManager(eventTypes, eventListeners);
@@ -102,7 +102,7 @@ public class MonitorManager implements MonitorInterface {
         epService.initialize();
         
         // run create windows
-        WindowsCreator.run(epService);
+        LegacyWindowsCreator.run(epService);
         
         // initialize listeners
         for (Class clazz: eventListeners) {
@@ -115,7 +115,7 @@ public class MonitorManager implements MonitorInterface {
         }
         
         // initialize rule engine
-        ruleEngine = new RuleEngine(ruleFile);
+        ruleEngine = new LegacyRuleEngine(ruleFile);
         
     }
 

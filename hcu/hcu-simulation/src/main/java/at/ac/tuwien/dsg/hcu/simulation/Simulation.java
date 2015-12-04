@@ -20,7 +20,7 @@ import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
 import at.ac.tuwien.dsg.hcu.composer.Composer;
-import at.ac.tuwien.dsg.hcu.monitor.LegacyMonitorManager;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.LegacyMonitorManager;
 import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSConsumer;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.ConfigJsonArray;

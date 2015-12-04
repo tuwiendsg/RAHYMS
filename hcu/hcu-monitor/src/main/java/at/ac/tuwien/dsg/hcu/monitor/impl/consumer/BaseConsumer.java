@@ -17,7 +17,7 @@ public abstract class BaseConsumer implements ConsumerInterface {
     public void subscribeTo(ProducerInterface producer,
             Subscription subscription) {
         subscription.setConsumer(this);
-        producer.subscribe(subscription);
+        agent.getBroker().subscribe(subscription);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package at.ac.tuwien.dsg.hcu.monitor.legacy_listener.utilization;
+package at.ac.tuwien.dsg.hcu.monitor.legacy.listener.utilization;
 
 import gridsim.GridSim;
 
@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.model.SCU;
-import at.ac.tuwien.dsg.hcu.monitor.legacy_listener.ListenerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.ListenerInterface;
 import at.ac.tuwien.dsg.hcu.util.Tracer;
 import at.ac.tuwien.dsg.hcu.util.Util;
 

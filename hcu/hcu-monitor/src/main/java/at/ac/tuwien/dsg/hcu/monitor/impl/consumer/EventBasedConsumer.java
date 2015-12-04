@@ -29,7 +29,6 @@ public class EventBasedConsumer extends BaseConsumer {
     public void receive(Data data) {
         if (data==null || data.getMetaData("eof")!=null || data.getMetaData("time")==null) {
             agent.stop();
-            agent.getProducer().publish(data);
         } else if (!stopped) {
             epService.getEPRuntime().sendEvent(data);
         }

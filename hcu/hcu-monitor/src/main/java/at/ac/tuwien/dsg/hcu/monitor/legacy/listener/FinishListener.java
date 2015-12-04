@@ -1,4 +1,4 @@
-package at.ac.tuwien.dsg.hcu.monitor.legacy_listener;
+package at.ac.tuwien.dsg.hcu.monitor.legacy.listener;
 
 import gridsim.GridSim;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;

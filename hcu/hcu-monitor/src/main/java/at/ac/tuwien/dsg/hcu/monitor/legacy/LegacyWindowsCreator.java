@@ -1,4 +1,4 @@
-package at.ac.tuwien.dsg.hcu.monitor;
+package at.ac.tuwien.dsg.hcu.monitor.legacy;
 
 import com.espertech.esper.client.EPServiceProvider;
 

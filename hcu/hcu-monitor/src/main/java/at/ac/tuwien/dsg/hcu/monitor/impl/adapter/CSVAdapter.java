@@ -75,7 +75,7 @@ public class CSVAdapter implements AdapterInterface {
                     topicData.setName(topic);
                     dataList.add(topicData);
                     if (shouldPublish) {
-                        agent.getProducer().publish(topicData);
+                        agent.getBroker().publish(topicData);
                     }
                 }
             } catch (NoSuchElementException e) {
@@ -85,7 +85,7 @@ public class CSVAdapter implements AdapterInterface {
                     topicData.setMetaData("eof", true);
                     dataList.add(topicData);
                     if (shouldPublish) {
-                        agent.getProducer().publish(topicData);
+                        agent.getBroker().publish(topicData);
                     }
                 }
                 agent.stop();
@@ -257,6 +257,7 @@ public class CSVAdapter implements AdapterInterface {
         this.agent = agent;
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void addTopic(String topicName, HashMap<String, Object> config) {
         topics.put(topicName, config);

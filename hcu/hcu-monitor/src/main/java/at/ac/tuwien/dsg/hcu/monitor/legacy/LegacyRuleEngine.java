@@ -1,4 +1,4 @@
-package at.ac.tuwien.dsg.hcu.monitor;
+package at.ac.tuwien.dsg.hcu.monitor.legacy;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -15,7 +15,7 @@ import org.drools.rule.Package;
 import at.ac.tuwien.dsg.hcu.common.interfaces.RuleEngineInterface;
 
 @SuppressWarnings("restriction")
-public class RuleEngine extends Thread implements RuleEngineInterface {
+public class LegacyRuleEngine extends Thread implements RuleEngineInterface {
 
     private WorkingMemory workingMemory;
     private RuleBase ruleBase;
@@ -23,7 +23,7 @@ public class RuleEngine extends Thread implements RuleEngineInterface {
     private ArrayList<Object> facts;
     private boolean terminated = false; 
 
-    public RuleEngine(String ruleFile) {
+    public LegacyRuleEngine(String ruleFile) {
         try {
             this.ruleFile = ruleFile;
             facts = new ArrayList<Object>();

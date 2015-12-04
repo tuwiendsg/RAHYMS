@@ -1,7 +1,7 @@
-package at.ac.tuwien.dsg.hcu.monitor.legacy_listener.utilization;
+package at.ac.tuwien.dsg.hcu.monitor.legacy.listener.utilization;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
-import at.ac.tuwien.dsg.hcu.monitor.legacy_listener.ListenerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.listener.ListenerInterface;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
 import com.espertech.esper.client.EPServiceProvider;

@@ -43,7 +43,7 @@ public class Aggregator extends BaseProcessor {
                 data.setMetaData("time", lastMetaData.getTime());
                 data.setMetaData("count", count);
                 
-                consumer.getAgent().getProducer().publish(data);
+                consumer.getAgent().getBroker().publish(data);
             }
         }
         

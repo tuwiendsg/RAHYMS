@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.monitor.gridsim.GSMonitoringSimulation;
+import at.ac.tuwien.dsg.hcu.monitor.impl.Broker;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AdapterInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.BrokerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProducerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Quality;
@@ -18,6 +20,7 @@ public class Simulation {
     String title = "HCS Monitoring Simulation";
     HashMap<String, AgentInterface> agents;
     List<AgentInterface> producerAgents;
+    List<BrokerInterface> brokers;
     
     @SuppressWarnings("unchecked")
     public boolean init(Map<String, Object> config) {
@@ -33,6 +36,12 @@ public class Simulation {
         try {
             agents = new HashMap<String, AgentInterface>();
             producerAgents = new ArrayList<AgentInterface>();
+            brokers = new ArrayList<BrokerInterface>();
+            
+            // TODO: make brokers configurable
+            Broker broker = new Broker();
+            brokers.add(broker);
+            
             List<HashMap<String, Object>> agentConfig = (List<HashMap<String, Object>>) config.get("monitoring_agents");
             for (HashMap<String, Object> cfg: agentConfig) {
                 
@@ -55,6 +64,8 @@ public class Simulation {
                 Class<?> agentClazz = Class.forName(agentClassName);
                 AgentInterface agent = (AgentInterface) agentClazz.newInstance();
                 agent.setName((String) cfg.getOrDefault("name", "AGENT_" + (agents.size()+1)));
+                agent.setBroker(broker);
+                
                 // instantiate adapter
                 if (adapterCfg!=null) {
                     String adapterClassName = (String) adapterCfg.get("class");
@@ -152,6 +163,6 @@ public class Simulation {
             agent.start();
         }
         // start simulation
-        GSMonitoringSimulation.startSimulation(producerAgents, false);
+        GSMonitoringSimulation.startSimulation(producerAgents, brokers, false);
     }
 }

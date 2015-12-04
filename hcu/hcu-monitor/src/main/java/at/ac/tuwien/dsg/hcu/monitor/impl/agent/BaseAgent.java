@@ -4,11 +4,13 @@ import java.util.HashMap;
 
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AdapterInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.BrokerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProducerInterface;
 
 public class BaseAgent implements AgentInterface {
 
+    protected BrokerInterface broker;
     protected AdapterInterface adapter;
     protected ProducerInterface producer;
     protected ConsumerInterface consumer;
@@ -70,11 +72,6 @@ public class BaseAgent implements AgentInterface {
         if (adapter!=null) adapter.adjust(config);
         if (consumer!=null) consumer.adjust(config);
         if (producer!=null) producer.adjust(config);
-    }
-
-    @Override
-    public void adjust(Integer subscriptionId, HashMap<String, Object> config) {
-        if (producer!=null) producer.adjust(subscriptionId, config);
     }
 
     @Override
@@ -155,6 +152,16 @@ public class BaseAgent implements AgentInterface {
     @Override
     public boolean isRunning() {
         return isRunning;
+    }
+
+    @Override
+    public BrokerInterface getBroker() {
+        return broker;
+    }
+
+    @Override
+    public void setBroker(BrokerInterface broker) {
+        this.broker = broker;
     }
 
     
