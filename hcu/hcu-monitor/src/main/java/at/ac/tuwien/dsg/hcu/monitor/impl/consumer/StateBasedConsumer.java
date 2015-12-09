@@ -36,13 +36,14 @@ public class StateBasedConsumer extends EventBasedConsumer implements Wakeable {
         currentStates = new HashMap<String, String>();
     }
     
-    public static void setWaker(Waker _waker) {
-        waker = _waker;
+    @Override
+    public void setWaker(Waker waker) {
+        StateBasedConsumer.waker = waker;
     }
     
     @SuppressWarnings("unchecked")
     @Override
-    public void adjust(HashMap<String, Object> config) {
+    public void adjust(Map<String, Object> config) {
         List<Map<String, String>> transitionsCfg = (List<Map<String, String>>) config.get("transitions");
         if (transitionsCfg!=null) {
             for (Map<String, String> transition: transitionsCfg) {
@@ -137,7 +138,7 @@ public class StateBasedConsumer extends EventBasedConsumer implements Wakeable {
             try {
                 List<Data> results = (List<Data>)method.invoke(null, topic, id, newState, time, history, args);
                 if (results!=null) {
-                    agent.getProducer().publish(results);
+                    agent.publish(results);
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -247,5 +248,5 @@ public class StateBasedConsumer extends EventBasedConsumer implements Wakeable {
             
         }
     }
-    
+
 }

@@ -1,6 +1,5 @@
 package at.ac.tuwien.dsg.hcu.monitor.impl.processor;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,8 +9,9 @@ import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 
 public class Correlator extends BaseProcessor {
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void initiate(EPServiceProvider epService, ConsumerInterface consumer, String topic, HashMap<String, Object> args) {
+    public void initiate(EPServiceProvider epService, ConsumerInterface consumer, String topic, Map<String, Object> args) {
 
         super.initiate(epService, consumer, topic, args);
         

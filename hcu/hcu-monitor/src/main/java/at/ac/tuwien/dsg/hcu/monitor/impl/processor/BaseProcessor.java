@@ -1,6 +1,5 @@
 package at.ac.tuwien.dsg.hcu.monitor.impl.processor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.espertech.esper.client.EPServiceProvider;
@@ -33,7 +32,7 @@ public abstract class BaseProcessor implements ProcessorInterface {
 
     @Override
     public void initiate(EPServiceProvider epService, ConsumerInterface consumer, String topic,
-            HashMap<String, Object> args) {
+            Map<String, Object> args) {
         this.epService = epService;
         this.consumer = consumer;
         this.topicName = topic;
@@ -53,7 +52,7 @@ public abstract class BaseProcessor implements ProcessorInterface {
                 data.setValue(value);
                 data.setMetaData(metaData);
                 
-                consumer.getAgent().getBroker().publish(data);
+                consumer.getAgent().publish(data);
             }
         }
         

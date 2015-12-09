@@ -1,6 +1,5 @@
 package at.ac.tuwien.dsg.hcu.monitor.impl.processor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.espertech.esper.client.EPServiceProvider;
@@ -10,12 +9,11 @@ import com.espertech.esper.client.UpdateListener;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.MetaData;
-import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class Aggregator extends BaseProcessor {
 
     @Override
-    public void initiate(EPServiceProvider epService, ConsumerInterface consumer, String topic, HashMap<String, Object> args) {
+    public void initiate(EPServiceProvider epService, ConsumerInterface consumer, String topic, Map<String, Object> args) {
 
         super.initiate(epService, consumer, topic, args);
         String aggregate = (String) args.get("aggregate");
@@ -28,7 +26,7 @@ public class Aggregator extends BaseProcessor {
     }
 
     protected class AggregatorListener implements UpdateListener {
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings({ "rawtypes" })
         @Override
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
             int i = 0;
@@ -43,7 +41,7 @@ public class Aggregator extends BaseProcessor {
                 data.setMetaData("time", lastMetaData.getTime());
                 data.setMetaData("count", count);
                 
-                consumer.getAgent().getBroker().publish(data);
+                consumer.getAgent().publish(data);
             }
         }
         

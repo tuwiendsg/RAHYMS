@@ -10,8 +10,9 @@ import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 
 public class BaseProducer implements ProducerInterface {
 
-    protected Map<String, HashMap<String, Object>> topics = new HashMap<String, HashMap<String, Object>>();
     protected AgentInterface agent;
+    protected Map<String, Map<String, Object>> topics = new HashMap<String, Map<String, Object>>();
+    protected Map<String, Object> config = new HashMap<String, Object>();
     
     @Override
     public void setAgent(AgentInterface agent) {
@@ -19,7 +20,8 @@ public class BaseProducer implements ProducerInterface {
     }
 
     @Override
-    public void adjust(HashMap<String, Object> config) {
+    public void adjust(Map<String, Object> config) {
+        this.config.putAll(config);
     }
 
     @Override
@@ -28,7 +30,12 @@ public class BaseProducer implements ProducerInterface {
     }
 
     @Override
-    public void addTopic(String topicName, HashMap<String, Object> config) {
+    public void publish(Data data) {
+        agent.getBroker().publish(data);
+    }
+
+    @Override
+    public void addTopic(String topicName, Map<String, Object> config) {
         topics.put(topicName, config);
     }
 

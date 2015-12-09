@@ -158,11 +158,7 @@ public class Simulation {
     public void start() {
         
         System.out.println("Running " + title + "...");
-        // start all agents
-        for (AgentInterface agent: agents.values()) {
-            agent.start();
-        }
         // start simulation
-        GSMonitoringSimulation.startSimulation(producerAgents, brokers, false);
+        GSMonitoringSimulation.startSimulation(agents, brokers, false);
     }
 }

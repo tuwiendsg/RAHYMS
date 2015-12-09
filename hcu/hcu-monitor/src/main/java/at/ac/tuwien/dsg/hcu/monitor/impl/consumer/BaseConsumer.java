@@ -11,12 +11,13 @@ import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
 public abstract class BaseConsumer implements ConsumerInterface {
 
     protected AgentInterface agent;
-    protected Map<String, HashMap<String, Object>> topics = new HashMap<String, HashMap<String, Object>>();
-    
+    protected Map<String, Map<String, Object>> topics = new HashMap<String, Map<String, Object>>();
+    protected Map<String, Object> config = new HashMap<String, Object>();
+
     @Override
     public void subscribeTo(ProducerInterface producer,
             Subscription subscription) {
-        subscription.setConsumer(this);
+        subscription.setConsumerAgent(getAgent());
         agent.getBroker().subscribe(subscription);
     }
 
@@ -31,7 +32,12 @@ public abstract class BaseConsumer implements ConsumerInterface {
     }
 
     @Override
-    public void addTopic(String topicName, HashMap<String, Object> config) {
+    public void addTopic(String topicName, Map<String, Object> config) {
         topics.put(topicName, config);
+    }
+
+    @Override
+    public void adjust(Map<String, Object> config) {
+        this.config.putAll(config);
     }
 }

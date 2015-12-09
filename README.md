@@ -37,14 +37,12 @@ It contains the following components:
 
 * Compilation and configuration:
   * Run mvn install on smartcom project
-  * Run mvn install on salam project
-  * To configure HCU composer, REST API, and Web UI: change configuration files on salam\salam-rest\config.
+  * Run mvn install on hcu project
+  * To configure HCU composer, REST API, and Web UI: change configuration files on hcu\hcu-rest\config.
   * To configure gridsim simulation: 
 * To run the program:
 	- Running REST API and Web UI: 
-	  run \salam\salam-rest\src\main\java\at\ac\tuwien\dsg\salam\rest\RunRestServer.java
-	  or execute "java -jar salam\salam-rest\target\salam-rest-0.0.1-SNAPSHOT.jar"
-	- Running smartcom software peer: 
-	  execute smartcom-salam\smartcom-salam-demo\src\main\java\at\ac\tuwien\dsg\smartsociety\demo\peer\PeerApplication
+	  run \hcu\hcu-rest\src\main\java\at\ac\tuwien\dsg\hcu\rest\RunRestServer.java
+	  or execute "java -jar hcu\hcu-rest\target\hcu-rest-0.0.1-SNAPSHOT.jar"
 	- Running simulation: 
-	  run \salam\salam-simulation\src\main\java\at\ac\tuwien\dsg\salam\simulation\RunSimulation.java.
+	  run \hcu\hcu-simulation\src\main\java\at\ac\tuwien\dsg\hcu\simulation\RunSimulation.java.

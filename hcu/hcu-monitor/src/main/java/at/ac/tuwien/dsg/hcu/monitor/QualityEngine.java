@@ -43,8 +43,8 @@ public class QualityEngine implements Wakeable {
         return instances.get(subscription.getId());
     }
     
-    public static void setWaker(Waker _waker) {
-        waker = _waker;
+    public void setWaker(Waker waker) {
+        QualityEngine.waker = waker;
     }
     
     public void finish() {
@@ -77,7 +77,7 @@ public class QualityEngine implements Wakeable {
         
         // send EOF data
         if (data==null || data.getMetaData("eof")!=null || data.getMetaData("time")==null) {
-            subscription.getConsumer().receive(data);
+            subscription.getConsumerAgent().receive(data);
             finish();
             return;
         }
@@ -90,7 +90,7 @@ public class QualityEngine implements Wakeable {
         if ((accuracy==null || accuracy==0.0) && 
             (freshness==null || freshness==0.0) && 
             (rate==null || rate==0.0)) {
-            subscription.getConsumer().receive(data);
+            subscription.getConsumerAgent().receive(data);
             return;
         }
 
@@ -158,7 +158,7 @@ public class QualityEngine implements Wakeable {
     }
     
     private void send(Data data) {
-        subscription.getConsumer().receive(data);
+        subscription.getConsumerAgent().receive(data);
         lastSentData = data;
         dataChanged = false;
         retainedData = null;
@@ -173,4 +173,5 @@ public class QualityEngine implements Wakeable {
         }
         retainedData.add(data);
     }
+
 }

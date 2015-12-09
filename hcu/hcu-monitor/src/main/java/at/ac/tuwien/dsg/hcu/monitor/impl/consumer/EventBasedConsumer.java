@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
@@ -28,7 +28,22 @@ public class EventBasedConsumer extends BaseConsumer {
     @Override
     public void receive(Data data) {
         if (data==null || data.getMetaData("eof")!=null || data.getMetaData("time")==null) {
-            agent.stop();
+            if (agent.isRunning()) {
+                // publish EOF for all topics
+                List<Data> eofData = new ArrayList<Data>();
+                for (String topic: topics.keySet()) {
+                    Data eof = null;
+                    try {
+                        eof = (Data) data.clone();
+                        eof.setName(topic);
+                        eofData.add(eof);
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                agent.publish(eofData);
+                agent.stop();
+            }
         } else if (!stopped) {
             epService.getEPRuntime().sendEvent(data);
         }
@@ -58,13 +73,13 @@ public class EventBasedConsumer extends BaseConsumer {
             // initialize event processors
             eventProcessors = new ArrayList<ProcessorInterface>();
             for (String topicName: topics.keySet()) {
-                HashMap<String, Object> topicCfg = topics.get(topicName);
+                Map<String, Object> topicCfg = topics.get(topicName);
                 String className = (String) topicCfg.get("event_processor");
                 if (className!=null) {
                     ProcessorInterface processor = (ProcessorInterface)Class.forName(className)
                             .getConstructor()
                             .newInstance();
-                    HashMap<String, Object> args = (HashMap<String, Object>) topicCfg.get("args");
+                    Map<String, Object> args = (Map<String, Object>) topicCfg.get("args");
                     processor.initiate(epService, this, topicName, args);
                     eventProcessors.add(processor);
                 }
@@ -96,11 +111,6 @@ public class EventBasedConsumer extends BaseConsumer {
     public void stop() {
         epService.destroy();
         stopped = true;
-    }
-
-    @Override
-    public void adjust(HashMap<String, Object> config) {
-        // we dont have any general configuration for now
     }
 
 }

@@ -1,24 +1,32 @@
 package at.ac.tuwien.dsg.hcu.monitor.impl.agent;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AdapterInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.BrokerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProducerInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.StatisticInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.Wakeable;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.Waker;
+import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 
-public class BaseAgent implements AgentInterface {
+public class BaseAgent implements AgentInterface, StatisticInterface, Wakeable {
 
     protected BrokerInterface broker;
     protected AdapterInterface adapter;
     protected ProducerInterface producer;
     protected ConsumerInterface consumer;
-    protected HashMap<String, Object> config;
+    protected Map<String, Object> config;
     protected String name;
     protected boolean isRunning = false;
+    protected Map<String, Object> properties;
     
     public BaseAgent() {
+        properties = new HashMap<String, Object>();
     }
 
     public BaseAgent(String name, HashMap<String, Object> config) {
@@ -67,7 +75,7 @@ public class BaseAgent implements AgentInterface {
     }
 
     @Override
-    public void adjust(HashMap<String, Object> config) {
+    public void adjust(Map<String, Object> config) {
         setConfig(config);
         if (adapter!=null) adapter.adjust(config);
         if (consumer!=null) consumer.adjust(config);
@@ -97,15 +105,15 @@ public class BaseAgent implements AgentInterface {
         this.name = name;
     }
 
-    public HashMap<String, Object> getConfig() {
+    public Map<String, Object> getConfig() {
         return config;
     }
 
-    public void setConfig(HashMap<String, Object> config) {
+    public void setConfig(Map<String, Object> config2) {
         if (this.config!=null) {
-            this.config.putAll(config);
+            this.config.putAll(config2);
         } else {
-            this.config = config;
+            this.config = config2;
         }
     }
 
@@ -137,7 +145,7 @@ public class BaseAgent implements AgentInterface {
     }
 
     @Override
-    public void addTopic(String topicName, HashMap<String, Object> config) {
+    public void addTopic(String topicName, Map<String, Object> config) {
         if (producer!=null) {
             producer.addTopic(topicName, config);
         }
@@ -162,7 +170,76 @@ public class BaseAgent implements AgentInterface {
     @Override
     public void setBroker(BrokerInterface broker) {
         this.broker = broker;
+        broker.registerAgent(this);
     }
 
+    @Override
+    public Object getProperty(String name) {
+        return properties.get(name);
+    }
+
+    @Override
+    public void wake(int wakeId) {
+        if (getAdapter() instanceof Wakeable) {
+            ((Wakeable) getAdapter()).wake(wakeId);
+        }
+        if (getConsumer() instanceof Wakeable) {
+            ((Wakeable) getConsumer()).wake(wakeId);
+        }
+        if (getProducer() instanceof Wakeable) {
+            ((Wakeable) getProducer()).wake(wakeId);
+        }
+    }
+
+    @Override
+    public void setWaker(Waker waker) {
+        if (getAdapter() instanceof Wakeable) {
+            ((Wakeable) getAdapter()).setWaker(waker);
+        }
+        if (getConsumer() instanceof Wakeable) {
+            ((Wakeable) getConsumer()).setWaker(waker);
+        }
+        if (getProducer() instanceof Wakeable) {
+            ((Wakeable) getProducer()).setWaker(waker);
+        }
+    }
+
+    @Override
+    public void publish(List<Data> data) {
+        if (getProducer()!=null) {
+            getProducer().publish(data);
+            
+            // set message_published_count property
+            Integer count = (Integer) properties.getOrDefault("message_published_count", 0);
+            properties.put("message_published_count", count + data.size());
+        }
+    }
+
+    @Override
+    public void publish(Data data) {
+        if (getProducer()!=null) {
+            getProducer().publish(data);
+            
+            // set message_published_count property
+            Integer count = (Integer) properties.getOrDefault("message_published_count", 0);
+            properties.put("message_published_count", count + 1);
+        }
+    }
+
+    @Override
+    public void receive(Data data) {
+        if (getConsumer()!=null) {
+            getConsumer().receive(data);
+
+            // set message_received_count property
+            Integer count = (Integer) properties.getOrDefault("message_received_count", 0);
+            properties.put("message_received_count", count + 1);
+        }
+    }
+
+    @Override
+    public void resetProperty(String name) {
+        properties.remove(name);
+    }
     
 }

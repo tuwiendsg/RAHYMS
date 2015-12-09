@@ -1,11 +1,10 @@
 package at.ac.tuwien.dsg.hcu.monitor.impl.consumer;
 
-import gridsim.GridSim;
-
-import java.util.HashMap;
+import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
+import gridsim.GridSim;
 
 public class DumpConsumer extends BaseConsumer {
 
@@ -24,18 +23,6 @@ public class DumpConsumer extends BaseConsumer {
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void adjust(HashMap<String, Object> config) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void addTopic(String topicName, HashMap<String, Object> config) {
         // TODO Auto-generated method stub
         
     }

@@ -1,15 +1,16 @@
 package at.ac.tuwien.dsg.hcu.monitor.model;
 
-import java.util.HashMap;
+import java.util.Map;
 
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 
 public class Subscription {
 
     private Integer id;
-    private ConsumerInterface consumer;
+    private AgentInterface consumerAgent;
     private String topic;
-    private HashMap<String, Object> config;
+    private Map<String, Object> config;
     private Quality quality;
     
     private static int lastId = 0;
@@ -18,12 +19,12 @@ public class Subscription {
         id = ++lastId;
     }
     
-    public ConsumerInterface getConsumer() {
-        return consumer;
+    public AgentInterface getConsumerAgent() {
+        return consumerAgent;
     }
     
-    public void setConsumer(ConsumerInterface consumer) {
-        this.consumer = consumer;
+    public void setConsumerAgent(AgentInterface consumerAgent) {
+        this.consumerAgent = consumerAgent;
     }
     
     public String getTopic() {
@@ -34,11 +35,11 @@ public class Subscription {
         this.topic = topic;
     }
     
-    public HashMap<String, Object> getConfig() {
+    public Map<String, Object> getConfig() {
         return config;
     }
     
-    public void setConfig(HashMap<String, Object> config) {
+    public void setConfig(Map<String, Object> config) {
         if (this.config==null) {
             this.config = config;
         } else {

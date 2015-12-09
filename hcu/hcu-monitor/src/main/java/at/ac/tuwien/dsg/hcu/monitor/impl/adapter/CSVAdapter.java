@@ -21,17 +21,18 @@ import org.apache.commons.csv.CSVRecord;
 
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AdapterInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.Wakeable;
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.Waker;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
-public class CSVAdapter implements AdapterInterface {
+public class CSVAdapter extends BaseAdapter implements AdapterInterface, Wakeable {
 
     public static final String CFG_SET_CSV_FILE = "csv_file";
     public static final String CFG_SET_CSV_TIME_CFG = "csv_time_cfg";    
     public static final String CFG_TICK = "tick";
     
     private CSVParser parser = null;
-    private AgentInterface agent = null;
     
     private String filePath;
     private String timeCol;
@@ -41,14 +42,15 @@ public class CSVAdapter implements AdapterInterface {
     private String timeExpression;
     private String timeFunction;
     private List<String> dataCol = new ArrayList<String>();
-    private Map<String, Object> topics = new HashMap<String, Object>();
     private boolean shouldInit = false;
+    private List<Data> currentData;
     
     @Override
     public void start() {
         if (shouldInit) {
             init();
         }
+        scheduleNextData();
     }
 
     @Override
@@ -75,7 +77,7 @@ public class CSVAdapter implements AdapterInterface {
                     topicData.setName(topic);
                     dataList.add(topicData);
                     if (shouldPublish) {
-                        agent.getBroker().publish(topicData);
+                        agent.publish(topicData);
                     }
                 }
             } catch (NoSuchElementException e) {
@@ -85,7 +87,7 @@ public class CSVAdapter implements AdapterInterface {
                     topicData.setMetaData("eof", true);
                     dataList.add(topicData);
                     if (shouldPublish) {
-                        agent.getBroker().publish(topicData);
+                        agent.publish(topicData);
                     }
                 }
                 agent.stop();
@@ -208,7 +210,8 @@ public class CSVAdapter implements AdapterInterface {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void adjust(HashMap<String, Object> config) {
+    public void adjust(Map<String, Object> config) {
+        super.adjust(config);
         for (Map.Entry<String, Object> entry : config.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -249,18 +252,24 @@ public class CSVAdapter implements AdapterInterface {
 
     @Override
     public List<Data> getData() {
-        return tick(false);
+        return currentData;
     }
 
-    @Override
-    public void setMonitoringAgent(AgentInterface agent) {
-        this.agent = agent;
+    private Double getNextWakeTime() {
+        currentData = tick(false);
+        Double time = (Double) currentData.get(0).getMetaData("time");
+        if (time==null) {
+            // an EOF
+            agent.publish(currentData);
+            agent.stop();
+        }
+        return time;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
-    public void addTopic(String topicName, HashMap<String, Object> config) {
-        topics.put(topicName, config);
+    public void addTopic(String topicName, Map<String, Object> config) {
+        super.addTopic(topicName, config);
         String col = (String) config.get("csv_col");
         if (!dataCol.contains(col)) {
             dataCol.add(col);
@@ -276,6 +285,19 @@ public class CSVAdapter implements AdapterInterface {
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void wake(int wakeId) {
+        agent.publish(getData());
+        scheduleNextData();
+    }
+
+    private void scheduleNextData() {
+        Double wakeTime = getNextWakeTime();
+        if (wakeTime!=null && agent.isRunning()) {
+            waker.wakeMeAt((Wakeable)agent, wakeTime);
         }
     }
 }

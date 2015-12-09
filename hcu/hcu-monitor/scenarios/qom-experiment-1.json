@@ -1,5 +1,6 @@
 {
     "title": "Testing GridSim Monitoring Simulation",
+    "producer_based_quality_engine_enabled": true,
     "monitoring_agents":
     [
         {
@@ -215,6 +216,38 @@
             ]
         },
         {
+            "enabled": true,
+            "name": "stat_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.StatAdapter",
+                "config":
+                {
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "message_count",
+                    "config":
+                    {
+                        "property": "message_published_count",
+                        "agents": ["broker", "csv_cloud_service_agent", "csv_scu_agent", "state_metric_agent", "correlator_agent", "aggregator_agent"],
+                        "sampling_rate": 36000.0,
+                        "reset_on_sampling": true,
+                        "default": 0
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": false,
             "name": "consumer",
             "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
             "consumer":
@@ -229,6 +262,47 @@
                     }
                 ],
                 "config": {}
+            }
+        },
+        {
+            "name": "stat_consumer",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "stat_agent",
+                        "topic": "message_count",
+                        "config": {}
+                    }
+                ],
+                "config": {}
+            }
+        },
+        {
+            "name": "tracer_consumer",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.TracerConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "stat_agent",
+                        "topic": "message_count",
+                        "config": {}
+                    }
+                ],
+                "config": {
+                    "file_prefix": "traces/message-count-sampling10h-",
+                    "by_metadata":
+                    {
+                        "attribute": "agent_name",
+                        "values": ["broker", "csv_cloud_service_agent", "csv_scu_agent", "state_metric_agent", "correlator_agent", "aggregator_agent"]
+                    }
+                }
             }
         }
     ]
