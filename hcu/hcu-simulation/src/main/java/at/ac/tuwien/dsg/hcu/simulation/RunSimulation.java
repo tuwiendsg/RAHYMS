@@ -1,8 +1,12 @@
 package at.ac.tuwien.dsg.hcu.simulation;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import com.mongodb.DB;
+import com.mongodb.DBCursor;
+import com.mongodb.MongoClient;
 import org.json.JSONException;
 
 import at.ac.tuwien.dsg.hcu.cloud.discoverer.Discoverer;
@@ -19,14 +23,16 @@ import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSConsumer;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
+
 public class RunSimulation {
     
-    private static String configFile = "config/consumer.properties";
-    
+    private static String configFile = "/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/config/consumer.properties";
+    private static final String MONGODB_DATABASE = "HCU-SIMULATION";
+
     public static void main(String[] args) {
 
         try {
-            
+
             Util.log().info("Initializing tester");
             
             // task config
@@ -54,7 +60,23 @@ public class RunSimulation {
 
             // start the consumer
             GSConsumer.start(configFile, scheduler, manager, taskConfig, svcConfig);
-            
+
+            //create a database named hcu-simulation
+            MongoClient client = null;
+            try {
+                client = new MongoClient("localhost", 12345);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            DB database = client.getDB(MONGODB_DATABASE);
+
+            DBCursor cursor = database.getCollection("simulation-information").find();
+            while(cursor.hasNext()) {
+                System.out.println(cursor.next());
+            }
+
+
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

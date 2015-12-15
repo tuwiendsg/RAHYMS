@@ -16,7 +16,7 @@ import at.ac.tuwien.dsg.hcu.rest.config.AppConfig;
 
 public class RunRestServer {
 
-    private static final String PROP_FILE = "config/rest.properties";
+    private static final String PROP_FILE = "/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-rest/config/rest.properties";
 
     public static void main(final String[] args) throws Exception {
         Resource.setDefaultUseCaches(false);

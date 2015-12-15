@@ -1,5 +1,6 @@
 package at.ac.tuwien.dsg.hcu.composer;
 
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,15 +26,19 @@ import at.ac.tuwien.dsg.hcu.composer.model.ConstructionGraph;
 import at.ac.tuwien.dsg.hcu.composer.model.Solution;
 import at.ac.tuwien.dsg.hcu.composer.model.SolutionComponent;
 import at.ac.tuwien.dsg.hcu.util.Util;
+import com.mongodb.*;
+import org.bson.types.ObjectId;
 
 
 public class Composer implements ComposerInterface {
 
+    private static final String MONGODB_DATABASE = "HCU-SIMULATION";
     private static ComposerTracer globalTracer = null;
     private static ReliabilityTracer reliabilityTracer = null;
     private static String algoName;
     private static int taskCounter = 0;
 
+    private DB database;
     private String configFile;
     private TaskWithOptimization task;
     private ConstructionGraph constructionGraph;
@@ -112,6 +117,17 @@ public class Composer implements ComposerInterface {
             reliabilityTracer = new ReliabilityTracer(reliabilityTraceFilePrefix + date + ".csv", discoverer);
             reliabilityTracer.traceln(reliabilityTracer.getTraceHeader());
         }
+
+        //create a database named hcu-simulation
+        MongoClient client = null;
+        try {
+            client = new MongoClient("localhost", 12345);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        database = client.getDB(MONGODB_DATABASE);
+
+        //until here
 
         // start service
         //Endpoint.publish("http://localhost:8082/Composer", new ProvisionerWS());
@@ -237,13 +253,29 @@ public class Composer implements ComposerInterface {
 
             //Util.log().warning("Solution: " + solution.toString());
 
+            /*List<Integer> books = Arrays.asList(27464, 747854);
+            DBObject person = new BasicDBObject("_id", "jo")
+                    .append("name", "Jo Bloggs")
+                    .append("address", new BasicDBObject("street", "123 Fake St")
+                            .append("city", "Faketon")
+                            .append("state", "MA")
+                            .append("zip", 12345))
+                    .append("books", books);
+
+            DBCollection collection = database.getCollection("people");
+
+            collection.insert(person);*/
+
+            //until-here database
+
+
+            String data = "";
+            String flag = "";
             // trace
             if (globalTracer!=null) {
-                String data = "";
                 if (solution!=null && solution.size()>0) {
                     data = solution.getData();
                 }
-                String flag = "";
                 if (this.isSolutionFeasible(solution)) flag = "f"; 
                 globalTracer.trace(flag + "," + algoTime + ","+task.getName()+","
                         +data+",\"" + task.toString() + "\",");
@@ -253,6 +285,24 @@ public class Composer implements ComposerInterface {
                     globalTracer.traceln("Algo can't find solution!"); 
                 }
             }
+            DBObject simulationInformation =  new BasicDBObject("_id", ObjectId.get()).
+                    append("flag", flag).
+                    append("algo_time", algoTime).
+                    append("task", data).
+                    append("solution_components", solution.trace()).
+                    append("objective_value", solution.getAggregateScore()).
+                    append("cost", solution.getCost()).
+                    append("norm_cost", solution.getNormCost()).
+                    append("competency", solution.getSkillScore()).
+                    append("connectedness", solution.getConnectednessScore()).
+                    append("mu_connectedness", solution.getFuzzyConnectedness()).
+                    append("response_time", solution.getTime()).
+                    append("norm_response_time", solution.getNormTime());
+
+            DBCollection collection = database.getCollection("simulation-information");
+
+            collection.insert(simulationInformation);
+
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

@@ -6,6 +6,8 @@
 	<link rel="stylesheet" href="css/dialogs.css">
     <link rel="stylesheet" href="css/font-awesome.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/simulation.css">
+
 </head>
 <body>
 <div class="navbar navbar-default">
@@ -25,7 +27,9 @@
         		<li ng-class="{active: isActive('/task')}"><a href="#/task">Tasks</a></li>
         		<li ng-class="{active: isActive('/collective')}"><a href="#/collective">HCUs</a></li>
         		<li ng-class="{active: isActive('/task-rule')}"><a href="#/task-rule">Task Generator Rules</a></li>
-        	</ul>
+                <li ng-class="{active: isActive('/simulation')}"><a href="#/simulation">Simulation</a></li>
+
+            </ul>
        	</div>
     </div>
 </div>
@@ -53,6 +57,12 @@
 <script src="scripts/collective.js"></script>
 <script src="scripts/taskRule.js"></script>
 <script src="scripts/assignment.js"></script>
+<script src="scripts/simulation.js"></script>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+        integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ=="
+        crossorigin="anonymous"></script>
 
 </body>
 </html>

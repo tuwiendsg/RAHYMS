@@ -1,0 +1,56 @@
+<div ng-if="!showUnitGenerators && !showTaskGenerators && !showTaskDetail && !showUnitDetail">
+
+    <hr/>
+    <div class="row">
+        <div class="col-sm-6">
+            <button type="submit" class="btn btn-primary btn-default pull-right" ng-click="unitGeneratorList()">Unit
+                Generator
+            </button>
+        </div>
+        <div class="col-sm-6">
+            <button type="submit" class="btn btn-primary pull-left" ng-click="taskGeneratorList()">Task Generator
+            </button>
+        </div>
+    </div>
+    <hr/>
+
+    <button type="submit" accesskey="S" class="btn btn-primary pull-right" ng-click="startSimulation()">Start
+        Simulation
+    </button>
+</div>
+
+<div>
+
+</div>
+<div ng-if="showTaskGenerators || showUnitDetail || showTaskDetail || showUnitGenerators">
+
+    <div class="row">
+        <div class="col-sm-8">
+            <button accesskey="C" type="submit" class="btn btn-primary btn-danger pull-right" ng-click="backToHome()">
+                Back
+            </button>
+        </div>
+        <div class="col-sm-4" ng-if="!showTaskGenerators && !showUnitGenerators && (showTaskDetail || showUnitDetail)">
+            <button accesskey="S" type="submit" class="btn btn-primary btn-success pull-left" ng-click="saveTaskOrUnit()">
+                Save
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<div ng-if="!showTaskGenerators && !showUnitDetail && !showTaskDetail && showUnitGenerators">
+    <ng-include src=" 'views/simulation/unit-list.html' "></ng-include>
+</div>
+
+<div ng-if="!showUnitGenerators && !showUnitDetail && !showTaskDetail && showTaskGenerators">
+    <ng-include src=" 'views/simulation/task-list.html' "></ng-include>
+</div>
+
+<div ng-if="!showTaskGenerators && !showUnitGenerators && !showTaskDetail && showUnitDetail">
+    <ng-include src=" 'views/simulation/unit-detail.html' "></ng-include>
+</div>
+
+<div ng-if="!showTaskGenerators && !showUnitGenerators && !showUnitDetail && showTaskDetail">
+    <ng-include src=" 'views/simulation/task-detail.html' "></ng-include>
+</div>

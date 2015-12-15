@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 
+import at.ac.tuwien.dsg.hcu.rest.rs.*;
+import at.ac.tuwien.dsg.hcu.rest.services.SimulationService;
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -14,11 +16,6 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 
 import at.ac.tuwien.dsg.hcu.rest.resource.Peer;
-import at.ac.tuwien.dsg.hcu.rest.rs.CollectiveRestService;
-import at.ac.tuwien.dsg.hcu.rest.rs.JaxRsApiApplication;
-import at.ac.tuwien.dsg.hcu.rest.rs.PeerRestService;
-import at.ac.tuwien.dsg.hcu.rest.rs.TaskRestService;
-import at.ac.tuwien.dsg.hcu.rest.rs.TaskRuleRestService;
 import at.ac.tuwien.dsg.hcu.rest.services.PeerService;
 import at.ac.tuwien.dsg.hcu.rest.services.TaskRuleService;
 import at.ac.tuwien.dsg.hcu.rest.services.TaskService;
@@ -50,6 +47,7 @@ public class AppConfig {
                 peerRestService(),
                 taskRestService(), 
                 taskRuleRestService(),
+                simulationRestService(),
                 collectiveRestService(),
                 apiListingResourceJson()
                 ) );
@@ -107,6 +105,11 @@ public class AppConfig {
         return new TaskService();
     }
 
+    @Bean
+    public SimulationService simulationService() {
+        return new SimulationService();
+    }
+
     @Bean 
     public PeerRestService peerRestService() {
         return new PeerRestService();
@@ -120,6 +123,11 @@ public class AppConfig {
     @Bean 
     public CollectiveRestService collectiveRestService() {
         return new CollectiveRestService();
+    }
+
+    @Bean
+    public SimulationRestService simulationRestService() {
+        return new SimulationRestService();
     }
 
     @Bean 

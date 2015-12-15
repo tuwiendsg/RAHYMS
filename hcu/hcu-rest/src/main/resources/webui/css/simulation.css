@@ -1,0 +1,17 @@
+.selected {
+     background-color:black;
+     color:white;
+     font-weight:bold;
+}
+
+.input-width-icon {
+     width: 51%;
+}
+
+.hover-span:hover {
+     background-color: lightblue ;
+}
+
+.value-add {
+     width: 44.666667%;
+}
