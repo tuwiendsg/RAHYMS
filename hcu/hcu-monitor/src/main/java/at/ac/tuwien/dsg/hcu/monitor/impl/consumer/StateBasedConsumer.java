@@ -44,17 +44,21 @@ public class StateBasedConsumer extends EventBasedConsumer implements Wakeable {
     @SuppressWarnings("unchecked")
     @Override
     public void adjust(Map<String, Object> config) {
-        List<Map<String, String>> transitionsCfg = (List<Map<String, String>>) config.get("transitions");
-        if (transitionsCfg!=null) {
-            for (Map<String, String> transition: transitionsCfg) {
-                Transition t = new Transition(
-                        transition.get("from"),
-                        transition.get("event"),
-                        transition.get("to"));
-                transitions.add(t);
+        if (config.containsKey("transitions")) {
+            List<Map<String, String>> transitionsCfg = (List<Map<String, String>>) config.get("transitions");
+            if (transitionsCfg!=null) {
+                for (Map<String, String> transition: transitionsCfg) {
+                    Transition t = new Transition(
+                            transition.get("from"),
+                            transition.get("event"),
+                            transition.get("to"));
+                    transitions.add(t);
+                }
             }
         }
-        windowSize = (Double) config.getOrDefault("window", 0.0);
+        if (config.containsKey("window")) {
+            windowSize = (Double) config.getOrDefault("window", 0.0);
+        }
     }
     
     public void init() {

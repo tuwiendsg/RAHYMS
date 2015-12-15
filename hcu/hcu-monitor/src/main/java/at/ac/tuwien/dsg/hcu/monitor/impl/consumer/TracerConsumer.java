@@ -19,7 +19,7 @@ public class TracerConsumer extends BaseConsumer {
     protected Tracer tracer;
     protected String tracerName;
     protected List<String> columns = new LinkedList<String>();
-    protected Map<String,String> currentRow;
+    protected Map<String,String> currentRow = new HashMap<String, String>();
     protected Double prevTime = -1.0;
     protected String filePrefix;
     protected String metadataAttribute = null; // if null, we create columns by subscription
@@ -37,7 +37,7 @@ public class TracerConsumer extends BaseConsumer {
                 currentRow.put("time", String.format("%f",data.getMetaData().getTime()));
                 prevTime = data.getMetaData().getTime();
             }
-            currentRow.put(col, data.getValue().toString());
+            currentRow.put(col, (data.getValue()==null)?"":data.getValue().toString());
         }
     }
 
@@ -79,11 +79,16 @@ public class TracerConsumer extends BaseConsumer {
     @SuppressWarnings("unchecked")
     @Override
     public void adjust(Map<String, Object> config) {
-        filePrefix = (String) config.get("file_prefix");
-        Map<String, Object> byMetadata = (Map<String, Object>) config.get("by_metadata");
-        if (byMetadata!=null) {
-            metadataAttribute = (String) byMetadata.get("attribute");
-            columns = (List<String>) byMetadata.get("values");
+        super.adjust(config);
+        if (config.containsKey("file_prefix")) {
+            filePrefix = (String) config.get("file_prefix");
+        }
+        if (config.containsKey("by_metadata")) {
+            Map<String, Object> byMetadata = (Map<String, Object>) config.get("by_metadata");
+            if (byMetadata!=null) {
+                metadataAttribute = (String) byMetadata.get("attribute");
+                columns = (List<String>) byMetadata.get("values");
+            }
         }
     }
 

@@ -1,7 +1,8 @@
 package at.ac.tuwien.dsg.hcu.monitor.model;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Quality {
     
@@ -9,10 +10,10 @@ public class Quality {
     public static String ACCURACY = "accuracy";
     public static String FRESHNESS = "freshness";
     
-    private Map<String, Double> quality;
+    private SortedMap<String, Double> quality;
     
     public Quality() {
-        quality = new HashMap<String, Double>();
+        quality = new TreeMap<String, Double>();
     }
     
     public Quality(double rate, double accuracy, double freshness) {
@@ -36,5 +37,16 @@ public class Quality {
     
     public Double get(String name) {
         return quality.get(name);
+    }
+    
+    public String toString() {
+        String result = "";
+        for (String key: quality.keySet()) {
+            if (!result.equals("")) {
+                result += "/";
+            }
+            result += key + "=" + quality.get(key);
+        }
+        return result;
     }
 }

@@ -12,23 +12,31 @@ import at.ac.tuwien.dsg.hcu.monitor.interfaces.Wakeable;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.Waker;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
+import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class Broker implements BrokerInterface, StatisticInterface, Wakeable {
 
     protected Map<Integer, Subscription> register;
     protected Map<String, AgentInterface> agents;
+    protected Map<String, AgentInterface> topicProviders;
     protected int lastSubscriptionId = 0;
     protected Waker waker;
     protected Map<String, Object> properties;
+    protected boolean producerBasedQualityEngineEnabled = false;
+    protected boolean isStopping = false;
 
     public Broker() {
         register = new HashMap<Integer, Subscription>();
         agents = new HashMap<String, AgentInterface>();
         properties = new HashMap<String, Object>();
+        topicProviders = new HashMap<String, AgentInterface>();
     }
     
     @Override
     public void adjust(Map<String, Object> config) {
+        if (config.containsKey("producer_based_quality_engine_enabled")) {
+            producerBasedQualityEngineEnabled = (boolean) config.getOrDefault("producer_based_quality_engine_enabled", false);
+        }
     }
 
     @Override
@@ -38,27 +46,36 @@ public class Broker implements BrokerInterface, StatisticInterface, Wakeable {
         register.put(subscriptionId, subscription); // not sure if it's necessary to put back
     }
 
+    private boolean dataMatchSubscription(Data data, Subscription subscription) {
+        boolean match = false;
+        if (!producerBasedQualityEngineEnabled) {
+            match = subscription.getTopic().trim().equalsIgnoreCase(data.getName().trim());
+        } else {
+            match = subscription.getQualityEmbeddedTopic().equalsIgnoreCase(data.getName().trim());
+        }
+        return match;
+    }
+    
     @Override
     public void publish(Data data) {
         // set message_received_count property
-        Integer count = (Integer) properties.getOrDefault("message_received_count", 0);
-        properties.put("message_received_count", count + 1);
-
+        increaseProperty("message_received_count");
+        
         for (Subscription subscription: register.values() ) {
-            if (subscription.getTopic().trim().equalsIgnoreCase(data.getName().trim())) {
+            if (dataMatchSubscription(data, subscription)) {
                 if (data.getMetaData("eof")!=null) {
                     subscription.getConsumerAgent().receive(data);
+                    increaseProperty("message_published_count");
+                    isStopping = true;
                 }
                 QualityEngine qualityEngine = QualityEngine.getInstance(subscription);
-                if (qualityEngine!=null) {
+                if (qualityEngine!=null && !producerBasedQualityEngineEnabled) {
                     qualityEngine.setWaker(waker);
                     qualityEngine.receive(data);
                 } else {
                     subscription.getConsumerAgent().receive(data);
+                    increaseProperty("message_published_count");
                 }
-                // set message_published_count property
-                Integer count2 = (Integer) properties.getOrDefault("message_published_count", 0);
-                properties.put("message_published_count", count2 + 1);
             }
         }
     }
@@ -77,8 +94,13 @@ public class Broker implements BrokerInterface, StatisticInterface, Wakeable {
         int id = lastSubscriptionId++;
         register.put(id, subscription);
         
-        // create QualityEngine for this subscription
-        new QualityEngine(subscription);
+        if (!producerBasedQualityEngineEnabled) {
+            // create QualityEngine for this subscription
+            new QualityEngine(subscription, producerBasedQualityEngineEnabled, this);
+        } else {
+            AgentInterface agent = topicProviders.get(subscription.getTopic());
+            agent.getProducer().subscribe(subscription);
+        }
         
         return id;
     }
@@ -98,6 +120,12 @@ public class Broker implements BrokerInterface, StatisticInterface, Wakeable {
     }
 
     @Override
+    public void registerTopic(AgentInterface agent, String topic) {
+        // only necessary when producer_based_quality_engine_enabled=true
+        topicProviders.put(topic, agent);
+    }
+
+    @Override
     public AgentInterface getAgent(String agentName) {
         return agents.get(agentName);
     }
@@ -108,8 +136,14 @@ public class Broker implements BrokerInterface, StatisticInterface, Wakeable {
     }
 
     @Override
-    public void resetProperty(String name) {
-        properties.remove(name);
+    public void increaseProperty(String name) {
+        Integer count = (Integer) properties.getOrDefault(name, 0);
+        properties.put(name, count + 1);
+    }
+
+    @Override
+    public boolean isStopping() {
+        return isStopping;
     }
 
 

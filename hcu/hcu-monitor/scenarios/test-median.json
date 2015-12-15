@@ -1,0 +1,150 @@
+{
+    "title": "Testing State Metrics",
+    "monitoring_agents":
+    [
+        {
+            "name": "csv_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/test-median.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "time"
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "value",
+                    "config":
+                    {
+                        "csv_col": "value"
+                    }
+                }
+            ]
+        },
+{
+            "enabled": true,
+            "name": "aggregator_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.EventBasedConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_agent",
+                        "topic": "value",
+                        "config": {}
+                    }
+                ],
+                "config": {}
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "max",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
+                        "args": {
+                            "aggregate": "max(doubleValue)",
+                            "from": "Data(name='value')"
+                        }
+                    }
+                },
+                {
+                    "name": "min",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
+                        "args": {
+                            "aggregate": "min(doubleValue)",
+                            "from": "Data(name='value')"
+                        }
+                    }
+                },
+                {
+                    "name": "median",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
+                        "args": {
+                            "aggregate": "median(doubleValue)",
+                            "from": "Data(name='value')"
+                        }
+                    }
+                },
+                {
+                    "name": "q1",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
+                        "args": {
+                            "aggregate": "q1(doubleValue)",
+                            "from": "Data(name='value')"
+                        }
+                    }
+                },
+                {
+                    "name": "q3",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
+                        "args": {
+                            "aggregate": "q3(doubleValue)",
+                            "from": "Data(name='value')"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "csv_consumer",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_agent",
+                        "topic": "value",
+                        "config": {}
+                    },
+                    {
+                        "to": "aggregator_agent",
+                        "topic": "median",
+                        "config": {}
+                    },
+                    {
+                        "to": "aggregator_agent",
+                        "topic": "q1",
+                        "config": {}
+                    },
+                    {
+                        "to": "aggregator_agent",
+                        "topic": "q3",
+                        "config": {}
+                    }
+                ],
+                "config": {}
+            }
+        }
+    ]
+}

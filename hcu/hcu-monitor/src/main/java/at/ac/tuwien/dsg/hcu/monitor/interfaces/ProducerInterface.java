@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
+import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
 
 public interface ProducerInterface {
 
@@ -11,6 +12,7 @@ public interface ProducerInterface {
 
     public void publish(List<Data> data);
     public void publish(Data data);
+    public int subscribe(Subscription subscription); // returns the subscription id
     
     // internal methods
     public void setAgent(AgentInterface agent);

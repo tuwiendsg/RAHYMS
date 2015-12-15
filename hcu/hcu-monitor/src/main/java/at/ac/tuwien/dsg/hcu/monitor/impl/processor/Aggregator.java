@@ -9,6 +9,7 @@ import com.espertech.esper.client.UpdateListener;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.MetaData;
+import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class Aggregator extends BaseProcessor {
 
@@ -17,12 +18,20 @@ public class Aggregator extends BaseProcessor {
 
         super.initiate(epService, consumer, topic, args);
         String aggregate = (String) args.get("aggregate");
+        String original = (String) args.get("original");
         String dataWindow = (String) args.get("from");
 
         String aggregateExpression =
                 "SELECT " + aggregate + " as value, last(metaData) as metaData, count(*) as count FROM " + dataWindow;
+        Util.log().info(aggregateExpression);
         this.addListener(aggregateExpression, new AggregatorListener());
         
+        /*
+        String originalExpression =
+                "SELECT " + original + " as value, metaData FROM " + dataWindow;
+        Util.log().info(originalExpression);
+        this.addListener(originalExpression, new AggregatorListener());
+*/
     }
 
     protected class AggregatorListener implements UpdateListener {
@@ -35,6 +44,9 @@ public class Aggregator extends BaseProcessor {
                 Double value = (Double) ((Map)event.getUnderlying()).get("value");
                 Long count = (Long) ((Map)event.getUnderlying()).get("count");
                 MetaData lastMetaData = (MetaData) ((Map)event.getUnderlying()).get("metaData");
+                if (topicName.equals("weighted_avg_util")) {
+                    Util.log().info(event.getUnderlying().toString());
+                }
                 Data data = new Data();
                 data.setName(topicName);
                 data.setValue(value);

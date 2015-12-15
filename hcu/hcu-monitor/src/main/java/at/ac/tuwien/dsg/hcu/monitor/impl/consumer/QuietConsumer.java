@@ -1,13 +1,15 @@
 package at.ac.tuwien.dsg.hcu.monitor.impl.consumer;
 
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
-import gridsim.GridSim;
 
-public class DumpConsumer extends BaseConsumer {
+public class QuietConsumer extends BaseConsumer {
 
+    protected AgentInterface agent;
+    
     @Override
     public void receive(Data data) {
-        System.out.println("[Dumper][" + agent.getName() + "]" + GridSim.clock() + ": " + data);
+        // sssshhh
     }
 
     @Override

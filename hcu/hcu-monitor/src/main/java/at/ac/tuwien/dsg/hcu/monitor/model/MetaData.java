@@ -75,8 +75,8 @@ public class MetaData implements Cloneable {
     
     @Override
     public Object clone() throws CloneNotSupportedException {
-        Data result = (Data)super.clone();
-        // TODO: check deep copying
+        MetaData result = (MetaData)super.clone();
+        result.metaData = new HashMap<String, Object>(this.metaData);
         return result;
     }
 }

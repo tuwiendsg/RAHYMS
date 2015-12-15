@@ -3,7 +3,6 @@ package at.ac.tuwien.dsg.hcu.monitor.model;
 import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.AgentInterface;
-import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 
 public class Subscription {
 
@@ -27,8 +26,16 @@ public class Subscription {
         this.consumerAgent = consumerAgent;
     }
     
+    public String getQualityEmbeddedTopic() {
+        if (quality!=null) {
+            return getTopic() + "/" + quality.toString();
+        } else {
+            return getTopic();
+        }
+    }
+
     public String getTopic() {
-        return topic;
+        return topic.trim();
     }
     
     public void setTopic(String topic) {
@@ -64,5 +71,11 @@ public class Subscription {
     public void setQuality(Quality quality) {
         this.quality = quality;
     }
+
+    @Override
+    public String toString() {
+        return "Subscription [consumerAgent=" + consumerAgent + ", topic=" + topic + ", quality=" + quality + "]";
+    }
+    
     
 }

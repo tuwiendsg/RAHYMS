@@ -155,6 +155,7 @@ public class BaseAgent implements AgentInterface, StatisticInterface, Wakeable {
         if (consumer!=null) {
             consumer.addTopic(topicName, config);
         }
+        broker.registerTopic(this, topicName);
     }
 
     @Override
@@ -208,10 +209,6 @@ public class BaseAgent implements AgentInterface, StatisticInterface, Wakeable {
     public void publish(List<Data> data) {
         if (getProducer()!=null) {
             getProducer().publish(data);
-            
-            // set message_published_count property
-            Integer count = (Integer) properties.getOrDefault("message_published_count", 0);
-            properties.put("message_published_count", count + data.size());
         }
     }
 
@@ -220,9 +217,6 @@ public class BaseAgent implements AgentInterface, StatisticInterface, Wakeable {
         if (getProducer()!=null) {
             getProducer().publish(data);
             
-            // set message_published_count property
-            Integer count = (Integer) properties.getOrDefault("message_published_count", 0);
-            properties.put("message_published_count", count + 1);
         }
     }
 
@@ -230,16 +224,20 @@ public class BaseAgent implements AgentInterface, StatisticInterface, Wakeable {
     public void receive(Data data) {
         if (getConsumer()!=null) {
             getConsumer().receive(data);
-
-            // set message_received_count property
-            Integer count = (Integer) properties.getOrDefault("message_received_count", 0);
-            properties.put("message_received_count", count + 1);
+            increaseProperty("message_received_count");
         }
     }
 
     @Override
-    public void resetProperty(String name) {
-        properties.remove(name);
+    public void increaseProperty(String name) {
+        Integer count = (Integer) properties.getOrDefault(name, 0);
+        properties.put(name, count + 1);
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+    
     
 }

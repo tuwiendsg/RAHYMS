@@ -39,8 +39,9 @@ public class GSMonitoringAgent extends GridSimCore implements Waker {
             super.sim_get_next(ev);
             switch (ev.get_tag()) {
                 case GSMonitoringSimulation.WAKE_UP:
-                    if (agent instanceof Wakeable) {
-                        ((Wakeable)agent).wake(0);
+                    Wakeable sleeper = (Wakeable)ev.get_data();
+                    if (sleeper instanceof Wakeable) {
+                        ((Wakeable)sleeper).wake(0);
                     }
                     break;
                     
@@ -97,7 +98,7 @@ public class GSMonitoringAgent extends GridSimCore implements Waker {
     @Override
     public int wakeMeAfter(Wakeable object, Double time) {
         super.send(super.output, time, GSMonitoringSimulation.WAKE_UP,
-                new IO_data(null, 0, get_id()) );
+                new IO_data(object, 0, get_id()) );
         return 0;
     }
 
@@ -105,7 +106,7 @@ public class GSMonitoringAgent extends GridSimCore implements Waker {
     public int wakeMeAt(Wakeable object, Double time) {
         double wakeTime = time - GridSim.clock();
         super.send(super.output, wakeTime, GSMonitoringSimulation.WAKE_UP,
-                new IO_data(null, 0, get_id()) );
+                new IO_data(object, 0, get_id()) );
         return 0;
     }
 }

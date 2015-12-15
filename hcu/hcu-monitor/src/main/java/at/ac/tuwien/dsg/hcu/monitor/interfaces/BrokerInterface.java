@@ -10,11 +10,13 @@ public interface BrokerInterface {
 
     public void adjust(Map<String, Object> config);
     public void adjust(Integer subscriptionId, Map<String, Object> config);
-
+    public boolean isStopping();
+    
     public void publish(Data data);
     public void publish(List<Data> data);
     public int subscribe(Subscription subscription); // returns the subscription id
     public void registerAgent(AgentInterface agent);
     public AgentInterface getAgent(String agentName);
+    public void registerTopic(AgentInterface agent, String topic);
     
 }

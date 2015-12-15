@@ -56,6 +56,8 @@ public class EventBasedConsumer extends BaseConsumer {
         configuration.addImport("at.ac.tuwien.dsg.hcu.monitor.model.MetaData");
         configuration.addEventType(Data.class);
         configuration.addEventType(MetaData.class);
+        configuration.addPlugInAggregationFunctionFactory("q1", "at.ac.tuwien.dsg.hcu.monitor.aggregation.FirstQuartileAggregationFunctionFactory");
+        configuration.addPlugInAggregationFunctionFactory("q3", "at.ac.tuwien.dsg.hcu.monitor.aggregation.ThirdQuartileAggregationFunctionFactory");
         return configuration;
     }
     

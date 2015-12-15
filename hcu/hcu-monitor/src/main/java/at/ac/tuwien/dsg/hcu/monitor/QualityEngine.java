@@ -5,21 +5,23 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import at.ac.tuwien.dsg.hcu.monitor.interfaces.StatisticInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.Wakeable;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.Waker;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.Quality;
 import at.ac.tuwien.dsg.hcu.monitor.model.Subscription;
+import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class QualityEngine implements Wakeable {
 
-    protected static Waker waker;
-    protected static int MAX_ESTIMATION = 10; // limit the number of estimation in the case of retained data, afterwards we wont schedule any estimation
-    protected static int MAX_RETAINED_DATA = 20;
+    protected static int MAX_ESTIMATION = 9999999; // limit the number of estimation in the case of retained data, afterwards we wont schedule any estimation
+    protected static int MAX_RETAINED_DATA = 9999;
     
     protected Subscription subscription;
     protected Quality quality;
     
+    protected Waker waker;
     protected Queue<Data> retainedData;
     protected Data lastSentData;
     protected int lastWakeId = 0;
@@ -27,8 +29,16 @@ public class QualityEngine implements Wakeable {
     protected boolean dataChanged = false;
     protected boolean isFinished = false;
     protected int estimationCount = 0;
+    protected boolean producerBasedQualityEngineEnabled = false;
+    protected StatisticInterface statEntity;
     
     private static Map<Integer, QualityEngine> instances = new HashMap<Integer, QualityEngine>();
+    
+    public QualityEngine(Subscription subscription, boolean producerBasedQualityEngineEnabled, StatisticInterface statEntity) {
+        this(subscription);
+        this.producerBasedQualityEngineEnabled = producerBasedQualityEngineEnabled;
+        this.statEntity = statEntity;
+    }
     
     public QualityEngine(Subscription subscription) {
         this.subscription = subscription;
@@ -44,18 +54,22 @@ public class QualityEngine implements Wakeable {
     }
     
     public void setWaker(Waker waker) {
-        QualityEngine.waker = waker;
+        this.waker = waker;
     }
     
     public void finish() {
         isFinished = true;
     }
     
-    private Data estimate() {
+    private synchronized Data estimate() {
+        if (retainedData==null) {
+            //Util.log().warning("#1 retainedData is null");
+        }
         if (retainedData==null || retainedData.size()==0) {
             estimationCount++;
             return lastSentData;
         }
+        
         Double sum = 0.0;
         for (Data d: retainedData) {
             Double doubleValue = d.getDoubleValue();
@@ -64,10 +78,16 @@ public class QualityEngine implements Wakeable {
             }
         }
         Data data = null;
+        if (retainedData==null) {
+            Util.log().warning("#2 retainedData is null");
+        }
         try {
             data = (Data) ((Data) retainedData.element()).clone();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
+        }
+        if (data==null) {
+            Util.log().warning("data is null");
         }
         data.setValue(sum / retainedData.size());
         return data;
@@ -77,7 +97,7 @@ public class QualityEngine implements Wakeable {
         
         // send EOF data
         if (data==null || data.getMetaData("eof")!=null || data.getMetaData("time")==null) {
-            subscription.getConsumerAgent().receive(data);
+            send(data);
             finish();
             return;
         }
@@ -90,7 +110,7 @@ public class QualityEngine implements Wakeable {
         if ((accuracy==null || accuracy==0.0) && 
             (freshness==null || freshness==0.0) && 
             (rate==null || rate==0.0)) {
-            subscription.getConsumerAgent().receive(data);
+            send(data);
             return;
         }
 
@@ -158,7 +178,13 @@ public class QualityEngine implements Wakeable {
     }
     
     private void send(Data data) {
-        subscription.getConsumerAgent().receive(data);
+        if (producerBasedQualityEngineEnabled) {
+            subscription.getConsumerAgent().getBroker().publish(data);
+        } else {
+            // this is run by broker, just give directly to consumer
+            subscription.getConsumerAgent().receive(data);
+        }
+        statEntity.increaseProperty("message_published_count");
         lastSentData = data;
         dataChanged = false;
         retainedData = null;

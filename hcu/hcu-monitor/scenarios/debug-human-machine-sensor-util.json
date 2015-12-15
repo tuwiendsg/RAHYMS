@@ -37,6 +37,59 @@
                             {
                                 "csv_col": "numberOfVMs ",
                                 "name": "nunits"
+                            },
+                            {
+                                "csv_col": "type",
+                                "name": "type"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "csv_sensor_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/advise-m2m-clustering-testing/LoadBalancerServiceUnit_16_1_WithMax.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "Time ",
+                        "offset": -1392220924,
+                        "format": "EEE MMM dd HH:mm:ss zzz yyyy",
+                        "scale": 70.25
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "number_of_sensors",
+                    "config":
+                    {
+                        "csv_col": "numberOfClients ",
+                        "metadata": [
+                            {
+                                "csv_col": "maxClients",
+                                "name": "nunits"
+                            },
+                            {
+                                "csv_col": "id",
+                                "name": "id"
+                            },
+                            {
+                                "csv_col": "type",
+                                "name": "type"
                             }
                         ]
                     }
@@ -51,7 +104,7 @@
                 "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
                 "config":
                 {
-                    "csv_file": "data/scu/scu-2015-11-09-09-14-22-083.csv",
+                    "csv_file": "data/scu/scu-2015-11-09-09-14-22-083-WithType.csv",
                     "csv_time_cfg":
                     {
                         "csv_col": "time",
@@ -76,6 +129,10 @@
                             {
                                 "csv_col": "resource",
                                 "name": "id"
+                            },
+                            {
+                                "csv_col": "type",
+                                "name": "type"
                             }
                         ]
                     }
@@ -123,6 +180,16 @@
                             "window": 86400.0
                         }
                     }
+                },
+                {
+                    "name": "running_count",
+                    "config":
+                    {
+                        "function": "at.ac.tuwien.dsg.hcu.monitor.util.StateMetricCalculator.countUnitsInState",
+                        "args": {
+                            "state": "RUNNING"
+                        }
+                    }
                 }
             ]
         },
@@ -143,6 +210,14 @@
                         "to": "csv_cloud_service_agent",
                         "topic": "cloud_service_cpu_usage",
                         "config": {}
+                    },
+                    {
+                        "to": "csv_sensor_agent",
+                        "topic": "number_of_sensors",
+                        "config": {},
+                        "quality": {
+                            "rate": 21000.0
+                        }
                     }
                 ],
                 "config": {}
@@ -165,11 +240,24 @@
                                 {
                                     "from": "Data(name='cloud_service_cpu_usage').std:lastevent()",
                                     "_value": "(doubleValue/100.0) * metaData.getIntegerOrDefault('nunits', 1)",
-                                    "value": "(doubleValue/100.0)"
+                                    "_comment": "below is for calculating median, q1, q3, etc",
+                                    "__value": "(doubleValue/100.0)",
+                                    "__comment": "below is for calculating weighted average",
+                                    "value": "(doubleValue/100.0) * 10"
+                                },
+                                {
+                                    "from": "Data(name='number_of_sensors').std:unique(metaData.id)",
+                                    "_value": "(doubleValue)",
+                                    "_comment": "below is for calculating median, q1, q3, etc",
+                                    "__value": "(doubleValue / metaData.getIntegerOrDefault('nunits', 1))",
+                                    "__comment": "below is for calculating weighted average",
+                                    "value": "(doubleValue / metaData.getIntegerOrDefault('nunits', 1)) * 10"
                                 },
                                 {
                                     "from": "Data(name='running_duration').std:unique(metaData.id)",
-                                    "value": "doubleValue / 86400"
+                                    "_value": "doubleValue / 86400",
+                                    "__comment": "below is for calculating weighted average",
+                                    "value": "avg(doubleValue / 86400) * 10"
                                 }
                             ]
                         }
@@ -202,195 +290,18 @@
             "topics":
             [
                 {
-                    "name": "avg_util",
+                    "name": "weighted_avg_util",
                     "config":
                     {
                         "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
                         "args": {
-                            "aggregate": "sum(doubleValue) / sum(metaData.getIntegerOrDefault('nunits', 1))",
-                            "from": "Data(name='correlated_utilization').std:unique(metaData.getOrDefault('id', '0'))"
+                            "aggregate": "sum(doubleValue) / 30",
+                            "from": "Data(name='correlated_utilization').std:unique(metaData.get('type'))"
                         }
                     }
                 }
             ]
-        },
-        {
-            "enabled": true,
-            "name": "stat_agent",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
-            "adapter":
-            {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.StatAdapter",
-                "config":
-                {
-                    "sampling_rate": 36000.0
-                }
-            },
-            "producer":
-            {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
-                "config": {}
-            },
-            "topics":
-            [
-                {
-                    "name": "message_published_count",
-                    "config":
-                    {
-                        "property": "message_published_count",
-                        "agents": ["broker", "csv_cloud_service_agent", "csv_scu_agent", "state_metric_agent", "correlator_agent", "aggregator_agent"],
-                        "reset_on_sampling": true,
-                        "default": 0
-                    }
-                },
-                {
-                    "name": "message_received_count",
-                    "config":
-                    {
-                        "property": "message_received_count",
-                        "agents": ["broker", "csv_cloud_service_agent", "csv_scu_agent", "state_metric_agent", "correlator_agent", "aggregator_agent"],
-                        "reset_on_sampling": true,
-                        "default": 0
-                    }
-                }
-            ]
-        },
-        {
-            "enabled": true,
-            "name": "broker_stat_agent",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
-            "adapter":
-            {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.StatAdapter",
-                "config":
-                {
-                    "sampling_rate": 36000.0
-                }
-            },
-            "producer":
-            {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
-                "config": {}
-            },
-            "topics":
-            [
-                {
-                    "name": "broker_published_count",
-                    "config":
-                    {
-                        "property": "message_published_count",
-                        "agents": ["broker"],
-                        "reset_on_sampling": true,
-                        "default": 0
-                    }
-                },
-                {
-                    "name": "broker_received_count",
-                    "config":
-                    {
-                        "property": "message_received_count",
-                        "agents": ["broker"],
-                        "reset_on_sampling": true,
-                        "default": 0
-                    }
-                }
-            ]
-        },
-        {
-            "enabled": true,
-            "duplicate": 10,
-            "name": "consumer",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
-            "consumer":
-            {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.QuietConsumer",
-                "subscriptions":
-                [
-                    {
-                        "to": "aggregator_agent",
-                        "topic": "avg_util",
-                        "config": {},
-                        "_comment": "check how rates are differentiated on Simulation.java",
-                        "quality": {
-                            "rate": 8000.0
-                        }
-                    }
-                ],
-                "config": {}
-            }
-        },
-        {
-            "enabled": true,
-            "name": "stat_consumer",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
-            "consumer":
-            {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpConsumer",
-                "subscriptions":
-                [
-                    {
-                        "to": "stat_agent",
-                        "topic": "message_published_count",
-                        "config": {}
-                    },
-                    {
-                        "to": "stat_agent",
-                        "topic": "message_received_count",
-                        "config": {}
-                    }
-                ],
-                "config": {}
-            }
-        },
-        {
-            "enabled": true,
-            "name": "tracer_consumer",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
-            "consumer":
-            {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.TracerConsumer",
-                "subscriptions":
-                [
-                    {
-                        "to": "stat_agent",
-                        "topic": "message_published_count",
-                        "config": {}
-                    }
-                ],
-                "config": {
-                    "file_prefix": "traces/message-count/agentQoM-10clients-r8000-",
-                    "by_metadata":
-                    {
-                        "attribute": "agent_name",
-                        "values": ["broker", "csv_cloud_service_agent", "csv_scu_agent", "state_metric_agent", "correlator_agent", "aggregator_agent"]
-                    }
-                }
-            }
-        },
-        {
-            "name": "tracer_consumer2",
-            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
-            "consumer":
-            {
-                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.TracerConsumer",
-                "subscriptions":
-                [
-                    {
-                        "to": "broker_stat_agent",
-                        "topic": "broker_published_count",
-                        "config": {}
-                    },
-                    {
-                        "to": "broker_stat_agent",
-                        "topic": "broker_received_count",
-                        "config": {}
-                    }
-                ],
-                "config": {
-                    "file_prefix": "traces/message-count/agentQoM-10clients-r8000-brokerStat-"
-                }
-            }
         }
-    ],
-    "producer_based_quality_engine_enabled": true
+        
+    ]
 }

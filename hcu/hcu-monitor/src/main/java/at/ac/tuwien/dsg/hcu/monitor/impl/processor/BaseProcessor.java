@@ -11,6 +11,7 @@ import at.ac.tuwien.dsg.hcu.monitor.interfaces.ConsumerInterface;
 import at.ac.tuwien.dsg.hcu.monitor.interfaces.ProcessorInterface;
 import at.ac.tuwien.dsg.hcu.monitor.model.Data;
 import at.ac.tuwien.dsg.hcu.monitor.model.MetaData;
+import at.ac.tuwien.dsg.hcu.util.Util;
 
 public abstract class BaseProcessor implements ProcessorInterface {
 
@@ -47,6 +48,9 @@ public abstract class BaseProcessor implements ProcessorInterface {
                 //Util.log().warning("BaseProcessor [" + (i++) + "]: " +  event.getUnderlying());
                 Double value = (Double) ((Map)event.getUnderlying()).get("value");
                 MetaData metaData = (MetaData) ((Map)event.getUnderlying()).get("metaData");
+                if (topicName.equals("correlated_utilization")) {
+                    //Util.log().info(event.getUnderlying().toString());
+                }
                 Data data = new Data();
                 data.setName(topicName);
                 data.setValue(value);
