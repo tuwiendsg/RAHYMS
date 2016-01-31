@@ -41,10 +41,10 @@ It contains the following components:
   * To configure HCU composer, REST API, and Web UI: change configuration files on hcu\hcu-rest\config.
   * To configure gridsim simulation:
 * To run the program:
-        - Running in interactive-mode (to start REST API and Web UI):
-          run \hcu\hcu-rest\src\main\java\at\ac\tuwien\dsg\hcu\rest\RunRestServer.java
-          or execute "java -jar hcu\hcu-rest\target\hcu-rest-0.0.1-SNAPSHOT.jar"
-          By default the Web UI is available at http://localhost:8080/web-ui/
-          and the REST APIP playground is available at http://localhost:8080/rest-ui/
-        - Running in simulation mode:
-          run \hcu\hcu-simulation\src\main\java\at\ac\tuwien\dsg\hcu\simulation\RunSimulation.java.
+  * Running in interactive-mode (to start REST API and Web UI):
+    run \hcu\hcu-rest\src\main\java\at\ac\tuwien\dsg\hcu\rest\RunRestServer.java
+    or execute "java -jar hcu\hcu-rest\target\hcu-rest-0.0.1-SNAPSHOT.jar"
+    By default the Web UI is available at http://localhost:8080/web-ui/
+    and the REST APIP playground is available at http://localhost:8080/rest-ui/
+  * Running in simulation mode:
+    run \hcu\hcu-simulation\src\main\java\at\ac\tuwien\dsg\hcu\simulation\RunSimulation.java.
