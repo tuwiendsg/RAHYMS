@@ -241,9 +241,19 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
     /* END UNIT VALUES GENERAL */
 
 
+    $scope.graph = {};
+
     /* VALUE FINISH */
 
     $scope.startSimulation = function () {
+
+        if(!$scope.graph.xAxis || !$scope.graph.yAxis) {
+            dialogs.error('Please select values for x and y Axis');
+            return;
+        }
+
+        $scope.simulationData.xAxis = $scope.graph.xAxis;
+        $scope.simulationData.yAxis = $scope.graph.yAxis;
 
         $http({
             method: 'POST',
@@ -478,7 +488,28 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         $scope.selectionValues = [];
     };
 
+    //todo added check
+    $scope.saveValueForTask = function () {
 
+        var valueValidated = {};
+        valueValidated.clazz = $scope.valueToAdd.clazz;
+        valueValidated.params = [];
+        valueValidated.mapping = {};
+        valueValidated.params.push($scope.valueToAdd.params.first);
+        valueValidated.params.push($scope.valueToAdd.params.second);
+
+        if ($scope.valueToAdd.params.third) {
+            valueValidated.params.push($scope.valueToAdd.params.third);
+        }
+
+        if ($scope.valueToAdd.mapping) {
+            valueValidated.mapping = $scope.valueToAdd.mapping;
+        }
+
+        $scope.temporaryTaskValues.push(valueValidated);
+
+        $scope.valueToAdd = {};
+    };
 
 
     //--

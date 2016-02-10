@@ -1,5 +1,6 @@
 package at.ac.tuwien.dsg.hcu.rest.rs;
 
+import at.ac.tuwien.dsg.hcu.rest.common.SimulationGraph;
 import at.ac.tuwien.dsg.hcu.rest.resource.Simulation;
 import at.ac.tuwien.dsg.hcu.rest.resource.simulation.SimulationData;
 import at.ac.tuwien.dsg.hcu.rest.resource.simulation.Unit;
@@ -35,9 +36,8 @@ public class SimulationRestService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //todo @karaoglan take the algo time and response time for graph but ask first
-        // what to do since the values are not changing over time graph would be static not changing
         simulationService.response();
+        SimulationGraph.main(new String[]{simulationData.getxAxis(), simulationData.getyAxis()});
         return null;
         //return simulationService.saveJson("");
     }

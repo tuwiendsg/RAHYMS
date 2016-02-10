@@ -14,9 +14,43 @@
     </div>
     <hr/>
 
-    <button type="submit" accesskey="S" class="btn btn-primary pull-right" ng-click="startSimulation()">Start
-        Simulation
-    </button>
+    <div class="row">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6">
+            <div class="col-sm-9">
+                <select id="graph-x-axis" ng-model="graph.xAxis" class="form-control">
+                    <option disabled selected value="">Please select a xAxis value</option>
+                    <option>clock</option>
+                    <option>task_id</option>
+                </select>
+
+                <select id="graph-y-axis" ng-model="graph.yAxis" class="form-control">
+                    <option disabled selected value="">Please select a yAxis value</option>
+                    <option>algo_time</option>
+                    <option>objective_value</option>
+                    <option>cost</option>
+                    <option>norm_cost</option>
+                    <option>competency</option>
+                    <option>connectedness</option>
+                    <option>mu_connectedness</option>
+                    <option>response_time</option>
+                    <option>norm_response_time</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <button type="submit" accesskey="S" class="btn btn-primary pull-right" ng-click="startSimulation()">Start
+                    Simulation
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+</div>
+
 </div>
 
 <div>
@@ -31,7 +65,8 @@
             </button>
         </div>
         <div class="col-sm-4" ng-if="!showTaskGenerators && !showUnitGenerators && (showTaskDetail || showUnitDetail)">
-            <button accesskey="S" type="submit" class="btn btn-primary btn-success pull-left" ng-click="saveTaskOrUnit()">
+            <button accesskey="S" type="submit" class="btn btn-primary btn-success pull-left"
+                    ng-click="saveTaskOrUnit()">
                 Save
             </button>
         </div>

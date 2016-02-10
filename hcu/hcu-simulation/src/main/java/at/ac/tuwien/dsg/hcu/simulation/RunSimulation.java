@@ -60,7 +60,6 @@ public class RunSimulation {
 
             // start the consumer
             GSConsumer.start(configFile, scheduler, manager, taskConfig, svcConfig);
-
             //create a database named hcu-simulation
             MongoClient client = null;
             try {

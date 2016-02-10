@@ -27,6 +27,7 @@ import at.ac.tuwien.dsg.hcu.composer.model.Solution;
 import at.ac.tuwien.dsg.hcu.composer.model.SolutionComponent;
 import at.ac.tuwien.dsg.hcu.util.Util;
 import com.mongodb.*;
+import gridsim.GridSim;
 import org.bson.types.ObjectId;
 
 
@@ -90,7 +91,9 @@ public class Composer implements ComposerInterface {
     }
 
     public void init() {
-        
+
+        //todo burak algorithm from argument
+
         // init param
         algoName = Util.getProperty(configFile, "algorithm");
         Util.log().info("[Composer] Initializing using " + algoName + " algorithm");
@@ -104,7 +107,7 @@ public class Composer implements ComposerInterface {
             String date = sdfDate.format(now);      
             globalTracer = new ComposerTracer(traceFilePrefix + "global-" + date + ".csv");
             globalTracer.traceln(algoName);
-            globalTracer.traceln("flag,algo_time,task,data,task," + globalTracer.getTraceHeader());
+            globalTracer.traceln("clock,task_id,flag,algo_time,task,data,task," + globalTracer.getTraceHeader());
         }
 
         // init reliability tracer
@@ -186,7 +189,7 @@ public class Composer implements ComposerInterface {
 
         if (constructionGraph==null) {
             Util.log().warning("No feasible solution found!");
-            if (globalTracer!=null) globalTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"No feasible solution found!\"");
+            if (globalTracer!=null) globalTracer.traceln(GridSim.clock()+","+task.getId()+","+task.getName()+",,\"" + task.detail() + "\",\"No feasible solution found!\"");
             return null;
         }
 
@@ -277,7 +280,7 @@ public class Composer implements ComposerInterface {
                     data = solution.getData();
                 }
                 if (this.isSolutionFeasible(solution)) flag = "f"; 
-                globalTracer.trace(flag + "," + algoTime + ","+task.getName()+","
+                globalTracer.trace(GridSim.clock()+","+task.getId()+","+flag + "," + algoTime + ","+task.getName()+","
                         +data+",\"" + task.toString() + "\",");
                 if (solution!=null && solution.size()>0) {
                     globalTracer.traceln(solution, "");
@@ -286,6 +289,8 @@ public class Composer implements ComposerInterface {
                 }
             }
             DBObject simulationInformation =  new BasicDBObject("_id", ObjectId.get()).
+                    append("clock", GridSim.clock()).
+                    append("task_id", task.getId()).
                     append("flag", flag).
                     append("algo_time", algoTime).
                     append("task", data).
