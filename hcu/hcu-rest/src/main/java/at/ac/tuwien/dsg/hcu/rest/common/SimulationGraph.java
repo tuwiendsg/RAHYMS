@@ -1,38 +1,31 @@
 package at.ac.tuwien.dsg.hcu.rest.common;
 
-import com.mongodb.DBObject;
+import at.ac.tuwien.dsg.hcu.composer.helper.MongoDatabase;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.FastScatterPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYDotRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 import org.jfree.util.ShapeUtilities;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.util.List;
 
 /**
  * Created by karaoglan on 31/01/16.
  */
-public class SimulationGraph extends ApplicationFrame {
+public class SimulationGraph {
 
     private String xAxis;
     private String yAxis;
+    private String dateOfSimulation;
 
-    private ChartPanel panel;
+    private BufferedImage image;
 
     /**
      * A constant for the number of items in the sample dataset.
@@ -44,55 +37,69 @@ public class SimulationGraph extends ApplicationFrame {
      */
     private static float[][] data;
 
-    public SimulationGraph(final String title, String xAxis, String yAxis) {
-        super(title);
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    public SimulationGraph(final String title, String xAxis, String yAxis, String dateOfSimulation) {
         this.xAxis = xAxis;
         this.yAxis = yAxis;
-        JPanel jpanel = createDemoPanel(xAxis, yAxis);
-        jpanel.setPreferredSize(new Dimension(640, 480));
-        setContentPane(jpanel);
-
-        /*populateData();
-        final NumberAxis domainAxis = new NumberAxis(xAxis);
-        domainAxis.setAutoRangeIncludesZero(false);
-        final NumberAxis rangeAxis = new NumberAxis(yAxis);
-        rangeAxis.setAutoRangeIncludesZero(false);
-        final FastScatterPlot plot = new FastScatterPlot(this.data, domainAxis, rangeAxis);
-        final JFreeChart chart = new JFreeChart("Fast Scatter Plot", plot);
-//        chart.setLegend(null);
-
-        // force aliasing of the rendered content..
-        chart.getRenderingHints().put
-                (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        panel = new ChartPanel(chart, true);
-        panel.setPreferredSize(new java.awt.Dimension(500, 270));
-        panel.setOpaque(true);
-        panel.setVisible(true);
-        //      panel.setHorizontalZoom(true);
-        //    panel.setVerticalZoom(true);
-        panel.setMinimumDrawHeight(10);
-        panel.setMaximumDrawHeight(2000);
-        panel.setMinimumDrawWidth(20);
-        panel.setMaximumDrawWidth(2000);
-
-        setContentPane(panel);*/
+        this.dateOfSimulation = dateOfSimulation;
+        image = createDemoPanel(xAxis, yAxis);
 
     }
 
-    public JPanel createDemoPanel(String xAxis, String yAxis) {
+    public static SimulationGraph startDrawingGraph(String xAxis, String yAxis, String dateOfSimulation) {
+        final SimulationGraph graph = new SimulationGraph("Scatter Plot Simulation", xAxis, yAxis, dateOfSimulation);
+        //graph.pack();
+        //RefineryUtilities.centerFrameOnScreen(graph);
+        return graph;
+    }
 
-        JFreeChart jfreechart = ChartFactory.createScatterPlot("Scatter Plot Demo",
-                xAxis, yAxis, populateData(), PlotOrientation.VERTICAL, true, true, false);
-        Shape cross = ShapeUtilities.createDiagonalCross(3, 1);
+    public BufferedImage/*was JPanel*/ createDemoPanel(String xAxis, String yAxis) {
 
-        XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
-        xyPlot.setDomainCrosshairVisible(true);
-        xyPlot.setRangeCrosshairVisible(true);
-        XYItemRenderer renderer = xyPlot.getRenderer();
-        renderer.setSeriesShape(0, cross);
-        renderer.setSeriesPaint(0, Color.red);
-        return new ChartPanel(jfreechart);
+        JFreeChart jfreechart = null;
+
+        if(xAxis.equals("clock")) {
+         /*   jfreechart = ChartFactory.createScatterPlot("Scatter Plot Demo",
+                    xAxis, yAxis, populateData(), PlotOrientation.VERTICAL, true, true, false);
+            Shape cross = ShapeUtilities.createDiagonalCross(3, 1);
+            XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
+            xyPlot.setDomainCrosshairVisible(true);
+            xyPlot.setRangeCrosshairVisible(true);
+            XYItemRenderer renderer = xyPlot.getRenderer();
+            renderer.setSeriesShape(0, cross);
+            renderer.setSeriesPaint(0, Color.red);
+
+*/
+
+            jfreechart = ChartFactory.createScatterPlot(
+                    "Title",                  // chart title
+                    xAxis,                      // x axis label
+                    yAxis,                      // y axis label
+                    populateData(),                  // data
+                    PlotOrientation.VERTICAL,
+                    true,                     // include legend
+                    true,                     // tooltips
+                    false                     // urls
+            );
+            XYPlot plot = (XYPlot) jfreechart.getPlot();
+            XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+            renderer.setSeriesLinesVisible(0, true);
+            plot.setRenderer(renderer);
+
+
+        }else {
+            //task_id
+
+            jfreechart = ChartFactory.createXYLineChart("Line chart Demo",
+                    xAxis, yAxis, populateData(), PlotOrientation.VERTICAL, true, true, false);
+            jfreechart.getXYPlot().getRenderer().setBasePaint(Color.BLUE); //todo brk renk degistir
+        }
+
+        //todo brk grafik büyüklügü neye göre ayarlanmasi lazim hard code?
+        //jfreechart.createBufferedImage(640, 720);
+        return jfreechart.createBufferedImage(1280, 640);//new ChartPanel(jfreechart);
     }
 
 
@@ -100,20 +107,16 @@ public class SimulationGraph extends ApplicationFrame {
      * Populates the data array with random values.
      */
     private XYDataset populateData() {
+        //todo brk ask clock tam kesin degerler olarak lazim mi su an kesiyor direk integer degerini yerlesitiriyro
+        //todo brk grafige.
 
-        List<Float> valuesOfColumnForX = MongoDatabase.getColumnForGraph(xAxis);
-        List<Float> valuesOfColumnForY = MongoDatabase.getColumnForGraph(yAxis);
+
+        //todo brk buraya ayar gerekebilir float belki null? belki baska degeer
+        List<Float> valuesOfColumnForX = MongoDatabase.getColumnForGraph(xAxis, dateOfSimulation);
+        List<Float> valuesOfColumnForY = MongoDatabase.getColumnForGraph(yAxis, dateOfSimulation);
 
         COUNT = valuesOfColumnForX.size();
         data = new float[2][COUNT];
-/*
-        for (int i = 0; i < data[0].length; i++) {
-            final float x =
-            data[0][i] = x;
-            data[1][i] =
-        }*/
-
-        //asda
 
         XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
         XYSeries series = new XYSeries("GRAPH");
@@ -121,8 +124,7 @@ public class SimulationGraph extends ApplicationFrame {
         for (int i = 0; i < COUNT; i++) {
             float x = valuesOfColumnForX.get(i);
             float y = valuesOfColumnForY.get(i);
-
-            System.out.println("float x and float y " + x + " --- " + y);
+            //System.out.println("float x and float y " + x + " --- " + y);
 
             series.add(x, y);
         }
@@ -132,36 +134,4 @@ public class SimulationGraph extends ApplicationFrame {
 
     }
 
-    public ChartPanel getPanel() {
-        return panel;
-    }
-
-    /**
-     * Starting point for the demonstration application.
-     *
-     * @param args ignored.
-     */
-    public static void main(final String[] args) {
-
-        final SimulationGraph demo = new SimulationGraph("Scatter Plot Simulation", args[0], args[1]);
-        demo.pack();
-        RefineryUtilities.centerFrameOnScreen(demo);
-        demo.setVisible(true);
-        //saveImage(demo.getPanel());
-    }
-
-    private static void saveImage(ChartPanel panel) {
-        Dimension size = panel.getSize();
-        BufferedImage image = new BufferedImage(
-                size.width, size.height
-                , BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2 = image.createGraphics();
-        panel.paint(g2);
-        try {
-            ImageIO.write(image, "png", new File("/Users/karaoglan/Desktop/snapshot.png"));
-            System.out.println("Panel saved as Image.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

@@ -11,6 +11,9 @@ public class ComposerTracer {
     private FileWriter fstream;
     private BufferedWriter out;
 
+    //todo brk def. constructor for dbtracer addded
+    public ComposerTracer() {}
+
     public ComposerTracer(String file) {
         try {
             fstream = new FileWriter(file);
@@ -49,5 +52,6 @@ public class ComposerTracer {
             e.printStackTrace();
         }
     }
+
 
 }

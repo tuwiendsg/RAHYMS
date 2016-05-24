@@ -1,12 +1,8 @@
 package at.ac.tuwien.dsg.hcu.simulation;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import com.mongodb.DB;
-import com.mongodb.DBCursor;
-import com.mongodb.MongoClient;
 import org.json.JSONException;
 
 import at.ac.tuwien.dsg.hcu.cloud.discoverer.Discoverer;
@@ -23,7 +19,7 @@ import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSConsumer;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
-
+//todo brk mainsimulation kullaniliyor bunun yerine sil.
 public class RunSimulation {
     
     private static String configFile = "/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/config/consumer.properties";
@@ -56,12 +52,15 @@ public class RunSimulation {
             DependencyProcessorInterface dp = new DependencyProcessor();
             ComposerInterface composer = new Composer(Util.getProperty(configFile, "composer_config"), 
                     manager, discoverer, dp);
+
             SchedulerInterface scheduler = new Scheduler(composer, dp);
 
             // start the consumer
-            GSConsumer.start(configFile, scheduler, manager, taskConfig, svcConfig);
-            //create a database named hcu-simulation
-            MongoClient client = null;
+            GSConsumer.start(
+                    5, 1, scheduler, manager, taskConfig, svcConfig);
+
+            //todo brk bu simulation main yazmistim ayri create a database named hcu-simulation
+            /*MongoClient client = null;
             try {
                 client = new MongoClient("localhost", 12345);
             } catch (UnknownHostException e) {
@@ -72,7 +71,7 @@ public class RunSimulation {
             DBCursor cursor = database.getCollection("simulation-information").find();
             while(cursor.hasNext()) {
                 System.out.println(cursor.next());
-            }
+            }*/
 
 
 

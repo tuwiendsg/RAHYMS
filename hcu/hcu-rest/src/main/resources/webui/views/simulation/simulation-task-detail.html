@@ -1,0 +1,615 @@
+<div class="row">
+    <div class="col-sm-8">
+        <button accesskey="C" type="submit" class="btn btn-primary btn-danger pull-right" ng-click="backToHome()">
+            Back
+        </button>
+    </div>
+    <div class="col-sm-4">
+        <button accesskey="S" type="submit" class="btn btn-primary btn-success pull-left"
+                ng-click="updateTask()">
+            Save
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <h3>Task Generator Configuration for
+        <input type="text" id="taskName" ng-model="taskGeneratorName">
+    </h3>
+    <br/>
+
+    <!-- seed -->
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label for="task-seed" class="col-sm-2 control-label">Seed : </label>
+
+            <div class="col-sm-10">
+                <input type="number" class="form-control" id="task-seed" placeholder="Enter seed"
+                       ng-model="temporaryTask.seed" only-digits>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- task types -->
+
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label for="task-type-name" class="col-sm-2 control-label">Name : </label>
+
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="task-type-name" placeholder="Enter Type Name"
+                       ng-model="temporaryTask.taskTypes[0].name">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="taskType-description" class="col-sm-2 control-label">Description : </label>
+
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="taskType-description" placeholder="Enter description"
+                       ng-model="temporaryTask.taskTypes[0].description">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="taskType-occurance" class="col-sm-2 control-label">Task Occurance : </label>
+
+            <div class="col-sm-10" style="margin-right: -120px;">
+                <input type="number" class="form-control" id="taskType-occurance" placeholder="Enter param"
+                       ng-model="temporaryTask.taskTypes[0].tasksOccurance" only-digits>
+            </div>
+        </div>
+
+        <h4>Load Value Generator (Normal Distribution Params)</h4>
+
+        <div class="form-group">
+
+            <label class="col-md-2 control-label" for="load-value-average">Average : </label>
+
+            <div class="col-sm-10">
+                <input id="load-value-average" type="number" class="form-control" placeholder="Enter average"
+                       ng-model="loadValue.params.first">
+            </div>
+
+        </div>
+
+        <div class="form-group">
+
+            <label class="col-md-2 control-label" for="load-value-average">Deviation : </label>
+
+            <div class="col-sm-10">
+
+                <input type="number" class="form-control" placeholder=" Enter deviation"
+                       ng-model="loadValue.params.second">
+            </div>
+
+        </div>
+
+        <hr/>
+
+    </form>
+
+    <!-- roles -->
+    <h4>Roles</h4>
+    <table id="provided-table" class="table table-condensed table-hover" style="margin-bottom: 5px;">
+        <tr>
+            <th class="col-md-2">Functionality</th>
+            <th class="col-md-1">Probability</th>
+            <th class="col-md-1">RelativeLoadRatio</th>
+            <th class="col-md-1">DependsOn</th>
+            <th class="col-md-0.5">Add Func. Property</th>
+            <th class="col-md-8">Functional Properties</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr ng-repeat="role in temporaryTask.taskTypes[0].roles | orderBy:'$index':true">
+            <td>{{role.functionality}}</td>
+            <td>{{role.probabilityToHave}}</td>
+            <td>{{role.relativeLoadRatio}}</td>
+            <td>{{role.dependsOn}}</td>
+            <td>
+                <button data-toggle="modal" data-target="#modalPrivateSpecificationAdd" data-keyboard="false" data-backdrop="static"
+                        ng-click="openAddPropertyModalForIndex($index)">
+                    <span class="glyphicon glyphicon-cog"></span>
+                </button>
+            </td>
+            <td> <!-- todo brk sor roles constraint nasil yazilsin? Roles constraint felan diye mi? ayni sekilde non func. constraints? -->
+                <span ng-repeat="specification in role.specification" class="label label-info list-info"
+                      ng-click="openEditFunctionalProperty($parent.$index, $index)" data-toggle="modal"
+                      data-keyboard="false" data-backdrop="static"
+                      data-target="#modalPrivateSpecificationAdd">
+			        {{specification.name}}
+			    </span>
+            </td>
+            <td>
+                <button data-toggle="modal" data-target="#modalRoleCreate" ng-click="editRoleSetParams($index)"
+                        data-keyboard="false" data-backdrop="static"
+                        type="button" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>
+            </td>
+            <td>
+                <button ng-click="deleteRole($index)" type="button" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+
+    <!-- modal private specification create -->
+    <div class="modal fade" id="modalPrivateSpecificationAdd" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" ng-click="defaultParams()" data-dismiss="modal"
+                            aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalPrivateSpecificationLabel" ng-show="!editFunctionalPropertyClicked">Add Functional Property</h4>
+                    <h4 class="modal-title" id="modalPrivateSpecificationEditLabel" ng-show="editFunctionalPropertyClicked">Edit Functional Property</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                            <label for="private-specification-name" class="col-sm-3 control-label">Name : </label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="private-specification-name"
+                                       placeholder="Enter Specification Name"
+                                       ng-model="privateSpecification.name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="private-specification-probability" class="col-sm-3 control-label">Probability
+                                : </label>
+
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" id="private-specification-probability"
+                                       placeholder="Enter the probability"
+                                       ng-model="privateSpecification.probabilityToHave">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="private-specification-type" class="col-sm-3 control-label">Type : </label>
+
+                            <div class="col-md-9">
+                                <select id="private-specification-type" ng-model="privateSpecification.type"
+                                        class="form-control">
+                                    <option selected>static</option>
+                                    <option>metric</option>
+                                    <option>skill</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="private-specification-interface-class" class="col-sm-3 control-label">Comparator
+                                Class
+                                : </label>
+
+                            <div class="col-md-9">
+                                <select id="private-specification-interface-class"
+                                        ng-model="privateSpecification.comparator"
+                                        class="form-control">
+                                    <option selected value=""></option>
+                                    <option value="at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor">
+                                        ReliabilityMonitor
+                                    </option>
+                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator">
+                                        FuzzyComparator
+                                    </option>
+                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericAscendingComparator">
+                                        NumericAscendingComparator
+                                    </option>
+                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericDescendingComparator">
+                                        NumericDescendingComparator
+                                    </option>
+
+                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator">
+                                        StringComparator
+
+                                    </option><!-- todo brk burada java package i vardi bunlarin oldugu bul oradan yaz comparator class lari -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr/>
+                        <form>
+                            <input type="checkbox" id="random-number-checkbox-functional" ng-model="valueToAdd.check"
+                                   name="random-number-checkbox">
+                            <label for="random-number-checkbox-functional">Activate Value Generator</label>
+                        </form>
+                        <hr/>
+
+                        <div ng-show="valueToAdd.check">
+                            <h4>Value Generator</h4>
+                            <br/>
+
+                            <form class="form-horizontal">
+
+                                <div class="form-group">
+                                    <label for="select-distro-common-functional" class="col-sm-3 control-label">Distribution
+                                        : </label>
+
+                                    <div class="col-md-9">
+                                        <select id="select-distro-common-functional" class="form-control"
+                                                ng-model="valueToAdd.class">
+                                            <option value="UniformIntegerDistribution">Uniform Integer
+                                                Distribution
+                                            </option>
+                                            <option selected value="NormalDistribution">Normal Distribution</option>
+                                            <option>Static</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div ng-if="valueToAdd.class !== 'Static' ">
+                                    <div ng-show="valueToAdd.class" class="form-group">
+                                        <label for="params-common-functional" class="col-sm-3 control-label">Params
+                                            : </label>
+
+                                        <div ng-if="valueToAdd.class === 'UniformIntegerDistribution' "
+                                             class="col-sm-9"
+                                             id="params-common-functional">
+
+                                            <input type="number"
+                                                   ng-change="valueToAdd.params.second >= 0 && $root.calculateNumberOfMappingValues(valueToAdd)"
+                                                   class="col-sm-3" placeholder="minimum"
+                                                   ng-model="valueToAdd.params.first" only-digits>
+                                            <input type="number"
+                                                   ng-change="valueToAdd.params.first >= 0 && $root.calculateNumberOfMappingValues(valueToAdd)"
+                                                   class="col-sm-3" placeholder="maximum"
+                                                   ng-model="valueToAdd.params.second" only-digits>
+                                        </div>
+
+                                        <div ng-if="valueToAdd.class === 'NormalDistribution' " class="col-sm-9">
+
+                                            <input type="number" class="col-sm-3" placeholder="average"
+                                                   ng-model="valueToAdd.params.first">
+                                            <input type="number" class="col-sm-3" placeholder="deviation"
+                                                   ng-model="valueToAdd.params.second">
+                                        </div>
+
+                                    </div>
+
+                                    <div ng-if="valueToAdd.class === 'UniformIntegerDistribution' && mappingValueArray"
+                                         class="form-group">
+                                        <label for="select-mapping-common-functional" class="col-sm-3 control-label">Mapping
+                                            : </label>
+
+                                        <div class="col-md-9" id="select-mapping-common-functional">
+
+                                            <input ng-repeat="mappingValue in mappingValueArray" type="text"
+                                                   class="col-sm-3" placeholder="Value {{mappingValue}}"
+                                                   ng-model="mappingValues[mappingValue]">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div ng-if="valueToAdd.class === 'Static' " class="form-group">
+                                    <label for="param-common-functional" class="col-sm-3 control-label">Param : </label>
+
+                                    <div class="col-sm-9" id="param-common-functional">
+                                        <input type="number" class="col-sm-3" placeholder="param"
+                                               ng-model="valueToAdd.params.first" only-digits>
+                                    </div>
+                                </div>
+
+
+                            </form>
+                        </div>
+
+
+                        <!-- modal value create -->
+
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button ng-if="editFunctionalPropertyClicked" type="button" class="pull-left btn btn-danger"
+                            ng-click="deleteFunctionalProperty()" data-dismiss="modal">Delete Property
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="defaultParams()" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" ng-click="savePrivateSpecification()"
+                            data-dismiss="modal">Save
+                        changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- open modal for role create 3 field functionality and probability and relative prob -->
+    <a data-toggle="modal" data-target="#modalRoleCreate" data-keyboard="false" data-backdrop="static"><i class="glyphicon glyphicon-plus-sign"></i></a>
+
+    <!-- Modal role create -->
+    <div class="modal fade" id="modalRoleCreate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" ng-click="defaultParams()" class="close" data-dismiss="modal"
+                            aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalRoleCreateLabel" ng-show="!editRoleClicked">Add Role</h4>
+                    <h4 class="modal-title" id="modalRoleEditLabel" ng-show="editRoleClicked">Edit Role</h4>
+
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                            <label for="role-functionality" class="col-sm-3 control-label">Functionality : </label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="role-functionality"
+                                       placeholder="Enter role functionality"
+                                       ng-model="role.functionality">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="role-probability" class="col-sm-3 control-label">Probability : </label>
+
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" id="role-probability"
+                                       placeholder="Enter the probability"
+                                       ng-model="role.probabilityToHave">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="role-relative" class="col-sm-3 control-label">Relative Load Ratio : </label>
+
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" id="role-relative"
+                                       placeholder="Enter the relative Load Ratio"
+                                       ng-model="role.relativeLoadRatio">
+                            </div>
+                        </div>
+
+                        <div>### - TODO DEPENDS ON</div>
+                        <!-- todo brk dependson ile ilgili yeri yap -->
+
+                    </form>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="defaultParams()">Close</button>
+                    <button type="button" class="btn btn-primary" ng-click="saveRole()" data-dismiss="modal">Save
+                        changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal service create -->
+
+    <hr/>
+
+    <h4>Non-Functional Properties</h4>
+    <table id="common-specification" class="table table-condensed table-hover" style="margin-bottom: 5px;">
+        <tr>
+            <th class="col-md-2">Name</th>
+            <th class="col-md-1">Probability to have</th>
+            <th class="col-md-1">Type</th>
+            <th class="col-md-2">Comparator</th>
+            <th class="col-md-5.5">Value</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr ng-repeat="specification in temporaryTask.taskTypes[0].specification | orderBy:'$index':true">
+            <td>{{specification.name}}</td>
+            <td>{{specification.probabilityToHave}}</td>
+            <td>{{specification.type}}</td>
+            <td>{{specification.comparator | takeLastWordAfterDot}}</td>
+            <td>{{specification.value}}</td>
+            <td>
+                <button data-toggle="modal" data-target="#modalSpecificationCreate" data-backdrop="static"
+                        data-keyboard="false" ng-click="editCommonProperty($index)"
+                        type="button" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>
+            </td>
+            <td>
+                <!-- todo brk change the ng click function for task and -->
+                <button ng-click="deleteProperty($index)" type="button" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+
+    <!-- open modal for common spec. create 3 field name probability to have and type -->
+    <a data-toggle="modal" data-target="#modalSpecificationCreate" data-keyboard="false" data-backdrop="static"><i class="glyphicon glyphicon-plus-sign"></i></a>
+
+    <!-- Modal common spec. create -->
+    <div class="modal fade" id="modalSpecificationCreate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" ng-click="defaultParams()" data-dismiss="modal"
+                            aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalSpecificationCreateLabel" ng-show="!editCommonPropertyClicked">Add Non-Functional Property</h4>
+                    <h4 class="modal-title" id="modalSpecificationEditLabel" ng-show="editCommonPropertyClicked">Edit Non-Functional Property</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                            <label for="common-property-name" class="col-sm-3 control-label">Name : </label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="common-property-name"
+                                       placeholder="Enter Property Name"
+                                       ng-model="commonProperty.name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="common-property-probability" class="col-sm-3 control-label">Probability
+                                : </label>
+
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" id="common-property-probability"
+                                       placeholder="Enter the probability"
+                                       ng-model="commonProperty.probabilityToHave">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="common-property-type" class="col-sm-3 control-label">Type : </label>
+
+                            <div class="col-md-9">
+                                <select id="common-property-type" ng-model="commonProperty.type" class="form-control">
+                                    <option selected>static</option>
+                                    <option>metric</option>
+                                    <option>skill</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- todo brk bu _ alt cizgili olanlarin hepsini normalin icine aldim. sor. !! -->
+
+                        <div class="form-group">
+                            <label for="common-specification-class" class="col-sm-3 control-label">Comparator : </label>
+
+                            <div class="col-md-9">
+                                <select id="common-specification-class" ng-model="commonSpecification.comparator"
+                                        class="form-control">
+                                    <option selected value=""></option>
+                                    <!-- todo brk read from file -->
+                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator">
+                                        FuzzyComparator
+                                    </option>
+                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator">
+                                        StringComparator
+                                    </option>
+                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericAscendingComparator">
+                                        NumericAscendingComparator
+                                    </option>
+                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericDescendingComparator">
+                                        NumericDescendingComparator
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </form>
+
+                    <!-- Modal value create -->
+                    <hr/>
+                    <form>
+                        <input type="checkbox" id="random-number-checkbox" ng-model="valueToAdd.check"
+                               name="random-number-checkbox">
+                        <label for="random-number-checkbox">Activate Value Generator</label>
+                    </form>
+                    <hr/>
+
+                    <div ng-show="valueToAdd.check">
+                        <h4>Value Generator</h4>
+                        <br/>
+
+                        <form class="form-horizontal">
+
+                            <div class="form-group">
+                                <label for="select-distro-common" class="col-sm-3 control-label">Distribution
+                                    : </label>
+
+                                <div class="col-md-9">
+                                    <select id="select-distro-common" class="form-control"
+                                            ng-model="valueToAdd.class">
+                                        <option value="UniformIntegerDistribution">Uniform Integer
+                                            Distribution
+                                        </option>
+                                        <option selected value="NormalDistribution">Normal Distribution</option>
+                                        <option>Static</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div ng-if="valueToAdd.class !== 'Static' ">
+                                <div ng-show="valueToAdd.class" class="form-group">
+                                    <label for="params-common" class="col-sm-3 control-label">Params : </label>
+
+                                    <div ng-if="valueToAdd.class === 'UniformIntegerDistribution' "
+                                         class="col-sm-9"
+                                         id="params-common">
+
+                                        <input type="number"
+                                               ng-change="valueToAdd.params.second >= 0 && $root.calculateNumberOfMappingValues(valueToAdd)"
+                                               class="col-sm-3" placeholder="minimum"
+                                               ng-model="valueToAdd.params.first" only-digits>
+                                        <input type="number"
+                                               ng-change="valueToAdd.params.first >= 0 && $root.calculateNumberOfMappingValues(valueToAdd)"
+                                               class="col-sm-3" placeholder="maximum"
+                                               ng-model="valueToAdd.params.second" only-digits>
+                                    </div>
+
+                                    <div ng-if="valueToAdd.class === 'NormalDistribution' " class="col-sm-9">
+
+                                        <input type="number" class="col-sm-3" placeholder="average"
+                                               ng-model="valueToAdd.params.first">
+                                        <input type="number" class="col-sm-3" placeholder="deviation"
+                                               ng-model="valueToAdd.params.second">
+                                    </div>
+
+                                </div>
+
+                                <div ng-if="valueToAdd.class === 'UniformIntegerDistribution' && mappingValueArray"
+                                     class="form-group">
+                                    <label for="select-mapping-common" class="col-sm-3 control-label">Mapping : </label>
+
+                                    <div class="col-md-9" id="select-mapping-common">
+
+                                        <input ng-repeat="mappingValue in $root.mappingValueArray" type="text"
+                                               class="col-sm-3" placeholder="Value {{mappingValue}}"
+                                               ng-model="mappingValues[mappingValue]">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div ng-if="valueToAdd.class === 'Static' " class="form-group">
+                                <label for="param-common" class="col-sm-3 control-label">Param : </label>
+
+                                <div class="col-sm-9" id="param-common">
+                                    <input type="number" class="col-sm-3" placeholder="param"
+                                           ng-model="valueToAdd.params.first" only-digits>
+                                </div>
+                            </div>
+
+
+                        </form>
+                    </div>
+
+
+                    <!-- modal value create -->
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="defaultParams()">Close</button>
+                    <!-- todo brk change the ng click function for task -->
+
+                    <button type="button" class="btn btn-primary" ng-click="saveProperty()" data-dismiss="modal">Save
+                        changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal property create -->
+
+    <hr/>
+
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+
+</div>

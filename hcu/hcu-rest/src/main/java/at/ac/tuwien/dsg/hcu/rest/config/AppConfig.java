@@ -5,7 +5,12 @@ import java.util.Arrays;
 import javax.ws.rs.ext.RuntimeDelegate;
 
 import at.ac.tuwien.dsg.hcu.rest.rs.*;
-import at.ac.tuwien.dsg.hcu.rest.services.SimulationService;
+import at.ac.tuwien.dsg.hcu.rest.rs.simulation.SimulationRestService;
+import at.ac.tuwien.dsg.hcu.rest.rs.simulation.SimulationTaskRestService;
+import at.ac.tuwien.dsg.hcu.rest.rs.simulation.SimulationUnitRestService;
+import at.ac.tuwien.dsg.hcu.rest.services.simulation.SimulationService;
+import at.ac.tuwien.dsg.hcu.rest.services.simulation.SimulationTaskMongoDBService;
+import at.ac.tuwien.dsg.hcu.rest.services.simulation.SimulationUnitMongoDBService;
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -48,6 +53,8 @@ public class AppConfig {
                 taskRestService(), 
                 taskRuleRestService(),
                 simulationRestService(),
+                simulationTaskRestService(),
+                simulationUnitRestService(),
                 collectiveRestService(),
                 apiListingResourceJson()
                 ) );
@@ -110,6 +117,16 @@ public class AppConfig {
         return new SimulationService();
     }
 
+    @Bean
+    public SimulationTaskMongoDBService simulationTaskService() {
+        return new SimulationTaskMongoDBService();
+    }
+
+    @Bean
+    public SimulationUnitMongoDBService simulationUnitService() {
+        return new SimulationUnitMongoDBService();
+    }
+
     @Bean 
     public PeerRestService peerRestService() {
         return new PeerRestService();
@@ -128,6 +145,16 @@ public class AppConfig {
     @Bean
     public SimulationRestService simulationRestService() {
         return new SimulationRestService();
+    }
+
+    @Bean
+    public SimulationTaskRestService simulationTaskRestService() {
+        return new SimulationTaskRestService();
+    }
+
+    @Bean
+    public SimulationUnitRestService simulationUnitRestService() {
+        return new SimulationUnitRestService();
     }
 
     @Bean 

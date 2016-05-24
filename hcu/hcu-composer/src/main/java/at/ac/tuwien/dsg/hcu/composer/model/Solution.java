@@ -165,7 +165,8 @@ public class Solution {
         // "[comp],[comp]",aggr,cost,normcost,compentency,conn,muconn,rt,normrt
         String comps = "";
         for (SolutionComponent c: list) {
-            if (!comps.equals("")) comps += ",";
+            /*todo brk , problem java csv formatter parser ile bak -- böyleydi if (!comps.equals("")) comps += ",";*/
+            if (!comps.equals("")) comps += " ";
             comps += "[" + c.trace() + "]";
         }
         return String

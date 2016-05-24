@@ -57,7 +57,7 @@
                     "name": "location",
                     "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
                                 "mapping": {"0": "Sector-A", "1": "Sector-B", "2": "Sector-C"}},
-                    "_comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator",
+                    "comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator",
                     "probabilityToHave": 1.0
                 }                        
             ] 

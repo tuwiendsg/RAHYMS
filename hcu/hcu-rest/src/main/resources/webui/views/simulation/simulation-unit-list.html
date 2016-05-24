@@ -1,26 +1,27 @@
 <div class="row">
-    <h3>Unit List</h3>
-    <br/>
+    <h2>Available type of Units
+        <a class="btn btn-default pull-right" data-toggle="modal" data-target="#modalUnitCreate"><i class="icon-plus-sign icon-white"></i> Create Unit</a>
+    </h2>
+
 
     <table class="table table-hover">
         <tr>
-            <th class="col-md-1">Index</th>
+            <th class="col-md-1">Id</th>
             <th class="col-md-11">Name</th>
             <th></th>
         </tr>
         <tr ng-repeat="unit in units | orderBy:'$index':true"
-            ng-click="unitDetail($index)">
-            <td>{{$index + 1}}</td>
+            ng-click="unitDetail(unit.id)">
+            <td>{{$index}}</td>
             <td>{{unit.name}}</td>
             <td>
-                <button ng-click="deleteUnit($index)" type="button" class="btn btn-default btn-xs">
+                <button ng-click="deleteUnit($index, unit.id)" type="button" class="btn btn-default btn-xs">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
             </td>
         </tr>
+        <tr ng-show='is_loading'><td colspan='5'><span ng-bind-html="Util.spinner()"></span></td></tr>
     </table>
-
-    <a data-toggle="modal" data-target="#modalUnitCreate"><i class="glyphicon glyphicon-plus"></i></a>
 
     <!-- Modal unit create -->
     <div class="modal fade" id="modalUnitCreate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -59,7 +60,6 @@
         </div>
     </div>
     <!-- modal unit create -->
-
 
 
 </div>

@@ -1,0 +1,382 @@
+<div id="simulation">
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Simulation</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <h4>Unit Generator
+                <a class="btn btn-default pull-right" ng-click="dragAll()" style="margin-bottom: 5px"><i
+                        class="icon-plus-sign icon-white"
+                ></i>Drag
+                    All</a>
+            </h4>
+        </div>
+
+        <div class="col-md-2"></div>
+
+        <div class="col-md-5">
+            <h4>
+                <button accesskey="S" type="submit" class="btn btn-primary btn-success pull-left"
+                        ng-click="startSimulation()">
+                    Start
+                </button>
+            </h4>
+            <h4 class="pull-right">Units</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <!-- UNIT DRAG -->
+            <div class="thumbnail" data-drop="true" ng-model="unitListDrag" jqyoui-droppable="{multiple:true}"
+                 style='height:150px;'>
+                <div ng-repeat="generator in unitListDrag" class="btn btn-primary" data-drag="true"
+                     data-jqyoui-options="{revert: 'invalid'}" ng-model="unitListDrag"
+                     jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}"
+                     ng-hide="!generator.name">{{generator.name}}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2" style="text-align: center;"><span class="glyphicon glyphicon-arrow-right"
+                                                                style="font-size:8.5em;"></span></div>
+
+        <div class="col-md-5">
+            <!-- UNIT DROP -->
+            <div class="thumbnail" data-drop="true" data-jqyoui-options ng-model="unitListDrop"
+                 jqyoui-droppable="{multiple:true}"
+                 style='height:150px;'>
+                <div class="btn btn-success" ng-repeat="item in unitListDrop" data-drag="true"
+                     data-jqyoui-options="{revert: 'invalid'}" ng-model="unitListDrop"
+                     jqyoui-draggable="{index: {{$index}},animate:true}"
+                     ng-hide="!item.name">{{item.name}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Task Generator</h4>
+        </div>
+
+        <div class="col-md-6">
+            <h4 class="pull-right">Tasks</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <!-- TASK DRAG --><!-- todo brk geri droplari check yap unit ise unite task ise sadece taska -->
+            <div class="thumbnail" data-drop="true" ng-model="taskListDrag" jqyoui-droppable="{multiple:true}"
+                 style='height:150px;'>
+                <div ng-repeat="generator in taskListDrag" class="btn btn-primary" data-drag="true"
+                     data-jqyoui-options="{revert: 'invalid'}" ng-model="taskListDrag"
+                     jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}"
+                     ng-hide="!generator.name">{{generator.name}}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2" style="text-align: center;"><span class="glyphicon glyphicon-arrow-right"
+                                                                style="font-size:8.5em;"></span></div>
+
+        <div class="col-md-5">
+            <!-- TASK DROP -->
+            <div class="thumbnail" data-drop="true" data-jqyoui-options ng-model="taskListDrop"
+                 jqyoui-droppable="{multiple:true}"
+                 style='height:150px;'>
+                <div class="btn btn-success" ng-repeat="item in taskListDrop" data-drag="true"
+                     data-jqyoui-options="{revert: 'invalid'}" ng-model="taskListDrop"
+                     jqyoui-draggable="{index: {{$index}},animate:true}"
+                     ng-hide="!item.name">{{item.name}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr/>
+
+    <!-- GENERAL -->
+    <h4>General Properties</h4>
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="number-of-cycles" class="col-sm-5 control-label">Number of cycles : </label>
+
+                <div class="col-md-7">
+                    <input type="number" class="form-control" id="number-of-cycles"
+                           placeholder="Enter the number of cycles"
+                           ng-model="consumerProperties.numberOfCycles" only-digits>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+        </div>
+
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="wait-between-cycles" class="col-sm-5 control-label">Wait between cycles : </label>
+
+                <div class="col-md-7">
+                    <input type="number" class="form-control" id="wait-between-cycles"
+                           placeholder="Enter the wait between cycles"
+                           ng-model="consumerProperties.waitBetweenCycles" only-digits>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+        </div>
+
+
+    </div>
+
+    <!-- GENERAL FINISH -->
+
+    <hr/>
+    <!-- todo brk find solution for validation -->
+
+    <!-- todo brk ask generatorlerde sinir olacak mi? name unique mi? -->
+
+    <!-- ALGORITHM -->
+
+    <h4>Algorithm Properties</h4>
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <!-- todo brk ask reliablity prefix gelecek <label for="file-prefix" class="col-sm-3 control-label">Number of cycles : </label>
+
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="file-prefix"
+                           placeholder="Enter the number of cycles"
+                           ng-model="composerProperties.number_of_cycles">
+                </div>
+                -->
+            </div>
+
+            <div class="form-group">
+                <label for="algorithm-type" class="col-sm-5 control-label">Algorithm : </label>
+
+                <div class="col-md-7">
+                    <select id="algorithm-type" ng-model="composerProperties.algorithm" class="form-control">
+                        <option>FairDistribution</option>
+                        <option selected>PriorityDistribution</option>
+                        <option>EarliestResponse</option>
+                        <option>GreedyBestVisibility</option>
+                        <option>GreedyLocalSearch</option>
+                        <option>ACOAlgorithm</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div ng-if="composerProperties.algorithm === 'ACOAlgorithm'">
+
+                <div class="form-group">
+                    <label for="algorithm-aco" class="col-sm-5 control-label">Aco Variant : </label>
+
+                    <div class="col-md-7">
+                        <select id="algorithm-aco" ng-model="composerProperties.aco_variant" class="form-control">
+                            <option selected>AntSystemAlgorithm</option>
+                            <option>MinMaxAntSystemAlgorithm</option>
+                            <option>AntColonySystemAlgorithm</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="epsilon_pheromone" class="col-sm-5 control-label">Epsilon Pheromone : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="epsilon_pheromone" placeholder="Please enter epsilon pheromone"
+                               ng-model="composerProperties.epsilon_pheromone" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="number_of_ants" class="col-sm-5 control-label">Number Of Ants : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="number_of_ants" placeholder="Please enter Number Of Ants"
+                               ng-model="composerProperties.number_of_ants" class="form-control" only-digits>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="maximum_number_of_cycles" class="col-sm-5 control-label">Maximum Number Of Cycles
+                        : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="maximum_number_of_cycles"
+                               placeholder="Please enter Maximum Number Of Cycles"
+                               ng-model="composerProperties.maximum_number_of_cycles" class="form-control" only-digits>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stagnant_limit" class="col-sm-5 control-label">Stagnant Limit : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="stagnant_limit" placeholder="Please enter Stagnant Limit"
+                               ng-model="composerProperties.stagnant_limit" class="form-control" only-digits>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="initial_pheromone" class="col-sm-5 control-label">Initial Pheromone : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="initial_pheromone" placeholder="Please enter Initial Pheromone"
+                               ng-model="composerProperties.initial_pheromone" class="form-control">
+                    </div>
+                </div>
+
+
+            </div>
+            <!-- ALGORITHM FINISH -->
+
+        </div>
+
+        <div ng-if="composerProperties.algorithm === 'ACOAlgorithm'">
+            <div class="col-md-6">
+                <div class="form-group">
+
+                </div>
+
+                <div class="form-group">
+                    <label for="pheromone_weight" class="col-sm-5 control-label">Pheromone Weight : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="pheromone_weight" placeholder="Please enter Pheromone Weight"
+                               ng-model="composerProperties.pheromone_weight" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="heuristic_weight" class="col-sm-5 control-label">Heuristic Weight : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="heuristic_weight" placeholder="Please enter Heuristic Weight"
+                               ng-model="composerProperties.heuristic_weight" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pheromone_evaporation" class="col-sm-5 control-label">Pheromone Evaporation : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="pheromone_evaporation" placeholder="Please enter Pheromone Evaporation"
+                               ng-model="composerProperties.pheromone_evaporation" class="form-control">
+                    </div>
+                </div>
+
+                <!-- Heuristic factors -->
+
+                <div class="form-group">
+                    <label for="connectedness_weight" class="col-sm-5 control-label">Connectedness Weight : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="connectedness_weight" placeholder="Please enter Connectedness Weight"
+                               ng-model="composerProperties.connectedness_weight" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cost_weight" class="col-sm-5 control-label">Cost Weight : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="cost_weight" placeholder="Please enter Cost Weight"
+                               ng-model="composerProperties.cost_weight" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="response_time_weight" class="col-sm-5 control-label">Response Time Weight : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="response_time_weight" placeholder="Please enter Response Time Weight"
+                               ng-model="composerProperties.response_time_weight" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="competency_weight" class="col-sm-5 control-label">Competency Weight : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" id="competency_weight" placeholder="Please enter Competency Weight"
+                               ng-model="composerProperties.competency_weight" class="form-control">
+                    </div>
+                </div>
+
+                <!-- heuristic factor FINISH -->
+            </div>
+        </div>
+    </div>
+
+    <hr/>
+
+    <div ng-if="composerProperties.algorithm === 'ACOAlgorithm'">
+        <div>
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <form class="form-horizontal" role="form" ng-submit="startSimulation()">
+                    <div ng-if="composerProperties.aco_variant === 'AntSystemAlgorithm'" class="form-group">
+                        <label for="objective_multiplier" class="col-sm-5 control-label">Objective Multiplier : </label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="objective_multiplier"
+                                   placeholder="Please Enter Objective Multiplier"
+                                   ng-model="composerProperties.objective_multiplier">
+                        </div>
+                    </div>
+                    <div ng-if="composerProperties.aco_variant === 'MinMaxAntSystemAlgorithm'" class="form-group">
+                        <label for="min_pheromone" class="col-sm-5 control-label">Min Pheromone : </label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="min_pheromone"
+                                   placeholder="Please Enter Min Pheromone"
+                                   ng-model="composerProperties.min_pheromone">
+                        </div>
+                        <label for="max_pheromone" class="col-sm-5 control-label">Max Pheromone : </label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="max_pheromone"
+                                   placeholder="Please Enter Max Pheromone"
+                                   ng-model="composerProperties.max_pheromone">
+                        </div>
+                    </div>
+                    <div ng-if="composerProperties.aco_variant === 'AntColonySystemAlgorithm'" class="form-group">
+                        <label for="q_0" class="col-sm-5 control-label">q_0 Value : </label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="q_0"
+                                   placeholder="Please Enter q_0 Value"
+                                   ng-model="composerProperties.q_0">
+                        </div>
+                        <label for="pheromone_decay" class="col-sm-5 control-label">Pheromone Decay : </label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="pheromone_decay"
+                                   placeholder="Please Enter Pheromone Decay"
+                                   ng-model="composerProperties.pheromone_decay">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div align="center">
+                            <button type="submit" class="btn btn-default">Start Simulation</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+</div>

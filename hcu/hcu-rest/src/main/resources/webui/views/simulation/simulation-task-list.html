@@ -1,26 +1,26 @@
 <div class="row">
-    <h3>Task List</h3>
-    <br/>
+    <h2>Available type of Tasks
+        <a class="btn btn-default pull-right" data-toggle="modal" data-target="#modalTaskCreate"><i class="icon-plus-sign icon-white"></i> Create Task</a>
+    </h2>
 
     <table class="table table-hover">
         <tr>
-            <th class="col-md-1">Index</th>
+            <th class="col-md-1">Id</th>
             <th class="col-md-11">Name</th>
             <th></th>
         </tr>
         <tr ng-repeat="task in tasks | orderBy:'$index':true"
-            ng-click="taskDetail($index)">
-            <td>{{$index + 1}}</td>
+            ng-click="taskDetail(task.id)">
+            <td>{{$index}}</td>
             <td>{{task.name}}</td>
             <td>
-                <button ng-click="deleteTask($index)" type="button" class="btn btn-default btn-xs">
+                <button ng-click="deleteTask($index, task.id)" type="button" class="btn btn-default btn-xs">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
             </td>
         </tr>
+        <tr ng-show='is_loading'><td colspan='5'><span ng-bind-html="Util.spinner()"></span></td></tr>
     </table>
-
-    <a data-toggle="modal" data-target="#modalTaskCreate"><i class="glyphicon glyphicon-plus"></i></a>
 
     <!-- Modal task create -->
     <div class="modal fade" id="modalTaskCreate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

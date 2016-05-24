@@ -1,5 +1,6 @@
 package at.ac.tuwien.dsg.hcu.rest;
 
+import at.ac.tuwien.dsg.hcu.rest.common.DefaultMongoData;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -7,6 +8,7 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -66,9 +68,16 @@ public class RunRestServer {
         System.out.println("RAHYMS REST server running at http://" + serverHost + ":" + serverPort + "/" + restContextPath);
         System.out.println("The swagger playground is available at http://" + serverHost + ":" + serverPort + "/" + swaggerContextPath);
 
+
+
         server.setHandler(handlers);
         server.start();
+
+        System.out.println("##### - DEFAULT TASK AND UNIT SIMULATION VALUES SAVED INTO MONGODB");
+        DefaultMongoData.saveDefaultUnitsAndTasks();
+
         server.join();
+
 
     }
 }

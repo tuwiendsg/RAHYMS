@@ -8,6 +8,8 @@ import gridsim.IO_data;
 import gridsim.parallel.reservation.ReservationRequester;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -51,11 +53,13 @@ public class GSConsumer extends ReservationRequester {
     private int nCycle;
     private int waitBetweenCycles;
         
-    private GSConsumer(ArrayList<ConfigJson> taskGeneratorConfig) throws Exception {
+    private GSConsumer(ArrayList<ConfigJson> taskGeneratorConfig, int nCycle, int waitBetweenCycles) throws Exception {
         super(NAME, 560);
         taskGen = new TaskWithOptimizationGenerator(taskGeneratorConfig);
-        nCycle = Integer.parseInt(Util.getProperty(configFile, "number_of_cycles"));
-        waitBetweenCycles = Integer.parseInt(Util.getProperty(configFile, "wait_between_cycles"));
+        this.nCycle = nCycle;
+        this.waitBetweenCycles = waitBetweenCycles;
+        //nCycle = Integer.parseInt(Util.getProperty(configFile, "number_of_cycles"));
+        //waitBetweenCycles = Integer.parseInt(Util.getProperty(configFile, "wait_between_cycles"));
     }
 
     /**
@@ -140,11 +144,11 @@ public class GSConsumer extends ReservationRequester {
             }
             
             // dump weka file
-            String exportTo = Util.getProperty(configFile, "export_arff_to");
-            if (exportTo!=null){
-                Util.log().info("DUMPING WEKA ARFF");
-                WekaExporter.export(list, exportTo);
-            }
+            //String exportTo = Util.getProperty(configFile, "export_arff_to");
+            //if (exportTo!=null){
+            //    Util.log().info("DUMPING WEKA ARFF");
+            //    WekaExporter.export(list, exportTo);
+            //}
             
 
         } catch (InstantiationException e) {
@@ -176,7 +180,7 @@ public class GSConsumer extends ReservationRequester {
         super.send( super.output, GridSimTags.SCHEDULE_NOW, GSConstants.SUBMIT_TASK, data);
     }
 
-    public static void start(String configurationFile,
+    public static void start(int numberOfCycle, int waitBetweenCycles,
             SchedulerInterface scheduler,
             ServiceManagerInterface manager,
             ArrayList<ConfigJson> taskGeneratorConfig,
@@ -186,7 +190,7 @@ public class GSConsumer extends ReservationRequester {
 
         try {
             
-            configFile = configurationFile;
+            //configFile = configurationFile;
             
             // number of grid users, i.e., itself
             // this is necessary for GridSim for waiting until all users finish
@@ -207,17 +211,26 @@ public class GSConsumer extends ReservationRequester {
             numServices = generateServices(serviceGeneratorConfig);
 
             // Creates this consumer, as a grid user
-            GSConsumer user = new GSConsumer(taskGeneratorConfig);
+            GSConsumer user = new GSConsumer(taskGeneratorConfig, numberOfCycle, waitBetweenCycles);
             // once created, it will be registered to the infoService, 
             // and body() will be executed when the simulation starts 
 
             // start simulation
             Util.log().info("Starting simulation");
-            boolean debug = Boolean.parseBoolean(Util.getProperty(configFile, "debug"));
-            GridSim.startGridSimulation(debug);
+            //boolean debug = Boolean.parseBoolean(Util.getProperty(configFile, "debug"));
+            GridSim.startGridSimulation(false);
             
             // simulation finished
             Util.log().info(NAME + " finishes.");
+
+            //all created json simulation property files in Runtime, deleted
+            for(ConfigJson taskConfig : taskGeneratorConfig) {
+                Files.delete(Paths.get(taskConfig.getPath()));
+            }
+
+            for(ConfigJson unitJson : serviceGeneratorConfig) {
+                Files.delete(Paths.get(unitJson.getPath()));
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

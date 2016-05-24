@@ -72,7 +72,8 @@ public class SolutionComponent extends Assignment {
     }
 
     public String trace() {
-        return level + "," + getTask() + ",S#" + getAssignee().getTitle() + "," + pheromone;
+        //todo brk commas problem with split java csv formatter böyleydi-- return level + "," + getTask() + ",S#" + getAssignee().getTitle() + "," + pheromone;
+        return level + " " + getTask() + " S#" + getAssignee().getTitle() + " " + pheromone;
     }
 
     public double getGradeOfSkill() {

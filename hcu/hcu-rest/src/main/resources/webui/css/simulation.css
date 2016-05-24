@@ -15,3 +15,24 @@
 .value-add {
      width: 44.666667%;
 }
+
+#simulation input, select{
+     width: 100% !important;
+}
+
+#simulation .btn {
+     margin-right: 5px !important;
+     margin-bottom: 5px !important;
+}
+
+#simulation input{
+     margin-bottom: 10px;
+}
+
+#simulation select{
+     margin-bottom: 10px;
+}
+
+.glyphicon-plus-sign {
+     font-size: 20px;
+}

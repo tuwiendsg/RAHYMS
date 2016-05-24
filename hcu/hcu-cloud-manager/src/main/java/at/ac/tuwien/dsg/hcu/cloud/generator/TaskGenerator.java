@@ -119,17 +119,22 @@ public class TaskGenerator {
         if (taskTypeCfg.getBoolean("isRootTask")) {
             //logger.info("Generating " + name + " tasks...");
             // init occurance distribution
-            JSONObject occuranceCfg = taskTypeCfg.getJSONObject("tasksOccurance");
-            if (distOccurances.get(name)==null) {
-                String clazz = GeneratorUtil.getFullClassName(occuranceCfg.getString("class"));
-                JSONArray params = occuranceCfg.getJSONArray("params");
-                Object dist = GeneratorUtil.createValueDistribution(clazz, params, seed++);
-                distOccurances.put(name, dist);
+            //todo brk muhammad changed it
+            try {
+                occurance = taskTypeCfg.getInt("tasksOccurance");
+            } catch (JSONException e) {
+                JSONObject occuranceCfg = taskTypeCfg.getJSONObject("tasksOccurance");
+                if (distOccurances.get(name)==null) {
+                    String clazz = GeneratorUtil.getFullClassName(occuranceCfg.getString("class"));
+                    JSONArray params = occuranceCfg.getJSONArray("params");
+                    Object dist = GeneratorUtil.createValueDistribution(clazz, params, seed++);
+                    distOccurances.put(name, dist);
+                }
+                Object curDistOccurance = distOccurances.get(name);
+                // TODO: use sampleMethod on other places as well
+                String sampleMethod = occuranceCfg.has("sampleMethod") ? occuranceCfg.getString("sampleMethod") : "sample";
+                occurance = Math.round((double)GeneratorUtil.sample(curDistOccurance, null, sampleMethod));
             }
-            Object curDistOccurance = distOccurances.get(name);
-            // TODO: use sampleMethod on other places as well
-            String sampleMethod = occuranceCfg.has("sampleMethod") ? occuranceCfg.getString("sampleMethod") : "sample";
-            occurance = Math.round((double)GeneratorUtil.sample(curDistOccurance, null, sampleMethod));
         } else {
             if (distToHaves.get(currentPath)==null) {
                 UniformRealDistribution dist = new UniformRealDistribution(new MersenneTwister(seed++), 0, 1);

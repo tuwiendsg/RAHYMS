@@ -1,0 +1,594 @@
+<div class="row">
+    <div class="col-sm-8">
+        <button accesskey="C" type="submit" class="btn btn-primary btn-danger pull-right" ng-click="backToHome()">
+            Back
+        </button>
+    </div>
+    <div class="col-sm-4">
+        <button accesskey="S" type="submit" class="btn btn-primary btn-success pull-left"
+                ng-click="updateUnit()">
+            Save
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <h3>Unit Generator Configuration for <input type="text" id="unitGeneratorName" ng-model="unitGeneratorName"></h3>
+    <br/>
+
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label for="unitName" class="col-sm-2 control-label">Unit Name : </label>
+
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="unitName" placeholder="Enter Unit Name (namePrefix)"
+                       ng-model="temporaryUnit.namePrefix">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="number-of-elements" class="col-sm-2 control-label">Number of Units : </label>
+
+            <div class="col-md-10">
+                <input type="number" class="form-control" id="number-of-elements" placeholder="Enter number of elements"
+                       ng-model="temporaryUnit.numberOfElements" only-digits>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="unit-seed" class="col-sm-2 control-label">Seed : </label>
+
+            <div class="col-sm-10">
+                <input type="number" class="form-control" id="unit-seed" placeholder="Enter seed"
+                       ng-model="temporaryUnit.seed" only-digits>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- todo brk responsive design lazim degildir herhalde? -->
+
+    <form class="form-horizontal ng-pristine ng-valid">
+
+        <div class="form-group">
+            <label for="probabilityToConnect" class="col-sm-2 control-label">Probability to connect : </label>
+
+            <div class="col-sm-10">
+                <input type="number" class="form-control" id="probabilityToConnect"
+                       placeholder="Enter probability"
+                       ng-model="temporaryUnit.connection.probabilityToConnect">
+            </div>
+        </div>
+
+        <h4>Connectedness Weight Value Generator (Normal Distribution Params)</h4>
+
+        <div class="form-group">
+
+            <div class="form-group">
+
+                <label class="col-sm-2 control-label" for="weight-value-first">Average : </label>
+
+                <div class="col-sm-10">
+                    <input id="weight-value-first" type="number" class="form-control" placeholder="average"
+                           ng-model="valueConnectedness.params.first">
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label class="col-sm-2 control-label" for="weight-value-second">Deviation : </label>
+
+                <div class="col-sm-10">
+                    <input id="weight-value-second" type="number" class="form-control" placeholder="deviation"
+                           ng-model="valueConnectedness.params.second">
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+    <h4>Services Provided</h4>
+
+    <div class="col-md-6" style="padding-left: 0px;">
+        <form>
+            <input type="checkbox" id="single-service" ng-model="temporaryUnit.singleElementSingleServices"
+                   name="single-service">
+            <label for="single-service">SingleElementSingleServices</label>
+
+        </form>
+    </div>
+
+    <br/>
+    <br/>
+
+    <table id="provided-table" class="table table-condensed table-hover" style="margin-bottom: 5px;">
+        <tr>
+            <th class="col-md-2">Functionality</th>
+            <th class="col-md-1">Probability</th>
+            <th class="col-md-0.5">Add Func. Property</th>
+            <th class="col-md-8">Functional Properties</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr ng-repeat="service in temporaryUnit.services | orderBy:'$index':true">
+            <td>{{service.functionality}}</td>
+            <td>{{service.probabilityToHave}}</td>
+            <td>
+                <button data-toggle="modal" data-target="#modalPrivatePropertyAdd" data-backdrop="static"
+                        ng-click="openAddPropertyModalForIndex($index)" data-keyboard="false">
+                    <span class="glyphicon glyphicon-cog"></span>
+                </button>
+            </td>
+            <td>
+                <span ng-repeat="property in service.properties"
+                      ng-click="openEditFunctionalProperty($parent.$index, $index)" data-toggle="modal"
+                      data-keyboard="false" data-backdrop="static"
+                      data-target="#modalPrivatePropertyAdd" class="label label-info list-info">
+			        {{property.name}}
+			    </span>
+
+            </td>
+            <td>
+                <button data-toggle="modal" data-target="#modalServiceCreate" ng-click="editServiceSetParams($index)"
+                        data-keyboard="false" data-backdrop="static"
+                        type="button" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>
+            </td>
+            <td>
+                <button ng-click="deleteService($index)" type="button" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+
+    <!-- modal add private property for service -->
+    <div class="modal fade" id="modalPrivatePropertyAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" ng-click="defaultParams()" data-dismiss="modal"
+                            aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalPrivatePropertyLabel" ng-show="!editFunctionalPropertyClicked">Add Functional Property</h4>
+                    <h4 class="modal-title" id="modalPrivatePropertyEditLabel" ng-show="editFunctionalPropertyClicked">Edit Functional Property</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                            <label for="private-property-name" class="col-sm-3 control-label">Name : </label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="private-property-name"
+                                       placeholder="Enter Property Name"
+                                       ng-model="privateProperty.name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="private-property-probability" class="col-sm-3 control-label">Probability
+                                : </label>
+
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" id="private-property-probability"
+                                       placeholder="Enter the probability"
+                                       ng-model="privateProperty.probabilityToHave">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="private-property-type" class="col-sm-3 control-label">Type : </label>
+
+                            <div class="col-md-9">
+                                <select id="private-property-type" ng-model="privateProperty.type" class="form-control">
+                                    <option selected>static</option>
+                                    <option>metric</option>
+                                    <option>skill</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="private-property-interface-class" class="col-sm-3 control-label">Class
+                                : </label>
+
+                            <div class="col-md-9">
+                                <select id="private-property-interface-class" ng-model="privateProperty.interfaceClass"
+                                        class="form-control">
+                                    <option selected value=""></option>
+                                    <option value="at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor">
+                                        ReliabilityMonitor
+                                    </option>
+                                    <option value="at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor.GSAvailabilityMonitor">
+                                        GSAvailabilityMonitor
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Modal value create -->
+                        <hr/>
+                        <form>
+                            <input type="checkbox" id="random-number-checkbox-functional" ng-model="valueToAdd.check"
+                                   name="random-number-checkbox">
+                            <label for="random-number-checkbox-functional">Activate Value Generator</label>
+                        </form>
+                        <hr/>
+
+                        <div ng-show="valueToAdd.check">
+                            <h4>Value Generator</h4>
+                            <br/>
+
+                            <form class="form-horizontal">
+
+                                <div class="form-group">
+                                    <label for="select-distro-common-functional" class="col-sm-3 control-label">Distribution
+                                        : </label>
+
+                                    <div class="col-md-9">
+                                        <select id="select-distro-common-functional" class="form-control"
+                                                ng-model="valueToAdd.class">
+                                            <option value="UniformIntegerDistribution">Uniform Integer
+                                                Distribution
+                                            </option>
+                                            <option selected value="NormalDistribution">Normal Distribution</option>
+                                            <option>Static</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div ng-if="valueToAdd.class !== 'Static' ">
+                                    <div ng-show="valueToAdd.class" class="form-group">
+                                        <label for="params-common-functional" class="col-sm-3 control-label">Params
+                                            : </label>
+
+                                        <div ng-if="valueToAdd.class === 'UniformIntegerDistribution' "
+                                             class="col-sm-9"
+                                             id="params-common-functional">
+
+                                            <input type="number"
+                                                   ng-change="valueToAdd.params.second >= 0 && $root.calculateNumberOfMappingValues(valueToAdd)"
+                                                   class="col-sm-3" placeholder="minimum"
+                                                   ng-model="valueToAdd.params.first" only-digits>
+                                            <input type="number"
+                                                   ng-change="valueToAdd.params.first >= 0 && $root.calculateNumberOfMappingValues(valueToAdd)"
+                                                   class="col-sm-3" placeholder="maximum"
+                                                   ng-model="valueToAdd.params.second" only-digits>
+                                        </div>
+
+                                        <div ng-if="valueToAdd.class === 'NormalDistribution' " class="col-sm-9">
+
+                                            <input type="number" class="col-sm-3" placeholder="average"
+                                                   ng-model="valueToAdd.params.first">
+                                            <input type="number" class="col-sm-3" placeholder="deviation"
+                                                   ng-model="valueToAdd.params.second">
+                                        </div>
+
+                                    </div>
+
+                                    <div ng-if="valueToAdd.class === 'UniformIntegerDistribution' && mappingValueArray"
+                                         class="form-group">
+                                        <label for="select-mapping-common-functional" class="col-sm-3 control-label">Mapping
+                                            : </label>
+
+                                        <div class="col-md-9" id="select-mapping-common-functional">
+
+                                            <input ng-repeat="mappingValue in mappingValueArray" type="text"
+                                                   class="col-sm-3" placeholder="Value {{mappingValue}}"
+                                                   ng-model="mappingValues[mappingValue]">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div ng-if="valueToAdd.class === 'Static' " class="form-group">
+                                    <label for="param-common-functional" class="col-sm-3 control-label">Param : </label>
+
+                                    <div class="col-sm-9" id="param-common-functional">
+                                        <input type="number" class="col-sm-3" placeholder="param"
+                                               ng-model="valueToAdd.params.first" only-digits>
+                                    </div>
+                                </div>
+
+
+                            </form>
+                        </div>
+
+
+                        <!-- modal value create -->
+
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button ng-if="editFunctionalPropertyClicked" type="button" class="pull-left btn btn-danger"
+                            ng-click="deleteFunctionalProperty()" data-dismiss="modal">Delete Property
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="defaultParams()" data-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="button" class="btn btn-primary" ng-click="savePrivateProperty()" data-dismiss="modal">
+                        Save
+                        changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- open modal for service provided create 2 field functionality and probability -->
+    <a data-toggle="modal" data-target="#modalServiceCreate" data-keyboard="false" data-backdrop="static"><i
+            class="glyphicon glyphicon-plus-sign"></i></a>
+
+    <!-- Modal service create -->
+    <div class="modal fade" id="modalServiceCreate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" ng-click="defaultParams()" class="close" data-dismiss="modal"
+                            aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalServiceCreateLabel" ng-show="!editServiceClicked">Add Service</h4>
+                    <h4 class="modal-title" id="modalServiceEditLabel" ng-show="editServiceClicked">Edit Service</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                            <label for="service-functionality" class="col-sm-3 control-label">Functionality : </label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="service-functionality"
+                                       placeholder="Enter Service functionality"
+                                       ng-model="providedService.functionality">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="service-probability" class="col-sm-3 control-label">Probability : </label>
+
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" id="service-probability"
+                                       placeholder="Enter the probability"
+                                       ng-model="providedService.probabilityToHave">
+                            </div>
+                        </div>
+
+                    </form>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" ng-click="defaultParams()" data-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="button" class="btn btn-primary" ng-click="saveService()" data-dismiss="modal">Save
+                        changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal service create -->
+
+    <hr/>
+
+    <h4>Non-Functional Properties</h4>
+    <table id="common-properties" class="table table-condensed table-hover" style="margin-bottom: 5px;">
+        <tr>
+            <th class="col-md-2">Name</th>
+            <th class="col-md-1">Probability to have</th>
+            <th class="col-md-1">Type</th>
+            <th class="col-md-2">InterfaceClass</th>
+            <th class="col-md-5.5">Value</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr ng-repeat="property in temporaryUnit.commonProperties | orderBy:'$index':true">
+            <td>{{property.name}}</td>
+            <td>{{property.probabilityToHave}}</td>
+            <td>{{property.type}}</td>
+            <td>{{property.interfaceClass | takeLastWordAfterDot}}</td>
+            <td>{{property.value}}</td>
+            <td>
+                <button data-toggle="modal" data-target="#modalPropertyCreate" data-backdrop="static"
+                        data-keyboard="false" ng-click="editCommonProperty($index)"
+                        type="button" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>
+            </td>
+            <td>
+                <button ng-click="deleteProperty($index)" type="button" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+
+    <!-- open modal for common prop. create 3 field name probability to have and type -->
+    <a data-toggle="modal" data-target="#modalPropertyCreate" data-keyboard="false" data-backdrop="static"><i
+            class="glyphicon glyphicon-plus-sign"></i></a>
+
+    <!-- Modal common prop. create -->
+    <div class="modal fade" id="modalPropertyCreate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" ng-click="defaultParams()" data-dismiss="modal"
+                            aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalPropertyCreateLabel" ng-show="!editCommonPropertyClicked">Add Non-Functional Property</h4>
+                    <h4 class="modal-title" id="modalPropertyEditLabel" ng-show="editCommonPropertyClicked">Edit Non-Functional Property</h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                            <label for="common-property-name" class="col-sm-3 control-label">Name : </label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="common-property-name"
+                                       placeholder="Enter Property Name"
+                                       ng-model="commonProperty.name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="common-property-probability" class="col-sm-3 control-label">Probability
+                                : </label>
+
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" id="common-property-probability"
+                                       placeholder="Enter the probability"
+                                       ng-model="commonProperty.probabilityToHave">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="common-property-type" class="col-sm-3 control-label">Type : </label>
+
+                            <div class="col-md-9">
+                                <select id="common-property-type" ng-model="commonProperty.type" class="form-control">
+                                    <option selected>static</option>
+                                    <option>metric</option>
+                                    <option>skill</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="common-property-interface-class" class="col-sm-3 control-label">Interface Class
+                                : </label>
+
+                            <div class="col-md-9">
+                                <select id="common-property-interface-class" ng-model="commonProperty.interfaceClass"
+                                        class="form-control">
+                                    <option selected value=""></option>
+                                    <option value="at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor">
+                                        ReliabilityMonitor
+                                    </option>
+                                    <option value="at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor.GSAvailabilityMonitor">
+                                        GSAvailabilityMonitor
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </form>
+
+                    <!-- Modal value create -->
+                    <hr/>
+                    <form>
+                        <input type="checkbox" id="random-number-checkbox" ng-model="valueToAdd.check"
+                               name="random-number-checkbox">
+                        <label for="random-number-checkbox">Activate Value Generator</label>
+                    </form>
+                    <hr/>
+
+                    <div ng-show="valueToAdd.check">
+                        <h4>Value Generator</h4>
+                        <br/>
+
+                        <form class="form-horizontal">
+
+                            <div class="form-group">
+                                <label for="select-distro-common" class="col-sm-3 control-label">Distribution
+                                    : </label>
+
+                                <div class="col-md-9">
+                                    <select id="select-distro-common" class="form-control"
+                                            ng-model="valueToAdd.class">
+                                        <option value="UniformIntegerDistribution">Uniform Integer
+                                            Distribution
+                                        </option>
+                                        <option selected value="NormalDistribution">Normal Distribution</option>
+                                        <option>Static</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div ng-if="valueToAdd.class !== 'Static' ">
+                                <div ng-show="valueToAdd.class" class="form-group">
+                                    <label for="params-common" class="col-sm-3 control-label">Params : </label>
+
+                                    <div ng-if="valueToAdd.class === 'UniformIntegerDistribution' "
+                                         class="col-sm-9"
+                                         id="params-common">
+
+                                        <input type="number"
+                                               ng-change="valueToAdd.params.second >= 0 && $root.calculateNumberOfMappingValues(valueToAdd)"
+                                               class="col-sm-3" placeholder="minimum"
+                                               ng-model="valueToAdd.params.first" only-digits>
+                                        <input type="number"
+                                               ng-change="valueToAdd.params.first >= 0 && $root.calculateNumberOfMappingValues(valueToAdd)"
+                                               class="col-sm-3" placeholder="maximum"
+                                               ng-model="valueToAdd.params.second" only-digits>
+                                    </div>
+
+                                    <div ng-if="valueToAdd.class === 'NormalDistribution' " class="col-sm-9">
+
+                                        <input type="number" class="col-sm-3" placeholder="average"
+                                               ng-model="valueToAdd.params.first">
+                                        <input type="number" class="col-sm-3" placeholder="deviation"
+                                               ng-model="valueToAdd.params.second">
+                                    </div>
+
+                                </div>
+
+                                <div ng-if="valueToAdd.class === 'UniformIntegerDistribution' && mappingValueArray"
+                                     class="form-group">
+                                    <label for="select-mapping-common" class="col-sm-3 control-label">Mapping : </label>
+
+                                    <div class="col-md-9" id="select-mapping-common">
+
+                                        <input ng-repeat="mappingValue in $root.mappingValueArray" type="text"
+                                               class="col-sm-3" placeholder="Value {{mappingValue}}"
+                                               ng-model="mappingValues[mappingValue]">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div ng-if="valueToAdd.class === 'Static' " class="form-group">
+                                <label for="param-common" class="col-sm-3 control-label">Param : </label>
+
+                                <div class="col-sm-9" id="param-common">
+                                    <input type="number" class="col-sm-3" placeholder="param"
+                                           ng-model="valueToAdd.params.first" only-digits>
+                                </div>
+                            </div>
+
+
+                        </form>
+                    </div>
+
+
+                    <!-- modal value create -->
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" ng-click="defaultParams()" data-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="button" class="btn btn-primary" ng-click="saveProperty()" data-dismiss="modal">Save
+                        changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal property create -->
+
+    <hr/>
+
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+
+</div>
+

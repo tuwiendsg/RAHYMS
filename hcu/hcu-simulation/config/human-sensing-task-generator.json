@@ -12,8 +12,7 @@
                     "functionality": "Collector",
                     "probabilityToHave": 1.0,
                     "relativeLoadRatio": 1.0,
-                    "specification": [],
-                    "_specification": [ 
+                    "specification": [
                         {
                             "type": "skill",
                             "name": "skill_collector",
@@ -29,17 +28,17 @@
                     "probabilityToHave": 1.0,
                     "relativeLoadRatio": 1.0,
                     "dependsOn": ["*Collector"],
-                    "specification": [],
-                    "_specification": [ 
+                    "specification": [
                         {
                             "type": "skill",
                             "name": "skill_assessor",
-                            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
-                                        "mapping": {"0": "poor", "1": "fair", "2": "good", "3": "very_good"}},
+                            "value": {"class": "UniformIntegerDistribution", "params": [0, 2],
+                                "mapping": {"0": "poor", "1": "fair", "2": "good", "3": "very_good"}},
                             "probabilityToHave": 1.0,
                             "comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator"
                         }
                     ]
+
                 }
             ],
             "subTaskTypes": [],
