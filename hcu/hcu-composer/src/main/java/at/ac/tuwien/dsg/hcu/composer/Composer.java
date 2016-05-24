@@ -200,7 +200,7 @@ public class Composer implements ComposerInterface {
             Util.log().warning("No feasible solution found!");
             if (globalTracer!=null) {
                 globalTracer.traceln(GridSim.clock() + "," + task.getId() + "," + task.getName() + ",,\"" + task.detail() + "\",\"No feasible solution found!\"");
-                //todo brk
+                //todo brk hata nasil?
                 dbTracerValues += algoName;
                 dbTracerValues += "," + GridSim.clock() + "," + task.getId() + "," + task.getName() + ",,\"" + task.detail() + "\",\"No feasible solution found!\"";
             }
@@ -280,7 +280,7 @@ public class Composer implements ComposerInterface {
                 if (this.isSolutionFeasible(solution)) flag = "f"; 
                 globalTracer.trace(GridSim.clock()+","+task.getId()+","+flag + "," + algoTime + ","+task.getName()+","
                         +data+",\"" + task.toString() + "\",");
-                //todo brk
+
                 dbTracerValues += simulationObjectId;
                 dbTracerValues += "," + algoName;
                 dbTracerValues += "," +GridSim.clock()+","+task.getId()+","+flag + "," + algoTime + ","+task.getName()+","

@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class MainSimulation {
     public static final String FILE_TEMP = "/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/config/";
-    //todo brk
+    //todo brk config web den alinacak
     private static String configFile = FILE_TEMP + "consumer.properties";
 
     public void runSimulation(List<String> units, List<String> tasks, String composerContent, int numberOfCycles, int waitBetweenCycles) {
@@ -93,7 +93,7 @@ public class MainSimulation {
             DiscovererInterface discoverer = new Discoverer(manager);
             DependencyProcessorInterface dp = new DependencyProcessor();
 
-            //todo change that take from content composer
+            //todo brk change that take from content composer
             //todo brk bu ve yukaridaki unit ve task icin generic bir cözüm bul
 
             /*String composerFilePath = "";
@@ -114,7 +114,7 @@ public class MainSimulation {
             }*/
 
             ComposerInterface composer = new Composer(Util.getProperty(configFile, "composer_config")/*
-                    composerFilePath*/, //todo change that su an yenilemiyor properties ekledikten sonra web dede ayni sorun var
+                    composerFilePath*/, //todo brk change that su an yenilemiyor properties ekledikten sonra web dede ayni sorun var
                     manager, discoverer, dp);
 
             SchedulerInterface scheduler = new Scheduler(composer, dp);

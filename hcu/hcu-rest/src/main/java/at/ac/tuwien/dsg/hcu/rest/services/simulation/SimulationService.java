@@ -30,7 +30,7 @@ public class SimulationService {
 
     public boolean startSimulation(SimulationRestService.AX jsonData) {
 
-        //todo brk bazen simulation u ayni elemanlarla pespese yapinca veri eklenmiyor svc dosyasina sor. simulation icin yeni instance lazimmis ask
+        //todo brk bazen simulation u ayni elemanlarla pespese yapinca veri eklenmiyor. simulation icin yeni instance lazimmis ask
         new MainSimulation().runSimulation(jsonData.getUnits(), jsonData.getTasks(), jsonData.getComposerProperties(),
                 jsonData.getConsumerProperties().getNumberOfCycles(), jsonData.getConsumerProperties().getWaitBetweenCycles());
 

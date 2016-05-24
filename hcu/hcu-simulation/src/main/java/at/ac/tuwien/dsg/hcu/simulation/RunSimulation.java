@@ -59,22 +59,6 @@ public class RunSimulation {
             GSConsumer.start(
                     5, 1, scheduler, manager, taskConfig, svcConfig);
 
-            //todo brk bu simulation main yazmistim ayri create a database named hcu-simulation
-            /*MongoClient client = null;
-            try {
-                client = new MongoClient("localhost", 12345);
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-            DB database = client.getDB(MONGODB_DATABASE);
-
-            DBCursor cursor = database.getCollection("simulation-information").find();
-            while(cursor.hasNext()) {
-                System.out.println(cursor.next());
-            }*/
-
-
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

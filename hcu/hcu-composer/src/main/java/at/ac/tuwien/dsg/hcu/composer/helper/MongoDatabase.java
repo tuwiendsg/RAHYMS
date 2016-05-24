@@ -26,7 +26,7 @@ public class MongoDatabase {
         //todo brk bilgileri not al ve teze ekle bunu properties dosyasina at üsttekileri sil
         //todo brk ilk önce mongod service in calismasi lazim bunun icin, 3.0.12 versionundaki ilk basta bir defa calistirmam yetti.
 
-        //todo ilk önce ./mongod nin calismasi lazim sonra da ./mongo dan pass ve userna girilecek cözüm bul kendi kendine halletsin.
+        //todo brk ilk önce ./mongod nin calismasi lazim sonra da ./mongo dan pass ve userna girilecek cözüm bul kendi kendine halletsin.
 
         if (database == null) {
             MongoClientURI uri = new MongoClientURI("mongodb://rahyms:rahyms@ds025802.mlab.com:25802/simulation");
@@ -63,7 +63,6 @@ public class MongoDatabase {
     public static List<Float> getColumnForGraph(String columnName, String dateOfSimulation) {
         BasicDBObject select = new BasicDBObject();
         select.put(columnName, 1);
-        //todo brk check that date if true values responding
         select.put("date", dateOfSimulation);
 
         DBCursor cursor = getSimulationGraphInformationCollection().find(new BasicDBObject(), select);

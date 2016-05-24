@@ -80,11 +80,7 @@ public class SimulationTaskMongoDBService {
 
         return simulationTask;
     }
-    //todo tezi yazrken extend edilebilecek olan bölümleri iyi belirleyip nasil extend edebilecegini kisinin detayli bir sekilde anlatilmasi gerekiyor tezde
-
-
-
-    //todo brk ask program yeniden basladiginda db sifirlanmamasi lazim düzelt LINH SIte ismi verdi oradan uyelik ac ve hesap al entegre et sistemi
+    //todo brk tezi yazrken extend edilebilecek olan bölümleri iyi belirleyip nasil extend edebilecegini kisinin detayli bir sekilde anlatilmasi gerekiyor tezde
 
     public List<SimulationTask> getSimulationTask() {
 
