@@ -13,10 +13,16 @@ import org.json.JSONException;
 import org.springframework.stereotype.Service;
 
 import at.ac.tuwien.dsg.hcu.cloud.discoverer.Discoverer;
+import at.ac.tuwien.dsg.hcu.cloud.manager.ServiceManagerOnMemory;
 import at.ac.tuwien.dsg.hcu.cloud.scheduler.DependencyProcessor;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.NegotiateCallbackInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.NegotiateInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.composer.Composer;
 import at.ac.tuwien.dsg.hcu.rest.common.Util;
@@ -27,6 +33,7 @@ import at.ac.tuwien.dsg.hcu.rest.resource.Collective;
 import at.ac.tuwien.dsg.hcu.rest.resource.Peer;
 import at.ac.tuwien.dsg.hcu.rest.resource.Task;
 import at.ac.tuwien.dsg.hcu.rest.resource.Task.SeverityLevel;
+import at.ac.tuwien.dsg.hcu.util.ComponentImplementation;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.smartcom.Communication;
 import at.ac.tuwien.dsg.smartcom.SmartCom;
@@ -41,12 +48,16 @@ import at.ac.tuwien.dsg.smartcom.utils.PredefinedMessageHelper;
 import at.ac.tuwien.dsg.smartcom.utils.PropertiesLoader;
 
 @Service
-public class TaskService {
+public class TaskService implements NegotiateCallbackInterface {
 
     private static ConcurrentMap<Integer, Task> tasks = new ConcurrentHashMap<Integer, Task>(); 
+    private static ConcurrentMap<Integer, at.ac.tuwien.dsg.hcu.common.model.Task> hcuTasks = new ConcurrentHashMap<Integer, at.ac.tuwien.dsg.hcu.common.model.Task>(); 
     private static TaskGenerator generator;
     private static PeerService peerManager;
     private static ComposerInterface composer;
+    private static DiscovererInterface discoverer;
+    private static ServiceManagerInterface serviceManager;
+    private static NegotiateInterface negotiator;
     private static Communication communication;
 
     public TaskService() {
@@ -62,10 +73,13 @@ public class TaskService {
             generator = new TaskGenerator(taskGeneratorRuleConfig);
 
             // init components
-            peerManager = new PeerService();
-            DiscovererInterface discoverer = new Discoverer(peerManager);
+            serviceManager = (ServiceManagerInterface) ComponentImplementation.getImplementation("serviceManager", Util.getProperty(config, "service_manager"), new Object[]{});
+            discoverer = (DiscovererInterface) ComponentImplementation.getImplementation("discoverer", Util.getProperty(config, "discoverer"), new Object[]{serviceManager});
             DependencyProcessorInterface dp = new DependencyProcessor();
-            composer = new Composer(composerConfigFile, peerManager, discoverer, dp);
+            composer = (ComposerInterface) ComponentImplementation.getImplementation("composer", Util.getProperty(config, "composer"), new Object[]{composerConfigFile, serviceManager, discoverer, dp});
+            negotiator = (NegotiateInterface) ComponentImplementation.getImplementation("negotiator", Util.getProperty(config, "negotiator"), new Object[]{});
+            PeerService.setServiceManager(serviceManager);
+            peerManager = new PeerService();
 
             // init smartcom
             SmartCom smartCom = new SmartCom(peerManager, peerManager, peerManager);
@@ -147,12 +161,13 @@ public class TaskService {
         // set task id
         task.setId(hcuTask.getId());
 
+        // put into the cache
+        tasks.put(hcuTask.getId(), task);
+        hcuTasks.put(hcuTask.getId(), hcuTask);
+
         // handle task
         handleTask(task, hcuTask);
         
-        // put into the cache
-        tasks.put(hcuTask.getId(), task);
-
         return task;
     }
 
@@ -173,22 +188,12 @@ public class TaskService {
         if (assignments==null || assignments.size()==0) {
             throw new CollectiveNotAvailable();
         }
-
-        // register
-        Identifier collectiveIdentifier = peerManager.registerCollective(task, assignments, DeliveryPolicy.Collective.TO_ALL_MEMBERS);
-        Integer collectiveId = Integer.parseInt(collectiveIdentifier.getId());
-        task.setCollectiveId(collectiveId);
         
-        System.out.println("=== Collective created for task " + hcuTask + " ===");
-        for (Assignment assignment: assignments) {
-            System.out.println(assignment.getAssignee());
-            // TODO: shoud do it using a hook to composer
-            assignment.getAssignee().getProvider().addAssignmentCount();
+        if (negotiator!=null) {
+            negotiator.negotiate(hcuTask, assignments, this);
+        } else {
+            deployAssignments(hcuTask, assignments);
         }
-        System.out.println("=====================================");
-
-        // send message
-        sendMessageToAssignedPeers(collectiveId, task, assignments);
 
         return assignments;
     }
@@ -329,6 +334,35 @@ public class TaskService {
                 System.out.println(builder.toString());
             }
         }
+    }
+
+    @Override
+    public void deployAssignments(at.ac.tuwien.dsg.hcu.common.model.Task hcuTask, List<Assignment> assignments) {
+        
+        Task task = tasks.get(hcuTask.getId());
+        
+        // register
+        Identifier collectiveIdentifier = peerManager.registerCollective(task, assignments, DeliveryPolicy.Collective.TO_ALL_MEMBERS);
+        Integer collectiveId = Integer.parseInt(collectiveIdentifier.getId());
+        task.setCollectiveId(collectiveId);
+        
+        System.out.println("=== Collective created for task " + hcuTask + " ===");
+        for (Assignment assignment: assignments) {
+            System.out.println(assignment.getAssignee());
+            // TODO: shoud do it using a hook to composer
+            assignment.getAssignee().getProvider().addAssignmentCount();
+        }
+        System.out.println("=====================================");
+
+        // send message
+        sendMessageToAssignedPeers(collectiveId, task, assignments);
+
+    }
+
+    @Override
+    public void requeueTask(at.ac.tuwien.dsg.hcu.common.model.Task hcuTask) {
+        Task task = tasks.get(hcuTask.getId());
+        handleTask(task, hcuTask);
     }
     
 }

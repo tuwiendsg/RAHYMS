@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import at.ac.tuwien.dsg.hcu.cloud.manager.ServiceManagerOnMemory;
+import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Functionality;
@@ -32,7 +33,7 @@ import at.ac.tuwien.dsg.smartcom.model.Identifier;
 import at.ac.tuwien.dsg.smartcom.model.PeerChannelAddress;
 import at.ac.tuwien.dsg.smartcom.model.PeerInfo;
 
-public class PeerService extends ServiceManagerOnMemory 
+public class PeerService  
 implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
 
     protected static String PEER_INFO_KEY = "peer_info";
@@ -44,8 +45,12 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
     protected static ConcurrentMap<Integer, CollectiveInfo> collectiveInfoCache = new ConcurrentHashMap<Integer, CollectiveInfo>();
     protected static int lastCollectiveId = 1;
     
+    protected static ServiceManagerInterface serviceManager;
+    
     public PeerService() {
-        populate();
+        if (serviceManager!=null) {
+            populate();
+        }
     }
 
     public CollectiveInfo getCollectiveInfo(Identifier collective)
@@ -56,7 +61,7 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
 
     public PeerInfo getPeerInfo(Identifier id) throws NoSuchPeerException {
         long elementId = Long.parseLong(id.getId());
-        ComputingElement element = retrieveElement(elementId);
+        ComputingElement element = serviceManager.retrieveElement(elementId);
         if (element==null) return null;
         else {
             PeerInfo info = (PeerInfo)element.getProperties().getValue(PEER_INFO_KEY, null);
@@ -70,7 +75,7 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
     }
 
     public void setPeerInfo(long id, PeerInfo info) {
-        ComputingElement element = retrieveElement(id);
+        ComputingElement element = serviceManager.retrieveElement(id);
         if (element!=null) {
             element.getProperties().setValue(PEER_INFO_KEY, info);
         }
@@ -109,7 +114,7 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
         String gmailPrefix = Util.getProperty(config, "populate_peers_gmail_prefix");
         String restUrl = Util.getProperty(config, "populate_peers_rest_url");
         if (populatePeers) {
-            try {
+            //try {
                 addPeer("Alpha", gmailPrefix + "+alpha@gmail.com", Arrays.asList("operator"));
                 addPeer("Bravo", gmailPrefix + "+bravo@gmail.com", Arrays.asList("security"));
                 addPeer("Charlie", gmailPrefix + "+charlie@gmail.com", Arrays.asList("technician", "project_leader"));
@@ -143,8 +148,9 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
                     addPeer("Software Delta", gmailPrefix + "+zw+delta@gmail.com", restUrl, Arrays.asList("repair_workflow"));
                     addPeer("Software Echo", gmailPrefix + "+zw+echo@gmail.com", restUrl, Arrays.asList("repair_workflow"));
                 }
-            } catch (Exception ignored) {
-            }            
+            //} catch (Exception ignored) {
+            //    System.out.println(ignored);
+            //}
         }
     }
 
@@ -158,7 +164,7 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
         }
 
         // create computing element
-        ComputingElement element = createElement();
+        ComputingElement element = serviceManager.createElement();
         peer.setElementId(element.getId());
 
         // create services
@@ -180,7 +186,7 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
         }
         
         // create computing element
-        ComputingElement element = createElement();
+        ComputingElement element = serviceManager.createElement();
         peer.setElementId(element.getId());
         
         // create services
@@ -197,7 +203,7 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
         // clean up existing services
         for (Service service: element.getServices()) {
             try {
-                removeService(service);
+                serviceManager.removeService(service);
             } catch (at.ac.tuwien.dsg.hcu.common.exceptions.NotFoundException e) {
                 e.printStackTrace();
             }
@@ -206,7 +212,7 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
         for (String s: services) {
             Service service = new Service(new Functionality(s), element);
             element.addService(service);
-            registerService(service);
+            serviceManager.registerService(service);
             result.add(service);
         }
         return result;
@@ -298,5 +304,9 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
         if (peerCache.remove(email) == null) {
             throw new NotFoundException();
         }
+    }
+
+    public static void setServiceManager(ServiceManagerInterface _serviceManager) {
+        serviceManager = _serviceManager;
     }
 }

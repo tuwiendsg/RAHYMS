@@ -2,6 +2,14 @@
     "title": "Infrastucture sensing (Analysis of R on diff composition algos)",
     "numberOfCycles": 84,
     "waitBetweenCycle": 1,
+    "implementationClasses": {
+        "serviceManager": "at.ac.tuwien.dsg.hcu.cloud.manager.ServiceManagerOnMemory",
+        "discoverer": "at.ac.tuwien.dsg.hcu.cloud.discoverer.Discoverer",
+        "composer": "at.ac.tuwien.dsg.hcu.composer.Composer",
+        "scheduler": "at.ac.tuwien.dsg.hcu.cloud.scheduler.Scheduler",
+        "negotiator": "at.ac.tuwien.dsg.hcu.cloud.negotiator.SimpleNegotiator",
+        "monitor": "at.ac.tuwien.dsg.hcu.monitor.legacy.LegacyMonitorManager"
+    },
     "service_generator": {
         "basedir": "service-generator/",
         "files": [

@@ -7,6 +7,7 @@ public interface SchedulerInterface {
 
     public void setCloudUserInterface(CloudUserInterface cloudUserInterface);
     public void setMonitorInterface(MonitorInterface monitorInterface);
+    public void setNegotiatorInterface(NegotiateInterface negotiator);
     
     public void submitTask(Task task);
     public void notifyExecutionResult(Assignment assignment, Assignment.Status status);

@@ -1,7 +1,5 @@
 package at.ac.tuwien.dsg.hcu.cloud.scheduler;
 
-import gridsim.GridSim;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -15,20 +13,22 @@ import at.ac.tuwien.dsg.hcu.common.interfaces.CloudUserInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.NegotiateCallbackInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.NegotiateInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment.Status;
-import at.ac.tuwien.dsg.hcu.monitor.old_stream.AssignmentStream;
-import at.ac.tuwien.dsg.hcu.monitor.old_stream.CollectiveStream;
-import at.ac.tuwien.dsg.hcu.monitor.old_stream.EventType;
 import at.ac.tuwien.dsg.hcu.common.model.Batch;
 import at.ac.tuwien.dsg.hcu.common.model.Role;
 import at.ac.tuwien.dsg.hcu.common.model.SCU;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.CollectiveStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.EventType;
 import at.ac.tuwien.dsg.hcu.util.ShowGraphApplet;
 import at.ac.tuwien.dsg.hcu.util.Util;
+import gridsim.GridSim;
 
-public class Scheduler implements SchedulerInterface {
+public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface {
 
     protected final static int MAX_RETRY = 3;
     
@@ -44,6 +44,7 @@ public class Scheduler implements SchedulerInterface {
     protected Queue<Assignment> readyAssignments;
     
     protected ComposerInterface composer;
+    protected NegotiateInterface negotiator;
     protected DependencyProcessorInterface dp;
     protected CloudUserInterface cloudUserInterface;
     protected MonitorInterface monitor;
@@ -95,32 +96,16 @@ public class Scheduler implements SchedulerInterface {
                 
                 if (assignments==null || assignments.size()==0) {
                     // unable to compose an SCU, put back at the end of the queue for retries
-                    Integer retry = retryCounter.get(task.getId());
-                    if (retry==null) retry = 0;
-                    if (retry < MAX_RETRY) {
-                        queue(task);
-                        retryCounter.put(task.getId(), retry + 1);
-                    } else {
-                        task.setStatus(Task.Status.FAILED);
-                        cloudUserInterface.notifyTaskResult(task);
-                    }
+                    requeueTask(task);
                 } else {
-                    // fill up start time
-                    dp.forecastStartTimeForAllAssignment(assignments);
-                    for (Assignment a: assignments) { 
-                        Util.log().info(a.toString());
+                    
+                    if (negotiator!=null) {
+                        negotiator.negotiate(task, assignments, this);
+                    } else {
+                        // no negotiatior set, deploy assignment immediately
+                        deployAssignments(task, assignments);
                     }
-                    // create SCU
-                    Batch batch = new Batch(assignments);
-                    batch.setTask(task);
-                    SCU scu = new SCU(batch);
-                    batch.setRunningSCU(scu);
-                    // deploy
-                    deploySCU(scu);
-                    runningList.add(scu);
-                    task.setStatus(Task.Status.RUNNING);
-                    // Collective CREATED event
-                    monitor.sendEvent(new CollectiveStream(EventType.CREATED, GridSim.clock(), scu));
+                    
                 }
 
                 task = queueList.poll();
@@ -264,6 +249,10 @@ public class Scheduler implements SchedulerInterface {
     	this.monitor = monitorInterface;
     }
 
+    public void setNegotiatorInterface(NegotiateInterface negotiator) {
+        this.negotiator = negotiator;
+    }
+
     @Override
     public void submitTask(Task task) {
         queue(task);
@@ -293,6 +282,43 @@ public class Scheduler implements SchedulerInterface {
     public void wake() {
         processQueue();
         processWaitingAssignments();
+    }
+
+    // NegotiatorCallbackInterface
+    @Override
+    public void deployAssignments(Task task, List<Assignment> assignments) {
+        // fill up start time
+        dp.forecastStartTimeForAllAssignment(assignments);
+        for (Assignment a: assignments) { 
+            Util.log().info(a.toString());
+        }
+        // create SCU
+        Batch batch = new Batch(assignments);
+        batch.setTask(task);
+        SCU scu = new SCU(batch);
+        batch.setRunningSCU(scu);
+        // deploy
+        deploySCU(scu);
+        runningList.add(scu);
+        task.setStatus(Task.Status.RUNNING);
+        // Collective CREATED event
+        monitor.sendEvent(new CollectiveStream(EventType.CREATED, GridSim.clock(), scu));
+    }
+
+    // NegotiatorCallbackInterface
+    @Override
+    public void requeueTask(Task task) {
+        Integer retry = retryCounter.get(task.getId());
+        if (retry==null) {
+            retry = 0;
+        }
+        if (retry < MAX_RETRY) {
+            queue(task);
+            retryCounter.put(task.getId(), retry + 1);
+        } else {
+            task.setStatus(Task.Status.FAILED);
+            cloudUserInterface.notifyTaskResult(task);
+        }
     }
     
     

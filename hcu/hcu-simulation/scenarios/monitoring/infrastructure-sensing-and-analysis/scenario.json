@@ -2,6 +2,14 @@
     "title": "Monitoring infrastucture sensing and analysis",
     "numberOfCycles": 100,
     "waitBetweenCycle": 15,
+    "implementationClasses": {
+        "serviceManager": "at.ac.tuwien.dsg.hcu.cloud.manager.ServiceManagerOnMemory",
+        "discoverer": "at.ac.tuwien.dsg.hcu.cloud.discoverer.Discoverer",
+        "composer": "at.ac.tuwien.dsg.hcu.composer.Composer",
+        "scheduler": "at.ac.tuwien.dsg.hcu.cloud.scheduler.Scheduler",
+        "negotiator": "at.ac.tuwien.dsg.hcu.cloud.negotiator.SimpleNegotiator",
+        "monitor": "at.ac.tuwien.dsg.hcu.monitor.legacy.LegacyMonitorManager"
+    },
     "service_generator": {
         "basedir": "service-generator/",
         "files": [

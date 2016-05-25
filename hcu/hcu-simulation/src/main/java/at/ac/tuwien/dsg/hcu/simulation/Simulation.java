@@ -8,20 +8,16 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import at.ac.tuwien.dsg.hcu.cloud.discoverer.Discoverer;
-import at.ac.tuwien.dsg.hcu.cloud.manager.ServiceManagerOnMemory;
 import at.ac.tuwien.dsg.hcu.cloud.scheduler.DependencyProcessor;
-import at.ac.tuwien.dsg.hcu.cloud.scheduler.Scheduler;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.NegotiateInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
-import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
-import at.ac.tuwien.dsg.hcu.composer.Composer;
-import at.ac.tuwien.dsg.hcu.monitor.legacy.LegacyMonitorManager;
 import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSConsumer;
+import at.ac.tuwien.dsg.hcu.util.ComponentImplementation;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.ConfigJsonArray;
 import at.ac.tuwien.dsg.hcu.util.Tracer;
@@ -45,6 +41,7 @@ public class Simulation {
     ComposerInterface composer;
     SchedulerInterface scheduler;
     MonitorInterface monitor;
+    NegotiateInterface negotiator;
     
     public boolean init(String config) {
 
@@ -113,14 +110,15 @@ public class Simulation {
             }
             
             // init components
-            manager = new ServiceManagerOnMemory();
-            discoverer = new Discoverer(manager);
+            manager = (ServiceManagerInterface) getImplementation("serviceManager", new Object[]{});
+            discoverer = (DiscovererInterface) getImplementation("discoverer", new Object[]{manager});
             dp = new DependencyProcessor();
-            composer = new Composer(composerConfig, manager, discoverer, dp);
-            scheduler = new Scheduler(composer, dp);
-            
+            composer = (ComposerInterface) getImplementation("composer", new Object[]{composerConfig, manager, discoverer, dp});
+            scheduler = (SchedulerInterface) getImplementation("scheduler", new Object[]{composer, dp});
             boolean monitoringEnabled = Boolean.parseBoolean(Util.getProperty(config, "monitor"));
-            monitor = new LegacyMonitorManager(monitoringEnabled);
+            monitor = (MonitorInterface) getImplementation("monitor", new Object[]{monitoringEnabled});
+            negotiator = (NegotiateInterface) getImplementation("negotiator", new Object[]{});
+            scheduler.setNegotiatorInterface(negotiator);
         
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -153,5 +151,20 @@ public class Simulation {
         );
     }
     
+    protected Object getImplementation(String type, Object... params) {
+        Object obj = null;
+        String className = null;
+        if (scenarioConfig.getRoot().has("implementationClasses")) {
+            if (scenarioConfig.getRoot().getJSONObject("implementationClasses").has(type)) {
+                className = scenarioConfig.getRoot().getJSONObject("implementationClasses").getString(type);
+            }
+        }
+        obj = ComponentImplementation.getImplementation(type, className, params);
+        if (obj==null) {
+            System.err.println("Invalid " + type + " implementation " + className + ", exiting...");
+            System.exit(1);
+        }
+        return obj;
+    }
     
 }
