@@ -1,38 +1,14 @@
 package at.ac.tuwien.dsg.hcu.composer;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import at.ac.tuwien.dsg.hcu.composer.model.Solution;
+import at.ac.tuwien.dsg.hcu.util.Tracer;
 
-public class ComposerTracer {
-
-    private FileWriter fstream;
-    private BufferedWriter out;
+public class ComposerTracer extends Tracer {
 
     public ComposerTracer() {}
 
     public ComposerTracer(String file) {
-        try {
-            fstream = new FileWriter(file);
-            out = new BufferedWriter(fstream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void trace(String text) {
-        try {
-            out.write(text);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void traceln(String text) {
-        trace(text + "\n");
+        super(file);
     }
 
     public void traceln(Solution solution, String prefix) {
@@ -40,16 +16,7 @@ public class ComposerTracer {
     }
 
     public String getTraceHeader() {
-        return "solution_components,objective_value,cost,norm_cost,competency,connnectedness,mu_connnectedness,response_time,norm_response_time";
-    }
-
-    public void close() {
-        try {
-            out.close();
-            fstream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return "clock,task_id,flag,algo_time,task,data,task,solution_components,objective_value,cost,norm_cost,competency,connnectedness,mu_connnectedness,response_time,norm_response_time";
     }
 
 

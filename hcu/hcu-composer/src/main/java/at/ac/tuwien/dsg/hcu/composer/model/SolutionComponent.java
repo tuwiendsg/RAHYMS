@@ -79,7 +79,7 @@ public class SolutionComponent extends Assignment {
     public double getGradeOfSkill() {
         SkillMembershipFunctionCollection functions = new SkillMembershipFunctionCollection();
         double minGrade = Double.MAX_VALUE;
-        
+
         for (Objective slo: getRole().getSpecification().getObjectives()) {
             if (slo.getType()==Objective.Type.SKILL) {
                 /* 
@@ -93,7 +93,7 @@ public class SolutionComponent extends Assignment {
                 if (grade<minGrade) minGrade = grade;
             }
         }
-        
+
         if (minGrade>Double.MAX_VALUE-1) return 0; 
         else return minGrade;
     }
@@ -114,22 +114,18 @@ public class SolutionComponent extends Assignment {
     public void setPheromone(double pheromone) {
         this.pheromone = pheromone;
     }
-    
+
     public double getForecastedDuration() {
         if (forecastedDuration==0) {
             // get forecasted execution time metric
-        	if (assignee.getMetrics().has("execution_time")) {
-        		forecastedDuration = (double) assignee.getMetric("execution_time", 
-                    new Object[]{getRole().getLoad()});
-        	} else {
-        		forecastedDuration = getRole().getLoad();
-        	}
+            if (assignee.hasMetric("execution_time")) {
+                forecastedDuration = (double) assignee.getMetric("execution_time", 
+                        new Object[]{getRole().getLoad()});
+            } else {
+                forecastedDuration = getRole().getLoad();
+            }
         }
         return forecastedDuration;
-    }
-
-    public void setForecastedDuration(double forecastedDuration) {
-        this.forecastedDuration = forecastedDuration;
     }
 
     public double getForecastedResponseTime(Solution solutionSoFar,
@@ -142,7 +138,7 @@ public class SolutionComponent extends Assignment {
         double forecastResponseTime = dp.forecastResponseTime(assignmentsSoFar, this);
 
         return forecastResponseTime;
-        
+
     }
 
 }

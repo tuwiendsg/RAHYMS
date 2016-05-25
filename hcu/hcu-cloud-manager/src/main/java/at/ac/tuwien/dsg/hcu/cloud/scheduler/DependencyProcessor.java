@@ -14,6 +14,8 @@ import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.Role;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
+import com.espertech.esper.metrics.codahale_metrics.metrics.core.Metric;
+
 /**
  * NOTE, currently
  * - we support only one role = one dependency point
@@ -158,7 +160,7 @@ public class DependencyProcessor implements DependencyProcessorInterface {
         }
         
         double result = assignment.getForecastedDuration();
-        if (assignment.getAssignee().getMetrics().has("response_time")) {
+        if (assignment.getAssignee().hasMetric("response_time")) {
         	result = (double)assignment.getAssignee().getMetric("response_time", 
                 new Object[]{t0, 0.0, result});
         }

@@ -44,6 +44,7 @@ public class Task {
     protected Reward reward;
     protected Status status;
     protected StatisticPoints stat;
+    protected OptimizationObjective optimizationObjective;
     
     private static int _lastId = 1;
 
@@ -277,6 +278,23 @@ public class Task {
     public void setStat(StatisticPoints stat) {
         this.stat = stat;
     }
+    
+    public List<Assignment> createEmptyAssignments() {
+        List<Assignment> assignments = new ArrayList<Assignment>();
+        for (Role r: getAllRoles()) {
+            Assignment a = new Assignment(null, this, r);
+            assignments.add(a);
+        }
+        return assignments;
+    }
+    
+    public OptimizationObjective getOptimizationObjective() {
+        return optimizationObjective;
+    }
+
+    public void setOptimizationObjective(OptimizationObjective optimizationObjective) {
+        this.optimizationObjective = optimizationObjective;
+    }
 
     @Override
     public String toString() {
@@ -287,8 +305,33 @@ public class Task {
     public String detail() {
         return "Task [id=" + id + ", load=" + load + ", name=" + name
                 + ", roles=" + roles + ", subTasks=" + subTasks
-                + ", spec=" + specification + "]";
+                + ", spec=" + specification
+                + ", optObj=" + optimizationObjective + "]";
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + id;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Task other = (Task) obj;
+        if (id != other.id)
+            return false;
+        return true;
+    }
+    
+    
 
     /**
      * Tool to instantiate tasks from a TaskType.

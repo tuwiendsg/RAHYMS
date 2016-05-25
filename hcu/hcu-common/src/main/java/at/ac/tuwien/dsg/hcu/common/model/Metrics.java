@@ -2,15 +2,15 @@ package at.ac.tuwien.dsg.hcu.common.model;
 
 import java.util.Hashtable;
 
-import at.ac.tuwien.dsg.hcu.common.interfaces.MetricMonitorInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MetricInterface;
 
 public class Metrics extends Properties {
 
-    protected Hashtable<String, MetricMonitorInterface> valueSet;
+    protected Hashtable<String, MetricInterface> valueSet;
     private ComputingElement owner;
 
     public Metrics() {
-        valueSet = new Hashtable<String, MetricMonitorInterface>();
+        valueSet = new Hashtable<String, MetricInterface>();
     }
 
     public void setOwner(ComputingElement owner) {
@@ -30,7 +30,7 @@ public class Metrics extends Properties {
 
     @Override
     public Object getValue(String name, Object _default) {
-        MetricMonitorInterface metricInterface = valueSet.get(name);
+        MetricInterface metricInterface = valueSet.get(name);
         Object result = null;
         if (metricInterface!=null) {
             result = metricInterface.measure(owner, name, null);
@@ -41,7 +41,7 @@ public class Metrics extends Properties {
     }
 
     public Object getValue(String name, Object[] params) {
-        MetricMonitorInterface metricInterface = valueSet.get(name);
+        MetricInterface metricInterface = valueSet.get(name);
         Object result = null;
         if (metricInterface!=null) {
             result = metricInterface.measure(owner, name, params);
@@ -51,14 +51,14 @@ public class Metrics extends Properties {
 
     @Override
     public void setValue(String name, Object value) {
-        MetricMonitorInterface metricInterface = valueSet.get(name);
+        MetricInterface metricInterface = valueSet.get(name);
         if (metricInterface!=null) {
             metricInterface.update(owner, name, new Object[]{value});
         }
     }
 
     public void setValue(String name, Object[] value) {
-        MetricMonitorInterface metricInterface = valueSet.get(name);
+        MetricInterface metricInterface = valueSet.get(name);
         if (metricInterface!=null) {
             metricInterface.update(owner, name, value);
         }
@@ -69,7 +69,7 @@ public class Metrics extends Properties {
         return valueSet.containsKey(name);
     }
 
-    public void setInterface(String name, MetricMonitorInterface iface) {
+    public void setInterface(String name, MetricInterface iface) {
         valueSet.put(name, iface);
     }
 

@@ -18,6 +18,7 @@ public class ComputingElement {
     protected List<Service> services;
     protected ServiceManagerInterface manager;
     protected int assignmentCount = 0;
+    protected int finishedCount = 0;
     
     protected static final String DEFAULT_NAME_PREFIX = "CE_";
 
@@ -89,6 +90,18 @@ public class ComputingElement {
         autoUpdate();
     }
     
+    public Object getProperty(String name) {
+        return getProperty(name, null);
+    }
+
+    public Object getProperty(String name, Object _default) {
+        return getProperties().getValue(name, _default);
+    }
+
+    public void setProperty(String name, Object value) {
+        getProperties().setValue(name, value);
+    }
+
     public List<Connection> getConnections() {
         return connections;
     }
@@ -205,6 +218,10 @@ public class ComputingElement {
         autoUpdate();
     }
 
+    public Object getMetric(String name, Object _default) {
+        return this.getMetrics().getValue(name, _default);
+    }
+
     public List<Service> getServices() {
         return services;
     }
@@ -250,6 +267,18 @@ public class ComputingElement {
 
     public void addAssignmentCount() {
         this.assignmentCount++;
+    }
+    
+    public void addFinishedCount() {
+        this.finishedCount++;
+    }
+    
+    public int getFinishedCount() {
+        return finishedCount;
+    }
+
+    public int getActiveAssignmentCount() {
+        return assignmentCount - finishedCount;
     }
     
     public static List<ComputingElement> getElementsFromServices(List<Service> services) {

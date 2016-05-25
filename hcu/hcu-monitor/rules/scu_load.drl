@@ -1,0 +1,17 @@
+package at.ac.tuwien.dsg.hcu.monitor
+ 
+import at.ac.tuwien.dsg.hcu.common.model.*;
+import at.ac.tuwien.dsg.hcu.monitor.stream.*;
+import at.ac.tuwien.dsg.hcu.monitor.action.*;
+
+/**
+ * RULES FOR HIGH UTILIZATION
+ */
+rule "MaxUtilViolated"
+no-loop true
+    when
+        collective : SCU(getProperty("utilization", 0.0)>=0.2)
+    then
+        Action.handleUtilizationOverload(collective);
+end
+

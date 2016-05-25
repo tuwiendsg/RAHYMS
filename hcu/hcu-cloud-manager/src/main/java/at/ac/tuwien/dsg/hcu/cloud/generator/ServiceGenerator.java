@@ -10,10 +10,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import at.ac.tuwien.dsg.hcu.common.interfaces.MetricMonitorInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MetricInterface;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Functionality;
 import at.ac.tuwien.dsg.hcu.common.model.HumanComputingElement;
+import at.ac.tuwien.dsg.hcu.common.model.MachineComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
@@ -68,6 +69,7 @@ public class ServiceGenerator {
         seed = configRoot.getInt("seed");
         int nElements = configRoot.getInt("numberOfElements");
         String namePrefix = configRoot.has("namePrefix") ? configRoot.getString("namePrefix") : null;
+        String elementType = configRoot.has("type") ? configRoot.getString("type") : "human";
         JSONObject connCfg = configRoot.getJSONObject("connection");
         JSONArray svcCfg = configRoot.getJSONArray("services");
         JSONArray propCfg = configRoot.getJSONArray("commonProperties"); 
@@ -76,9 +78,17 @@ public class ServiceGenerator {
         Util.log().info("Generating " + nElements + " elements");
         for (long i=1; i<=nElements; i++) {
             if (namePrefix==null) {
-                elements.add(new HumanComputingElement(lastElementId++));
+                if (elementType.equals("machine")) {
+                    elements.add(new MachineComputingElement(lastElementId++));
+                } else {
+                    elements.add(new HumanComputingElement(lastElementId++));
+                }
             } else {
-                elements.add(new HumanComputingElement(lastElementId++, namePrefix + i));
+                if (elementType.equals("machine")) {
+                    elements.add(new MachineComputingElement(lastElementId++, namePrefix + i));
+                } else {
+                    elements.add(new HumanComputingElement(lastElementId++, namePrefix + i));
+                }
             }
         }
         
@@ -112,7 +122,7 @@ public class ServiceGenerator {
             }
             
             for (ComputingElement e : elements) {
-                HumanComputingElement element = (HumanComputingElement)e;
+                ComputingElement element = (ComputingElement)e;
                 if (GeneratorUtil.shouldHave(distPropToHave, pToHave)) {
                     if (type.equals("static") || type.equals("skill")) {
                     	if (propertyValue!=null) {
@@ -122,7 +132,7 @@ public class ServiceGenerator {
                     	}
                     } else if (type.equals("metric")) {
                         String ifaceClazz = prop.getString("interfaceClass");
-                        MetricMonitorInterface metric = GeneratorUtil.createMetricObject(ifaceClazz);
+                        MetricInterface metric = GeneratorUtil.createMetricObject(ifaceClazz);
                         element.getMetrics().setInterface(name, metric);
                     }
                 }
@@ -216,14 +226,14 @@ public class ServiceGenerator {
             
             for (ComputingElement e : elements) {
                 if (GeneratorUtil.shouldHave(distSvcToHave, pSvcToHave)) {
-                    HumanComputingElement element = (HumanComputingElement)e;
+                    //HumanComputingElement element = (HumanComputingElement)e;
                     // add service
-                    Service service = new Service(new Functionality(func), element);
-                    element.addService(service);
+                    Service service = new Service(new Functionality(func), e);
+                    e.addService(service);
                     services.add(service);
                     for (int j=0; j<prop.length(); j++) {
                         if (GeneratorUtil.shouldHave(distSvcPropToHaves[j], pToHaves[j])) {
-                            GeneratorUtil.generateProperty(element, names[j], types[j], 
+                            GeneratorUtil.generateProperty(e, names[j], types[j], 
                                     distSvcPropValues[j], mappings[j]);
                         }
                     }

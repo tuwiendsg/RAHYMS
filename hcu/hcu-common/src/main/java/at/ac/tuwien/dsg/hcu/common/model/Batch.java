@@ -15,10 +15,7 @@ public class Batch {
     // create batch from a task with empty assignees
     public Batch(Task task) {
         this();
-        for (Role r: task.getAllRoles()) {
-            Assignment a = new Assignment(null, task, r);
-            addAssignment(a);
-        }
+        assignments = task.createEmptyAssignments();
         this.task = task;
     }
     
@@ -102,6 +99,12 @@ public class Batch {
         if (id != other.id)
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Batch [id=" + id + ", assignments=" + assignments + ", task="
+                + task + "]";
     }
 
     

@@ -1,0 +1,169 @@
+{
+    "title": "Testing GridSim Monitoring Simulation - IBM SCU Test Case",
+    "monitoring_agents":
+    [
+        {
+            "name": "csv_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/scu/scu-2015-11-09-09-14-22-083.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "time",
+                        "offset": -1332144050,
+                        "function": "at.ac.tuwien.dsg.hcu.monitor.util.Converter.perMil"
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "scu_event",
+                    "config":
+                    {
+                        "csv_col": "event",
+                        "metadata": [
+                            {
+                                "csv_col": "resource",
+                                "name": "id"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "state_based_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_agent",
+                        "topic": "scu_event",
+                        "config": {}
+                    }
+                ],
+                "config": {
+                    "transitions": [
+                        {"from": null, "event": "RESOURCE_ADDED", "to": "RUNNING"},
+                        {"from": "RUNNING", "event": "RESOURCE_RELIEVED", "to": "NOT_RUNNING"},
+                        {"from": "NOT_RUNNING", "event": "RESOURCE_ADDED", "to": "RUNNING"}
+                    ]
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "running_duration",
+                    "config":
+                    {
+                        "function": "at.ac.tuwien.dsg.hcu.monitor.util.StateMetricCalculator.duration",
+                        "args": {
+                            "state": "RUNNING",
+                            "return_all_units": false,
+                            "window": 86400.0
+                        }
+                    }
+                },
+                {
+                    "name": "running_count",
+                    "config":
+                    {
+                        "function": "at.ac.tuwien.dsg.hcu.monitor.util.StateMetricCalculator.countUnitsInState",
+                        "args": {
+                            "state": "RUNNING"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "event_based_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.EventBasedConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "state_based_agent",
+                        "topic": "running_duration",
+                        "config": {}
+                    }
+                ],
+                "config": {}
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "avg_running",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
+                        "args": {
+                            "aggregate": "avg(doubleValue) / 86400",
+                            "from": "Data.std:unique(metaData.id)"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "csv_consumer",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_agent",
+                        "topic": "scu_event",
+                        "config": {}
+                    },
+                    {
+                        "to": "event_based_agent",
+                        "topic": "avg_running",
+                        "config": {},
+                        "_quality": {
+                            "rate": 3600.0
+                        }
+                    },
+                    {
+                        "to": "state_based_agent",
+                        "topic": "running_count",
+                        "config": {},
+                        "_quality": {
+                            "rate": 3600.0
+                        }
+                    }
+                ],
+                "config": {}
+            }
+        }
+    ]
+}

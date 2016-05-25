@@ -10,6 +10,7 @@ import gridsim.parallel.profile.PERangeList;
 import gridsim.parallel.profile.ProfileEntry;
 import gridsim.parallel.profile.TimeSlot;
 import gridsim.parallel.reservation.ErrorType;
+import gridsim.parallel.reservation.MessageType;
 import gridsim.parallel.reservation.Reservation;
 import gridsim.parallel.reservation.ReservationMessage;
 import gridsim.parallel.reservation.ReservationStatus;
@@ -240,9 +241,11 @@ public class GSReservationPolicy extends ARConservativeBackfill {
         
         if(sRes == null) {
             String userName = GridSim.getEntityName( gridlet.getUserID() );
+            /*
             Util.log().info("Gridlet #" + gridlet.getGridletID() + " from " +
                     userName + " cannot be accepted because the reservation #" +
                     gridlet.getReservationID() + " has not been found.");
+            */
             return false;
         }
         // job requires more PEs than what the reservation currently has
@@ -256,15 +259,11 @@ public class GSReservationPolicy extends ARConservativeBackfill {
         
         // job is expected to run for longer than the time previously reserved
         else if (runTime > sRes.getRemainingTime()) {
-            // TODO: reschedule 
-            String userName = GridSim.getEntityName( gridlet.getUserID() );
-            Util.log().info("Gridlet #" + gridlet.getGridletID() + " from " +
-                    userName + " cannot be accepted because the reservation #" +
-                    sRes.getID() + " has a remaining time of " + 
-                    sRes.getRemainingTime() + " seconds," +
-                    " whereas the gridlet is expected to run for " +
-                    runTime + " seconds.");
-            return false;
+
+            // The commit message may come late so that the remaining time is not enough
+            // We give runtime only what is left
+            runTime = (long) Math.floor(sRes.getRemainingTime());
+            
         }
 
         double startTime = Math.max(sRes.getStartTime(), GridSim.clock());

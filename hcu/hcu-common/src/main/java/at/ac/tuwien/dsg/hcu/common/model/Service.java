@@ -36,6 +36,14 @@ public class Service {
         this.provider.addService(this);
     }
     
+    public boolean hasMetric(String name) {
+        if (metrics.has(name)) {
+            return true;
+        } else {
+            return getProvider().getMetrics().has(name);
+        }
+    }
+    
     public Metrics getMetrics() {
         return metrics;
     }

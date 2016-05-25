@@ -11,7 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import at.ac.tuwien.dsg.hcu.common.interfaces.MetricMonitorInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MetricInterface;
+import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.HumanComputingElement;
 
 public class GeneratorUtil {
@@ -62,13 +63,13 @@ public class GeneratorUtil {
         return dist;
     }
     
-    public static MetricMonitorInterface createMetricObject(String clazz) 
+    public static MetricInterface createMetricObject(String clazz) 
             throws InstantiationException, IllegalAccessException, 
             IllegalArgumentException, InvocationTargetException, 
             SecurityException, ClassNotFoundException, JSONException {
         
         Object metric = Class.forName(clazz).newInstance();
-        return (MetricMonitorInterface) metric;
+        return (MetricInterface) metric;
     }
 
     public static Object sample(Object dist) {
@@ -107,7 +108,7 @@ public class GeneratorUtil {
         return value;
     }
 
-    public static void generateProperty(HumanComputingElement element, 
+    public static void generateProperty(ComputingElement element, 
             String propName, String propType, Object distValue, JSONObject mapping) {
         Object value = GeneratorUtil.sample(distValue, mapping);
         switch (propType) {
@@ -115,7 +116,8 @@ public class GeneratorUtil {
                 element.getProperties().setValue(propName, value);
                 break;
             case "skill":
-                element.getSkills().setValue(propName, value);
+                HumanComputingElement hce = (HumanComputingElement)element;
+                hce.getSkills().setValue(propName, value);
                 break;
         }
     }

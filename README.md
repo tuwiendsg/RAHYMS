@@ -25,7 +25,7 @@ It contains the following components:
   * HCU composer (adopted from the provisioning engine from the <a href='http://www.infosys.tuwien.ac.at/research/viecom/papers/ICSOC2013-SCUProvisioning.pdf'>ICSOC 2014 paper</a>)
   * Metrics monitor
   * Metrics exporter to WEKA arff format for learning and prediction
-  * HCU reliabililty analysis engine
+  * HCU reliabililty analysis engine (adopted from the <a href='http://dsg.tuwien.ac.at/staff/phdschool/mzuhri/papers/mcandra-cic2015-reliability.pdf'>CIC 2015 paper</a>)
 
 * A REST API and a Web UI for reading, updating, and creating HCU (collective), ICU (peer), and tasks.
 
@@ -37,14 +37,14 @@ It contains the following components:
 
 * Compilation and configuration:
   * Run mvn install on smartcom project
-  * Run mvn install on salam project
-  * To configure HCU composer, REST API, and Web UI: change configuration files on salam\salam-rest\config.
-  * To configure gridsim simulation: 
+  * Run mvn install on hcu project
+  * To configure HCU composer, REST API, and Web UI: change configuration files in hcu\hcu-rest\config.
+  * To configure gridsim simulation: change scenarios in in hcu\hcu-simulation\scenarios.
 * To run the program:
-	- Running REST API and Web UI: 
-	  run \salam\salam-rest\src\main\java\at\ac\tuwien\dsg\salam\rest\RunRestServer.java
-	  or execute "java -jar salam\salam-rest\target\salam-rest-0.0.1-SNAPSHOT.jar"
-	- Running smartcom software peer: 
-	  execute smartcom-salam\smartcom-salam-demo\src\main\java\at\ac\tuwien\dsg\smartsociety\demo\peer\PeerApplication
-	- Running simulation: 
-	  run \salam\salam-simulation\src\main\java\at\ac\tuwien\dsg\salam\simulation\RunSimulation.java.
+  * Running in interactive-mode (to start REST API and Web UI):
+    * run \hcu\hcu-rest\src\main\java\at\ac\tuwien\dsg\hcu\rest\RunRestServer.java
+    * or execute "java -jar hcu\hcu-rest\target\hcu-rest-0.0.1-SNAPSHOT.jar"
+    * by default the Web UI is available at http://localhost:8080/web-ui/
+      and the REST APIP playground is available at http://localhost:8080/rest-ui/
+  * Running in simulation mode:
+    * run \hcu\hcu-simulation\src\main\java\at\ac\tuwien\dsg\hcu\simulation\RunSimulation.java.
