@@ -113,11 +113,15 @@ public class Composer implements ComposerInterface {
             globalTracer.traceln(TRACE_HEADER + globalTracer.getTraceHeader());
             dbTracer = new DBTracer();
 
-            //todo brk download file icin nasil bir sistem olmali bunu örnek olarak yaptim. sadece global i kaydediyor
+            //todo brk download file icin nasil bir sistem olmali bunu örnek olarak yaptim. sadece global i kaydediyor, sadece global mi olmasi lazim?
 
+            //todo brk bunu buradan al düzgün bir yere key misal db tracer.
             DBObject simulationObject = new BasicDBObject("_id", simulationObjectId);
             simulationObject.put("file_path", filePrefix);
-            simulationObject.put("date", date);
+            simulationObject.put("timeCreated", Util.getProperty(configFile, "timeCreated"));
+            simulationObject.put("timeFinished", null);
+            simulationObject.put("name", Util.getProperty(configFile, "simulationName"));
+            simulationObject.put("description", Util.getProperty(configFile, "simulationDescription"));
 
             MongoDatabase.getSimulationCollection().insert(simulationObject);
         }

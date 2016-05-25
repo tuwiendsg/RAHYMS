@@ -17,8 +17,18 @@ public class Simulation {
     @ApiModelProperty(value = "The date when the simulation was submitted", required = true)
     private String timeCreated;
 
+    @ApiModelProperty(value = "The date when the simulation is finished", required = false)
+    private String timeFinished;
+
+    @ApiModelProperty(value = "The name of the simulation", required = true)
+    private String simulationName;
+
+    @ApiModelProperty(value = "The description of the simulation", required = true)
+    private String simulationDescription;
+
     @ApiModelProperty(value = "The path of CSV file which contains corresponding simulation graph parameters")
     private String filePath;
+
 
     public Simulation() {
         this.timeCreated = Calendar.getInstance().toString();
@@ -40,11 +50,35 @@ public class Simulation {
         this.id = id;
     }
 
+    public String getSimulationName() {
+        return simulationName;
+    }
+
+    public void setSimulationName(String simulationName) {
+        this.simulationName = simulationName;
+    }
+
+    public String getSimulationDescription() {
+        return simulationDescription;
+    }
+
+    public void setSimulationDescription(String simulationDescription) {
+        this.simulationDescription = simulationDescription;
+    }
+
     public String getTimeCreated() {
         return timeCreated;
     }
 
     public void setTimeCreated(String timeCreated) {
         this.timeCreated = timeCreated;
+    }
+
+    public String getTimeFinished() {
+        return timeFinished;
+    }
+
+    public void setTimeFinished(String timeFinished) {
+        this.timeFinished = timeFinished;
     }
 }

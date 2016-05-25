@@ -18,6 +18,7 @@ import at.ac.tuwien.dsg.hcu.rest.config.AppConfig;
 
 public class RunRestServer {
 
+    //todo brk /Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-rest/ bu kismi user dan args den al ve public yap her yerden ulas
     private static final String PROP_FILE = "/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-rest/config/rest.properties";
 
     public static void main(final String[] args) throws Exception {

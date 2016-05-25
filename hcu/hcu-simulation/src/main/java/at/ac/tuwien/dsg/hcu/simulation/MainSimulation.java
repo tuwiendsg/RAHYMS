@@ -23,7 +23,9 @@ public class MainSimulation {
     //todo brk config web den alinacak
     private static String configFile = FILE_TEMP + "consumer.properties";
 
-    public void runSimulation(List<String> units, List<String> tasks, String composerContent, int numberOfCycles, int waitBetweenCycles) {
+    //todo brk düzelt cok fazla param modeli uygun bir dependcy olan yere al, misal common ..
+    public void runSimulation(List<String> units, List<String> tasks, String composerContent, int numberOfCycles, int waitBetweenCycles,
+                              String simulationName, String simulationDescription) {
 
         try {
 
@@ -96,25 +98,26 @@ public class MainSimulation {
             //todo brk change that take from content composer
             //todo brk bu ve yukaridaki unit ve task icin generic bir cözüm bul
 
-            /*String composerFilePath = "";
+            String composerFilePath = "";
             Writer writer = null;
 
 
-            try {
+            /*try {
                 composerFilePath = FILE_TEMP + "composer4.properties";
                 writer = new BufferedWriter(new OutputStreamWriter(
                         new FileOutputStream(composerFilePath), "utf-8"));
                 writer.write(composerContent);
             } catch (IOException ex) {
+                //todo brk bütün keyleri dolas ve = le bagla sadece.
                 // report
             } finally {
                 try {
                     writer.close();
-                } catch (Exception ex) {ignore}
+                } catch (Exception ex) {}
             }*/
 
-            ComposerInterface composer = new Composer(Util.getProperty(configFile, "composer_config")/*
-                    composerFilePath*/, //todo brk change that su an yenilemiyor properties ekledikten sonra web dede ayni sorun var
+            ComposerInterface composer = new Composer(Util.getProperty(configFile, "composer_config"),/*
+                    composerFilePath, *///todo brk change that su an yenilemiyor dosya icerisine atmiyor program esnasinda, properties ekledikten sonra web dede ayni sorun var
                     manager, discoverer, dp);
 
             SchedulerInterface scheduler = new Scheduler(composer, dp);

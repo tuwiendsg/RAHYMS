@@ -1,9 +1,6 @@
 package at.ac.tuwien.dsg.hcu.rest.rs.simulation;
 
-import at.ac.tuwien.dsg.hcu.rest.resource.simulation.Graph;
-import at.ac.tuwien.dsg.hcu.rest.resource.simulation.GraphData;
-import at.ac.tuwien.dsg.hcu.rest.resource.simulation.Simulation;
-import at.ac.tuwien.dsg.hcu.rest.resource.simulation.SimulationUnit;
+import at.ac.tuwien.dsg.hcu.rest.resource.simulation.*;
 import at.ac.tuwien.dsg.hcu.rest.services.simulation.SimulationService;
 import at.ac.tuwien.dsg.hcu.rest.services.simulation.SimulationTaskMongoDBService;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -33,7 +30,7 @@ public class SimulationRestService {
             @ApiResponse(code = 404, message = "Simulation not found"),
             @ApiResponse(code = 503, message = "Simulation server not available")
     })//todo brk bisey döndermek zorunda degil response yollanabilir.AX ismini degistir
-    public Response startSimulation(@ApiParam( value = "Json string to todo", required = true) @RequestBody final AX jsonData) {
+    public Response startSimulation(@ApiParam( value = "Json string to todo", required = true) @RequestBody final SimulationStartParam jsonData) {
         //todo brk hata olayini dogru ver soru hatta nasil hatalar web e verilmeli düzen nasil olmali
         return simulationService.startSimulation(jsonData) ? Response.ok().build() : Response.serverError().build();
     }
@@ -70,83 +67,6 @@ public class SimulationRestService {
     @ApiOperation(value = "List all simulations", notes = "List all simulations", response = Simulation.class, responseContainer = "List")
     public List<Simulation> getSimulation() {
         return simulationService.getSimulation();
-    }
-
-    //todo brk bunu disariya al class olarak model olarak göster ve adini degistir.
-    public static class AX {
-        private List<String> units;
-        private List<String> tasks;
-        private String composerProperties;
-        private ConsumerProperties consumerProperties;
-
-        public AX() {
-        }
-
-        @JsonCreator
-        public AX(@JsonProperty("units") List<String> units,
-                  @JsonProperty("tasks") List<String> tasks,
-                  @JsonProperty("composerProperties") String composerProperties,
-                  @JsonProperty("consumerProperties") ConsumerProperties consumerProperties) {
-            this.units = units;
-            this.tasks = tasks;
-            this.composerProperties = composerProperties;
-            this.consumerProperties = consumerProperties;
-        }
-
-        public String getComposerProperties() {
-            return composerProperties;
-        }
-
-        public void setComposerProperties(String composerProperties) {
-            this.composerProperties = composerProperties;
-        }
-
-        public ConsumerProperties getConsumerProperties() {
-            return consumerProperties;
-        }
-
-        public void setConsumerProperties(ConsumerProperties consumerProperties) {
-            this.consumerProperties = consumerProperties;
-        }
-
-        public List<String> getTasks() {
-            return tasks;
-        }
-
-        public void setTasks(List<String> tasks) {
-            this.tasks = tasks;
-        }
-
-        public List<String> getUnits() {
-            return units;
-        }
-
-        public void setUnits(List<String> units) {
-            this.units = units;
-        }
-
-        public static class ConsumerProperties {
-            private int numberOfCycles;
-            private int waitBetweenCycles;
-
-            public ConsumerProperties() {}
-
-            public int getNumberOfCycles() {
-                return numberOfCycles;
-            }
-
-            public void setNumberOfCycles(int numberOfCycles) {
-                this.numberOfCycles = numberOfCycles;
-            }
-
-            public int getWaitBetweenCycles() {
-                return waitBetweenCycles;
-            }
-
-            public void setWaitBetweenCycles(int waitBetweenCycles) {
-                this.waitBetweenCycles = waitBetweenCycles;
-            }
-        }
     }
 
 }

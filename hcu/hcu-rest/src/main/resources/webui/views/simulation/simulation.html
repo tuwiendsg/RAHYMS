@@ -101,11 +101,12 @@
     <hr/>
 
     <!-- GENERAL -->
-    <h4>General Properties</h4>
 
     <div class="row">
 
         <div class="col-md-6">
+            <h4>General Properties</h4>
+
             <div class="form-group">
                 <label for="number-of-cycles" class="col-sm-5 control-label">Number of cycles : </label>
 
@@ -115,16 +116,7 @@
                            ng-model="consumerProperties.numberOfCycles" only-digits>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-6">
-        </div>
-
-
-    </div>
-
-    <div class="row">
-        <div class="col-md-6">
             <div class="form-group">
                 <label for="wait-between-cycles" class="col-sm-5 control-label">Wait between cycles : </label>
 
@@ -135,9 +127,29 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-        </div>
 
+        <div class="col-md-6">
+            <h4>Simulation Properties</h4>
+
+            <div class="form-group">
+                <label for="simulation-name" class="col-sm-5 control-label">Name : </label>
+
+                <div class="col-md-7">
+                    <input type="text" class="form-control" id="simulation-name"
+                           placeholder="Enter name of the simulation"
+                           ng-model="simulationProperties.simulationName">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="simulation-description" class="col-sm-5 control-label">Description : </label>
+
+                <div class="col-md-7">
+                    <input type="text" class="form-control" id="simulation-description"
+                           placeholder="Enter description of the simulation"
+                           ng-model="simulationProperties.simulationDescription">
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -146,7 +158,7 @@
     <hr/>
     <!-- todo brk find solution for validation -->
 
-    <!-- todo brk ask generatorlerde sinir olacak mi? name unique mi? -->
+    <!-- todo brk ask generatorlerde sinir olacak mi? sinir olmazsa tasiyor su anda table dan,  name unique mi? -->
 
     <!-- ALGORITHM -->
 

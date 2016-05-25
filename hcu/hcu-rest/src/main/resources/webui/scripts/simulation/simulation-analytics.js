@@ -7,16 +7,13 @@ app.controller('SimulationAnalyticsCtrl', function ($rootScope, $scope, $http, $
 
     const URL = '/rest/api/simulation/graph';
     const URL_SIMULATION = '/rest/api/simulation';
-    const URL_TEMP = '/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-rest/src/main/resources/webui/temp/';
+    const URL_TEMP = '/temp/';
 
     $scope.graph = {};
     $scope.graph.xAxis = "clock";
     $scope.graph.yAxis = "algo_time";
 
     $scope.graphData = {};
-
-    //todo brk sürekli override yapilmamasi lazim id lerle kontrol et ve web de date ile göster dropdown da
-    //todo brk ayriyeten ayri bir button ile global svc dosyasini download imkani vermek lazim
 
     dialogs.wait(undefined, 'Getting simulations', 99);
     $http.get(URL_SIMULATION).success(function (data) {

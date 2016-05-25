@@ -219,10 +219,11 @@ public class GSConsumer extends ReservationRequester {
             Util.log().info("Starting simulation");
             //boolean debug = Boolean.parseBoolean(Util.getProperty(configFile, "debug"));
             GridSim.startGridSimulation(false);
-            
+            //todo brk simulation finished here
             // simulation finished
             Util.log().info(NAME + " finishes.");
 
+            //todo brk bunu simulationun bittigi bir yere al burada normal simulation da olusturulan dosyalari da siliyor.
             //all created json simulation property files in Runtime, deleted
             for(ConfigJson taskConfig : taskGeneratorConfig) {
                 Files.delete(Paths.get(taskConfig.getPath()));

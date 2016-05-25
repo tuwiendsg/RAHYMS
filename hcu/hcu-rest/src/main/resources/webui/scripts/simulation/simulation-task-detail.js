@@ -30,11 +30,9 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         console.log('Error ' + data)
     });
 
-    //todo brk dependsOn strong and weak dependency olayi var * ile belli oluyor. Sor bir de diger role lere depend oluyor galiba?
+    //todo brk dependsOn strong and weak dependency olayi var * ile belli oluyor. Sor bir de diger role lere depend oluyor galiba? birden fazla
 
     //todo brk humansensing json da param da 0-2 yazmasina ragmen 4 eleman eklemis sor.
-
-    //todo brk functionality depends on olayini sor, *sonrasina isim geliyor galiba, array seklinde bir den fazla olabilir herhalde
 
     $scope.defaultParams = function () {
 

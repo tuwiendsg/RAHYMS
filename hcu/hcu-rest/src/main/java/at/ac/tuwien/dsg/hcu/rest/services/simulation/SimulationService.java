@@ -5,6 +5,7 @@ import at.ac.tuwien.dsg.hcu.rest.common.SimulationGraph;
 import at.ac.tuwien.dsg.hcu.rest.resource.simulation.Graph;
 import at.ac.tuwien.dsg.hcu.rest.resource.simulation.GraphData;
 import at.ac.tuwien.dsg.hcu.rest.resource.simulation.Simulation;
+import at.ac.tuwien.dsg.hcu.rest.resource.simulation.SimulationStartParam;
 import at.ac.tuwien.dsg.hcu.rest.rs.simulation.SimulationRestService;
 import at.ac.tuwien.dsg.hcu.simulation.MainSimulation;
 import com.mongodb.DBCursor;
@@ -28,11 +29,12 @@ import java.util.List;
  */
 public class SimulationService {
 
-    public boolean startSimulation(SimulationRestService.AX jsonData) {
+    public boolean startSimulation(SimulationStartParam jsonData) {
 
-        //todo brk bazen simulation u ayni elemanlarla pespese yapinca veri eklenmiyor. simulation icin yeni instance lazimmis ask
+        //todo brk bazen simulation u ayni elemanlarla pespese yapinca veri eklenmiyor. simulation icin yeni instance lazimmis muhammad dedi
         new MainSimulation().runSimulation(jsonData.getUnits(), jsonData.getTasks(), jsonData.getComposerProperties(),
-                jsonData.getConsumerProperties().getNumberOfCycles(), jsonData.getConsumerProperties().getWaitBetweenCycles());
+                jsonData.getConsumerProperties().getNumberOfCycles(), jsonData.getConsumerProperties().getWaitBetweenCycles(), jsonData.getSimulation().getSimulationName(),
+                jsonData.getSimulation().getSimulationDescription());
 
         return true;
     }

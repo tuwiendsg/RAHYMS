@@ -47,12 +47,13 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         console.log('Error ' + data);
     });
 
-    $scope.consumerProperties = {};
-    $scope.composerProperties = {};
-
     //todo brk start dedikten sonra beklerken baska yere tiklanabiliyor.
 
     $scope.initializeDefaultValues = function () {
+
+        $scope.consumerProperties = {};
+        $scope.composerProperties = {};
+        $scope.simulationProperties = {};
 
         //todo brk bu prefixler bu sekidle eklenmemesi lazim web de dynamic olmasi lazim sor.
         $scope.composerProperties.reliability_trace_file_prefix = '/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/traces/reliability/';
@@ -103,6 +104,13 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         console.log($scope.taskListDrag);
         console.log($scope.taskListDrop);
 
+        $scope.simulationProperties.timeCreated = new Date();
+
+        //todo brk simulationProperties modeline gerek kalmadi su an assagida depend. gerekiyor cünkü string olarak composer in icinde yollayacagim
+        for (var key in $scope.simulationProperties) {
+            $scope.composerProperties[key] = $scope.simulationProperties[key];
+        }
+
         $scope.tasks = [];
         $scope.units = [];
         dialogs.wait(undefined, 'Starting simulation', 99);
@@ -121,7 +129,8 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
             'units': $scope.units,
             'tasks': $scope.tasks,
             'composerProperties': angular.toJson($scope.composerProperties, true),
-            'consumerProperties': $scope.consumerProperties
+            'consumerProperties': $scope.consumerProperties,
+            'simulation': $scope.simulationProperties
         };
 
         $http({
@@ -131,7 +140,7 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         }).success(function (response) {
             console.log("response from simulation start is : " + response);
             $rootScope.$broadcast('dialogs.wait.complete');
-            $location.path('/simulation-graph');
+            $location.path('/simulation-analytics');
         }).error(function (response, status) {
             $rootScope.$broadcast('dialogs.wait.complete');
             dialogs.error(undefined, Util.error('Error starting simulation',

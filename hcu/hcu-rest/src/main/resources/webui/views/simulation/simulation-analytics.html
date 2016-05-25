@@ -1,55 +1,93 @@
 <div class="row">
-    <h2>GRAPH</h2>
+    <h2>Analytics</h2>
 </div>
-<div class="col-md-6">
 
-    <div class="form-group">
+<br/>
+<br/>
+<br/>
+
+<div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="simulation-select" class="col-sm-5 control-label pull-right">Simulation : </label>
+
+            <div class="col-md-7">
+                <select id="simulation-select" ng-change="copyFileToTemp()" ng-model="simulationSelected"
+                        ng-options="simulation.timeCreated for simulation in simulations" class="form-control">
+                    <option disabled value="">Please select a simulation</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-6 pull-right">
+        SIMULATION BILGILERI GELECEK
+    </div>
+</div>
 
 
-        <div class="col-md-7">
-            <select id="simulation-select" ng-change="copyFileToTemp()" ng-model="simulationSelected"
-                    ng-options="simulation.timeCreated for simulation in simulations" class="form-control">
-                <option disabled value="">Please select a simulation</option>
-            </select>
+<br/>
+<br/>
+<br/>
+<br/>
+
+<h3>Metric Correlation</h3>
+<div class="panel panel-default">
+    <div class="panel-body">
+
+        <div class="col-md-4">
+            <div ng-if="simulationSelected">
+                <div class="form-group">
+
+                    <label for="graph-x-axis" class="col-sm-3 control-label">M1 : </label>
+
+                    <select id="graph-x-axis" ng-model="graph.xAxis" class="form-control col-sm-2">
+                        <option disabled selected value="">M1</option>
+                        <option>clock</option>
+                        <option>task_id</option>
+                    </select>
+
+                </div>
+                <div class="form-group">
+                    <label for="graph-y-axis" class="col-sm-3 control-label">M2 : </label>
+
+                    <select id="graph-y-axis" ng-model="graph.yAxis" class="form-control col-sm-2">
+                        <option disabled selected value="">M2</option>
+                        <option>algo_time</option>
+                        <option>objective_value</option>
+                        <option>cost</option>
+                        <option>norm_cost</option>
+                        <option>competency</option>
+                        <option>connectedness</option>
+                        <option>mu_connectedness</option>
+                        <option>response_time</option>
+                        <option>norm_response_time</option>
+                    </select>
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" ng-click="showGraph()">Plot Graph
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group">
+                <a ng-click="downloadFile()" class="btn btn-primary" download="file.csv">Download CSV
+                    File</a>
+            </div>
         </div>
 
     </div>
 </div>
 
-<div ng-if="simulationSelected">
-
-    <div class="col-sm-9">
-        <select id="graph-x-axis" ng-model="graph.xAxis" class="form-control">
-            <option disabled selected value="">Please select a xAxis value</option>
-            <option>clock</option>
-            <option>task_id</option>
-        </select>
-
-        <select id="graph-y-axis" ng-model="graph.yAxis" class="form-control">
-            <option disabled selected value="">Please select a yAxis value</option>
-            <option>algo_time</option>
-            <option>objective_value</option>
-            <option>cost</option>
-            <option>norm_cost</option>
-            <option>competency</option>
-            <option>connectedness</option>
-            <option>mu_connectedness</option>
-            <option>response_time</option>
-            <option>norm_response_time</option>
-        </select>
-    </div>
-
-    <div class="col-sm-6">
-        <button type="submit" class="btn btn-primary pull-left" ng-click="showGraph()">Plot Graph
-        </button>
-    </div>
-
-    <div class="col-sm-6">
-        <a ng-click="downloadFile()" class="btn btn-primary pull-right" download="file.csv">Download CSV File</a>
-    </div>
-
-    <div ng-if="showingGraph" class="row">
-        <img ng-change="graph.image" ng-model="graph.image" data-ng-src="data:image/png;base64,{{graph.image}}"
-             data-err-src="images/png/avatar.png"/>
-    </div>
+<div ng-if="showingGraph" class="row">
+    <img ng-change="graph.image" ng-model="graph.image" data-ng-src="data:image/png;base64,{{graph.image}}"
+         data-err-src="images/png/avatar.png"/>
 </div>
