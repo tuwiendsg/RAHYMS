@@ -1,0 +1,307 @@
+{
+    "title": "Testing GridSim Monitoring Simulation",
+    "monitoring_agents":
+    [
+        {
+            "enabled": true,
+            "name": "csv_cloud_service_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/advise-m2m-clustering-testing/CloudService_16_2.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "Time ",
+                        "offset": -1392220924,
+                        "format": "EEE MMM dd HH:mm:ss zzz yyyy",
+                        "scale": 70.25
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "cloud_service_cpu_usage",
+                    "config":
+                    {
+                        "csv_col": "cpuUsage ",
+                        "metadata": [
+                            {
+                                "csv_col": "numberOfVMs ",
+                                "name": "nunits"
+                            },
+                            {
+                                "csv_col": "type",
+                                "name": "type"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "csv_sensor_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/advise-m2m-clustering-testing/LoadBalancerServiceUnit_16_1_WithMax.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "Time ",
+                        "offset": -1392220924,
+                        "format": "EEE MMM dd HH:mm:ss zzz yyyy",
+                        "scale": 70.25
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "number_of_sensors",
+                    "config":
+                    {
+                        "csv_col": "numberOfClients ",
+                        "metadata": [
+                            {
+                                "csv_col": "maxClients",
+                                "name": "nunits"
+                            },
+                            {
+                                "csv_col": "id",
+                                "name": "id"
+                            },
+                            {
+                                "csv_col": "type",
+                                "name": "type"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "csv_scu_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/scu/scu-2015-11-09-09-14-22-083-WithType.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "time",
+                        "offset": -1332144060,
+                        "function": "at.ac.tuwien.dsg.hcu.monitor.util.Converter.perMil"
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "scu_event",
+                    "config":
+                    {
+                        "csv_col": "event",
+                        "metadata": [
+                            {
+                                "csv_col": "resource",
+                                "name": "id"
+                            },
+                            {
+                                "csv_col": "type",
+                                "name": "type"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "state_metric_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_scu_agent",
+                        "topic": "scu_event",
+                        "config": {}
+                    }
+                ],
+                "config": {
+                    "transitions": [
+                        {"from": null, "event": "RESOURCE_ADDED", "to": "RUNNING"},
+                        {"from": "RUNNING", "event": "RESOURCE_RELIEVED", "to": "NOT_RUNNING"},
+                        {"from": "NOT_RUNNING", "event": "RESOURCE_ADDED", "to": "RUNNING"}
+                    ]
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "running_duration",
+                    "config":
+                    {
+                        "function": "at.ac.tuwien.dsg.hcu.monitor.util.StateMetricCalculator.duration",
+                        "args": {
+                            "state": "RUNNING",
+                            "return_all_units": false,
+                            "window": 86400.0
+                        }
+                    }
+                },
+                {
+                    "name": "running_count",
+                    "config":
+                    {
+                        "function": "at.ac.tuwien.dsg.hcu.monitor.util.StateMetricCalculator.countUnitsInState",
+                        "args": {
+                            "state": "RUNNING"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "correlator_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.EventBasedConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "state_metric_agent",
+                        "topic": "running_duration",
+                        "config": {}
+                    },
+                    {
+                        "to": "csv_cloud_service_agent",
+                        "topic": "cloud_service_cpu_usage",
+                        "config": {}
+                    },
+                    {
+                        "to": "csv_sensor_agent",
+                        "topic": "number_of_sensors",
+                        "config": {},
+                        "quality": {
+                            "rate": 21000.0
+                        }
+                    }
+                ],
+                "config": {}
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "correlated_utilization",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Correlator",
+                        "args": {
+                            "sources":
+                            [
+                                {
+                                    "from": "Data(name='cloud_service_cpu_usage').std:lastevent()",
+                                    "_value": "(doubleValue/100.0) * metaData.getIntegerOrDefault('nunits', 1)",
+                                    "_comment": "below is for calculating median, q1, q3, etc",
+                                    "__value": "(doubleValue/100.0)",
+                                    "__comment": "below is for calculating weighted average",
+                                    "value": "(doubleValue/100.0) * 10"
+                                },
+                                {
+                                    "from": "Data(name='number_of_sensors').std:unique(metaData.id)",
+                                    "_value": "(doubleValue)",
+                                    "_comment": "below is for calculating median, q1, q3, etc",
+                                    "__value": "(doubleValue / metaData.getIntegerOrDefault('nunits', 1))",
+                                    "__comment": "below is for calculating weighted average",
+                                    "value": "(doubleValue / metaData.getIntegerOrDefault('nunits', 1)) * 10"
+                                },
+                                {
+                                    "from": "Data(name='running_duration').std:unique(metaData.id)",
+                                    "_value": "doubleValue / 86400",
+                                    "__comment": "below is for calculating weighted average",
+                                    "value": "avg(doubleValue / 86400) * 10"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "aggregator_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.EventBasedConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "correlator_agent",
+                        "topic": "correlated_utilization",
+                        "config": {}
+                    }
+                ],
+                "config": {}
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "weighted_avg_util",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.Aggregator",
+                        "args": {
+                            "aggregate": "sum(doubleValue) / 30",
+                            "from": "Data(name='correlated_utilization').std:unique(metaData.get('type'))"
+                        }
+                    }
+                }
+            ]
+        }
+        
+    ]
+}

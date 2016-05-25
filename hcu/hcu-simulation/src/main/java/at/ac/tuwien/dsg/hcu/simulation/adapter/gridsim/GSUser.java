@@ -16,15 +16,19 @@ import gridsim.parallel.reservation.ReservationRequester;
 import java.util.Collection;
 import java.util.Hashtable;
 
+import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment.Status;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.AssignmentStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.EventType;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class GSUser extends ReservationRequester {
 
     private GSMiddleware middleware;
+    private MonitorInterface monitor;
     
     private static int uniqueId = 0;
     
@@ -32,9 +36,10 @@ public class GSUser extends ReservationRequester {
     private Hashtable<Integer, Reservation> reservationList;
     private Hashtable<Integer, GSAssignment> gridletList;
     
-    public GSUser(GSMiddleware middleware) throws Exception, Sim_exception {
+    public GSUser(GSMiddleware middleware, MonitorInterface monitor) throws Exception, Sim_exception {
         super("GSUser_" + (++uniqueId), 560);
         this.middleware = middleware;
+        this.monitor = monitor;
         this.reservationList = new Hashtable<Integer, Reservation>();
         this.gridletList = new Hashtable<Integer, GSAssignment>();
     }
@@ -51,8 +56,8 @@ public class GSUser extends ReservationRequester {
         int numPE = 1;
         Util.log().info("Sending reservation to " + destId + ", " + assignment);
         // give some time, since simulation time may have been shifted a bit
-        duration = duration + 3;
-        startTime = startTime + 2;
+        duration = duration + 4;
+        startTime = startTime + 1;
         Reservation reservation = super.createReservation(startTime, (int)duration, numPE, destId);
         Util.log().info("Reservation result = " + reservation +
                 ", for " + assignment);
@@ -65,9 +70,12 @@ public class GSUser extends ReservationRequester {
             gridletList.put(assignment.getId(), gsAssignment);
         }
 
-        // add assignment count
+        // add assignment count, should be added here so that it becomes effective on next task
         ComputingElement provider = assignment.getAssignee().getProvider();
         provider.addAssignmentCount();
+        
+        // NOTIFIED event
+        monitor.sendEvent(new AssignmentStream(EventType.NOTIFIED, GridSim.clock(), assignment));
     }
     
     public void commitAssignment(Assignment assignment) {
@@ -84,10 +92,14 @@ public class GSUser extends ReservationRequester {
                 ComputingElement provider = assignment.getAssignee().getProvider();
                 //System.out.println("Realibility of " + provider.getName() + "(k=" + (provider.getAssignmentCount()+1) + ") = " + provider.getMetrics().getValue("reliability", new Object[]{GridSim.clock(), true}) );
                 //provider.addAssignmentCount();
+                // ASSIGNED event
+                monitor.sendEvent(new AssignmentStream(EventType.ASSIGNED, GridSim.clock(), assignment));
             } else {
                 Util.log(this.getClass().getName()).severe("Error committing assignment " + assignment + " on reservation " + reservation);
                 assignment.setStatus(Status.FAILED);
                 returnAssignment(assignment);
+                // FAILED event
+                monitor.sendEvent(new AssignmentStream(EventType.FAILED, GridSim.clock(), assignment));
             }
         }
     }
@@ -140,10 +152,20 @@ public class GSUser extends ReservationRequester {
     }
     
     public void returnAssignment(Assignment assignment) {
+        // remove from reservation list and gridlet list
+        reservationList.remove(assignment.getId());
+        gridletList.remove(assignment.getId());
+        // add finish count
+        assignment.getAssignee().getProvider().addFinishedCount();
+        // returning to the middleware
         if (middleware!=null) {
             Util.log().info("Returning assignment to middleware");
             super.send(middleware.get_id(), GridSimTags.SCHEDULE_NOW, GSConstants.RETURN_ASSIGNMENT, assignment);
         }
+        // send finished/failed event
+        EventType type = EventType.FINISHED;
+        if (assignment.getStatus()==Assignment.Status.FAILED) type = EventType.FAILED;
+        monitor.sendEvent(new AssignmentStream(type, GridSim.clock(), assignment));
     }
 
     public void body() {
@@ -173,14 +195,14 @@ public class GSUser extends ReservationRequester {
                 case GSConstants.RESERVE_ASSIGNMENT:
                     Assignment assignment1 = (Assignment)ev.get_data();
                     Util.log().info("RESERVE_ASSIGNMENT, " + assignment1);
+                    assignment1.setStatus(Status.NOTIFIED);
                     reserveAssignment(assignment1);
-                    assignment1.setStatus(Status.RESERVED);
                     break;
                 case GSConstants.COMMIT_ASSIGNMENT:
                     Assignment assignment2 = (Assignment)ev.get_data();
                     Util.log().info("COMMIT_ASSIGNMENT, " + assignment2);
+                    assignment2.setStatus(Status.ASSIGNED);
                     commitAssignment(assignment2);
-                    assignment2.setStatus(Status.READY);
                     break;
                 case GSConstants.FORECAST_RESPONSE_TIME:
                     GSAssignment assignment3 = (GSAssignment)ev.get_data();

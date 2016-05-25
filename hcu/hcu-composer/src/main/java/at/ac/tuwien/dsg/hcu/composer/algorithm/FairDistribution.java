@@ -1,6 +1,8 @@
 package at.ac.tuwien.dsg.hcu.composer.algorithm;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
@@ -26,7 +28,16 @@ public class FairDistribution implements ComposerAlgorithmInterface {
         Solution solution = new Solution();
         List<ComputingElement> selectedElements = new ArrayList<ComputingElement>();
         for (int i=1; i<cons.getComponentList().size()-1; i++) {
-            ArrayList<SolutionComponent> components = cons.getComponentList().get(i);
+            List<SolutionComponent> components = cons.getComponentList().get(i);
+            
+            // sort it first to get consistent behavior on different executions
+            Collections.sort(components, new Comparator<SolutionComponent>() {
+                @Override
+                public int compare(SolutionComponent comp1, SolutionComponent comp2) {
+                    return  comp1.getAssignee().getTitle().compareTo(comp2.getAssignee().getTitle());
+                }
+            });
+            
             int lowestAssignmentCount = 9999;
             SolutionComponent solutionComponent = null;
             for (SolutionComponent comp: components) {

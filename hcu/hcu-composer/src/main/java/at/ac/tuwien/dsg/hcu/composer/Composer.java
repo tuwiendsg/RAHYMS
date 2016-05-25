@@ -1,19 +1,28 @@
 package at.ac.tuwien.dsg.hcu.composer;
 
-import at.ac.tuwien.dsg.hcu.cloud.monitor.helper.ReliabilityTracer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.List;
+
+import at.ac.tuwien.dsg.hcu.cloud.metric.helper.ReliabilityTracer;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
-import at.ac.tuwien.dsg.hcu.common.model.*;
-import at.ac.tuwien.dsg.hcu.common.model.optimization.OptimizationObjective;
-import at.ac.tuwien.dsg.hcu.common.model.optimization.TaskWithOptimization;
+import at.ac.tuwien.dsg.hcu.common.model.Assignment;
+import at.ac.tuwien.dsg.hcu.common.model.Connection;
+import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
+import at.ac.tuwien.dsg.hcu.common.model.Role;
+import at.ac.tuwien.dsg.hcu.common.model.Service;
+import at.ac.tuwien.dsg.hcu.common.model.Task;
 import at.ac.tuwien.dsg.hcu.composer.algorithm.ComposerAlgorithmInterface;
 import at.ac.tuwien.dsg.hcu.composer.helper.MongoDatabase;
 import at.ac.tuwien.dsg.hcu.composer.model.ConnectednessGraph;
 import at.ac.tuwien.dsg.hcu.composer.model.ConstructionGraph;
 import at.ac.tuwien.dsg.hcu.composer.model.Solution;
 import at.ac.tuwien.dsg.hcu.composer.model.SolutionComponent;
+import at.ac.tuwien.dsg.hcu.util.Tracer;
 import at.ac.tuwien.dsg.hcu.util.Util;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -32,15 +41,16 @@ public class Composer implements ComposerInterface {
     //todo brk simulation graph icin hangi simulation e ait oldugunu buradan verecegiz assagiya
     ObjectId simulationObjectId = new ObjectId();
 
-    private static ComposerTracer globalTracer = null;
+    private static ComposerTracer composerTracer = null;
     private static ReliabilityTracer reliabilityTracer = null;
+    private static AssignmentTracer assignmentTracer = null;
     private static String algoName;
     private static int taskCounter = 0;
 
     private String dbTracerValues;
     private DBTracer dbTracer;
     private String configFile;
-    private TaskWithOptimization task;
+    private Task task;
     private ConstructionGraph constructionGraph;
     private ConnectednessGraph connectednessGraph;
     
@@ -65,11 +75,11 @@ public class Composer implements ComposerInterface {
         this.dp = dp;
     }
 
-    public TaskWithOptimization getTask() {
+    public Task getTask() {
         return task;
     }
 
-    public void setTask(TaskWithOptimization task) {
+    public void setTask(Task task) {
         this.task = task;
     }
 
@@ -100,17 +110,9 @@ public class Composer implements ComposerInterface {
         algoName = Util.getProperty(configFile, "algorithm");
         Util.log().info("[Composer] Initializing using " + algoName + " algorithm");
 
-        // init tracer
-        String traceFilePrefix = Util.getProperty(configFile, "trace_file_prefix");
-        if (traceFilePrefix!=null && !traceFilePrefix.equals("")) {
-            Util.log().info("Initiating tracer");
-            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
-            Date now = new Date();
-            String date = sdfDate.format(now);
-            String filePrefix = traceFilePrefix + "global-" + date + ".csv";
-            globalTracer = new ComposerTracer(filePrefix);
-            globalTracer.traceln(algoName);
-            globalTracer.traceln(TRACE_HEADER + globalTracer.getTraceHeader());
+        // get composer tracer
+        composerTracer = (ComposerTracer) Tracer.getTracer("composer");
+        if (composerTracer!=null) {
             dbTracer = new DBTracer();
 
             //todo brk download file icin nasil bir sistem olmali bunu örnek olarak yaptim. sadece global i kaydediyor
@@ -122,18 +124,15 @@ public class Composer implements ComposerInterface {
             MongoDatabase.getSimulationCollection().insert(simulationObject);
         }
 
+        // get reliability tracer
+        reliabilityTracer = (ReliabilityTracer) Tracer.getTracer("reliability");
+        if (reliabilityTracer!=null) {
+            reliabilityTracer.setDiscoverer(discoverer);
+        }
 
-
-
-        // init reliability tracer
-        String reliabilityTraceFilePrefix = Util.getProperty(configFile, "reliability_trace_file_prefix");
-        if (reliabilityTraceFilePrefix!=null && !reliabilityTraceFilePrefix.equals("")) {
-            Util.log().info("Initiating reliability tracer");
-            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
-            Date now = new Date();
-            String date = sdfDate.format(now);      
-            reliabilityTracer = new ReliabilityTracer(reliabilityTraceFilePrefix + date + ".csv", discoverer);
-            reliabilityTracer.traceln(reliabilityTracer.getTraceHeader());
+        assignmentTracer = (AssignmentTracer) Tracer.getTracer("assignment");
+        if (assignmentTracer!=null) {
+            assignmentTracer.setDiscoverer(discoverer);
         }
 
         // start service
@@ -142,43 +141,20 @@ public class Composer implements ComposerInterface {
 
     }
     
-    private TaskWithOptimization addOptimization(Task task) {
-        TaskWithOptimization taskWO;
-        if (task instanceof TaskWithOptimization) {
-            taskWO = (TaskWithOptimization) task;
-        } else {
-            taskWO = new TaskWithOptimization(task);
-            OptimizationObjective objective = new OptimizationObjective();
-            objective.setWeight("skill", 1.0);
-            objective.setWeight("connectedness", 1.0);
-            objective.setWeight("cost", 1.0);
-            objective.setWeight("time", 1.0);
-            taskWO.setOptObjective(objective);
-        }
-        return taskWO;
-    }
-
     @Override
-    public List<Assignment> partialCompose(Task task, List<Role> roles, double clock) {
-        TaskWithOptimization taskWO = addOptimization(task);
-        List<Assignment> assignments = partialCompose(taskWO, roles, clock);
-        return assignments;
-    }
-
-    @Override
-    public List<Assignment> partialCompose(TaskWithOptimization task,
+    public List<Assignment> partialCompose(Task task,
             List<Role> roles, double clock) {
 
         // TODO: handle sub-task
         
         // check objective weight
-        if (task.getOptObjective().getWeight("skill") + 
-                task.getOptObjective().getWeight("connectedness") +
-                task.getOptObjective().getWeight("cost") +
-                task.getOptObjective().getWeight("time") <= 0) {
+        if (task.getOptimizationObjective().getWeight("skill") + 
+                task.getOptimizationObjective().getWeight("connectedness") +
+                task.getOptimizationObjective().getWeight("cost") +
+                task.getOptimizationObjective().getWeight("time") <= 0) {
             Util.log().info("Invalid objective!");
-            if (globalTracer!=null) {
-                globalTracer.traceln("," + task.getName() + ",,\"" + task.detail() + "\",\"Invalid objective!\"");
+            if (composerTracer!=null) {
+                composerTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"Invalid objective!\"");
 
                 //todo brk burasi cagirilmiyor aslinda
                 dbTracerValues += "," + task.getName() + ",,\"" + task.detail() + "\",\"Invalid objective!\"";
@@ -198,8 +174,8 @@ public class Composer implements ComposerInterface {
 
         if (constructionGraph==null) {
             Util.log().warning("No feasible solution found!");
-            if (globalTracer!=null) {
-                globalTracer.traceln(GridSim.clock() + "," + task.getId() + "," + task.getName() + ",,\"" + task.detail() + "\",\"No feasible solution found!\"");
+            if (composerTracer!=null) {
+                composerTracer.traceln(GridSim.clock() + "," + task.getId() + "," + task.getName() + ",,\"" + task.detail() + "\",\"No feasible solution found!\"");
                 //todo brk hata nasil?
                 dbTracerValues += algoName;
                 dbTracerValues += "," + GridSim.clock() + "," + task.getId() + "," + task.getName() + ",,\"" + task.detail() + "\",\"No feasible solution found!\"";
@@ -226,19 +202,16 @@ public class Composer implements ComposerInterface {
             reliabilityTracer.traceln(task, solution.getAssignments(), clock, taskCounter);
         }
         
+        if (assignmentTracer!=null && constructionGraph!=null) {
+            assignmentTracer.traceln();
+        }
+
         return solution.getAssignments();
         
     }
 
     @Override
     public List<Assignment> compose(Task task, double clock) {
-        TaskWithOptimization taskWO = addOptimization(task);
-        List<Assignment> assignments = compose(taskWO, clock);
-        return assignments;
-    }
-
-    @Override
-    public List<Assignment> compose(TaskWithOptimization task, double clock) {
         taskCounter++;
         return partialCompose(task, null, clock);
     }
@@ -273,12 +246,12 @@ public class Composer implements ComposerInterface {
             String data = "";
             String flag = "";
             // trace
-            if (globalTracer!=null) {
+            if (composerTracer!=null) {
                 if (solution!=null && solution.size()>0) {
                     data = solution.getData();
                 }
                 if (this.isSolutionFeasible(solution)) flag = "f"; 
-                globalTracer.trace(GridSim.clock()+","+task.getId()+","+flag + "," + algoTime + ","+task.getName()+","
+                composerTracer.trace(GridSim.clock()+","+task.getId()+","+flag + "," + algoTime + ","+task.getName()+","
                         +data+",\"" + task.toString() + "\",");
 
                 dbTracerValues += simulationObjectId;
@@ -286,12 +259,9 @@ public class Composer implements ComposerInterface {
                 dbTracerValues += "," +GridSim.clock()+","+task.getId()+","+flag + "," + algoTime + ","+task.getName()+","
                         +data+"," + task.toString() + ",";
                 if (solution!=null && solution.size()>0) {
-                    globalTracer.traceln(solution, "");
-                    dbTracerValues += dbTracer.trace(solution);
+                    composerTracer.traceln(solution, "");
                 } else {
-                    globalTracer.traceln("Algo can't find solution!");
-
-                    //todo brk algo cant find bunu web e yollamak lazim ek bilgi olarak degerler zaten null olacak
+                    composerTracer.traceln("Algo can't find solution!"); 
                 }
             }
 
@@ -333,7 +303,7 @@ public class Composer implements ComposerInterface {
 
     public boolean isSolutionFeasible(Solution s) {
         
-        OptimizationObjective objective = task.getOptObjective();
+        OptimizationObjective objective = task.getOptimizationObjective();
 
         // get SLOs constraints
         double costLimit = (double) task.getObjectiveValue("cost_limit", 99999.0);
@@ -366,7 +336,7 @@ public class Composer implements ComposerInterface {
 
     public Hashtable<Solution,Double> calculateObjectiveValues(ArrayList<Solution> solutions) {
 
-        OptimizationObjective objective = task.getOptObjective();
+        OptimizationObjective objective = task.getOptimizationObjective();
         
         String connectednessQuality = (String) task.getObjectiveValue("connectedness", "poor");
         Hashtable<Solution,Double> objectiveValues = new Hashtable<Solution,Double>();
@@ -494,7 +464,7 @@ public class Composer implements ComposerInterface {
         double prevRT = 0;
 
         // get objective weights
-        OptimizationObjective objective = task.getOptObjective();
+        OptimizationObjective objective = task.getOptimizationObjective();
         double competencyWeight = objective.getWeight("skill");
         double connectednessWeight = objective.getWeight("connectedness");
         double rtWeight = objective.getWeight("time");

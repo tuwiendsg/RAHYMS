@@ -18,13 +18,13 @@ import java.util.List;
 import org.json.JSONException;
 
 import at.ac.tuwien.dsg.hcu.cloud.generator.ServiceGenerator;
-import at.ac.tuwien.dsg.hcu.cloud.generator.TaskWithOptimizationGenerator;
+import at.ac.tuwien.dsg.hcu.cloud.generator.TaskGenerator;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
+import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
-import at.ac.tuwien.dsg.hcu.common.model.optimization.OptimizationObjective;
-import at.ac.tuwien.dsg.hcu.common.model.optimization.TaskWithOptimization;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
 import at.ac.tuwien.dsg.hcu.util.WekaExporter;
@@ -43,23 +43,20 @@ public class GSConsumer extends ReservationRequester {
     private static String NAME = "GSConsumer";
     private static GSMiddleware gsMiddleware;
     
-    private static String configFile;
+    private static MonitorInterface monitorInterface;
     
     // we need to know the number of services generated to wait until all services 
     // have been registered
     private static int numServices;
     
-    private TaskWithOptimizationGenerator taskGen;
-    private int nCycle;
-    private int waitBetweenCycles;
+    private TaskGenerator taskGen;
+    private int nCycle = 1;
+    private int waitBetweenCycles = 1;
+    private String exportArffTo;
         
-    private GSConsumer(ArrayList<ConfigJson> taskGeneratorConfig, int nCycle, int waitBetweenCycles) throws Exception {
+    private GSConsumer(ArrayList<ConfigJson> taskGeneratorConfig) throws Exception {
         super(NAME, 560);
-        taskGen = new TaskWithOptimizationGenerator(taskGeneratorConfig);
-        this.nCycle = nCycle;
-        this.waitBetweenCycles = waitBetweenCycles;
-        //nCycle = Integer.parseInt(Util.getProperty(configFile, "number_of_cycles"));
-        //waitBetweenCycles = Integer.parseInt(Util.getProperty(configFile, "wait_between_cycles"));
+        taskGen = new TaskGenerator(taskGeneratorConfig);
     }
 
     /**
@@ -83,15 +80,9 @@ public class GSConsumer extends ReservationRequester {
             
             int nTask = 0;
             
-            OptimizationObjective objective = new OptimizationObjective();
-            objective.setWeight("skill", 0.0);
-            objective.setWeight("connectedness", 0.0);
-            objective.setWeight("cost", 0.0);
-            objective.setWeight("time", 1.0);
-
             for (int i=0; i<nCycle; i++) {
 
-                ArrayList<TaskWithOptimization> tasks = taskGen.generate(objective);
+                ArrayList<Task> tasks = taskGen.generate();
                 
                 Util.log().info("Generating tasks: " + tasks.size() + " tasks");
 
@@ -123,7 +114,7 @@ public class GSConsumer extends ReservationRequester {
             List<Task> list = new ArrayList<Task>();
             for (int i=0; i<nTask; i++) {
                 Gridlet gl = super.gridletReceive();
-                Util.log().info("Receiving Gridlet " + gl);
+                Util.log().info("Receiving gridlet " + gl);
                 if (gl!=null) list.add(((GSTask)gl).getTask());
             }
             
@@ -135,20 +126,35 @@ public class GSConsumer extends ReservationRequester {
             shutdownGridStatisticsEntity();
             shutdownUserEntity();
             terminateIOEntities();
+            if (monitorInterface!=null) {
+                if (monitorInterface.getRuleEngine()!=null) {
+                    monitorInterface.getRuleEngine().terminate();
+                }
+            }
 
+            int success = 0;
+            int failed = 0;
             System.out.println("RESULT: ");
             for (Task task: list) {
                 System.out.println(task);
+               if (task.getStatus()==Task.Status.SUCCESSFUL) {
+                   success++;
+               }
+               if (task.getStatus()==Task.Status.FAILED) {
+                   failed++;
+               }
                 //String stat = task.getStat().dump();
                 //System.out.println(stat);
             }
+            System.out.println("Successfull tasks = " + success);
+            System.out.println("Failed tasks = " + failed);
+            System.out.println("Total tasks = " + list.size());
             
             // dump weka file
-            //String exportTo = Util.getProperty(configFile, "export_arff_to");
-            //if (exportTo!=null){
-            //    Util.log().info("DUMPING WEKA ARFF");
-            //    WekaExporter.export(list, exportTo);
-            //}
+            if (exportArffTo!=null && !exportArffTo.trim().equals("")){
+                Util.log().info("DUMPING WEKA ARFF to " + exportArffTo);
+                WekaExporter.export(list, exportArffTo);
+            }
             
 
         } catch (InstantiationException e) {
@@ -180,17 +186,23 @@ public class GSConsumer extends ReservationRequester {
         super.send( super.output, GridSimTags.SCHEDULE_NOW, GSConstants.SUBMIT_TASK, data);
     }
 
-    public static void start(int numberOfCycle, int waitBetweenCycles,
+    public static void start(
             SchedulerInterface scheduler,
             ServiceManagerInterface manager,
+            MonitorInterface monitor,
             ArrayList<ConfigJson> taskGeneratorConfig,
-            ArrayList<ConfigJson> serviceGeneratorConfig) {
+            ArrayList<ConfigJson> serviceGeneratorConfig,
+            int nCycle,
+            int waitBetweenCycle,
+            String exportArffTo,
+            boolean debug
+    ) {
         
         Util.log().info("Initializing " + NAME);
 
         try {
             
-            //configFile = configurationFile;
+            monitorInterface = monitor;
             
             // number of grid users, i.e., itself
             // this is necessary for GridSim for waiting until all users finish
@@ -204,21 +216,24 @@ public class GSConsumer extends ReservationRequester {
             GridSim.init(numUser, calendar, traceFlag, false);
 
             // Create a new Middleware as GIS entity    
-            gsMiddleware = new GSMiddleware(manager, scheduler);
+            gsMiddleware = new GSMiddleware(manager, scheduler, monitor);
             GridSim.setGIS(gsMiddleware);
 
             // Creates grid resource entities (i.e., HCU services)
             numServices = generateServices(serviceGeneratorConfig);
 
             // Creates this consumer, as a grid user
-            GSConsumer user = new GSConsumer(taskGeneratorConfig, numberOfCycle, waitBetweenCycles);
+            GSConsumer user = new GSConsumer(taskGeneratorConfig);
             // once created, it will be registered to the infoService, 
-            // and body() will be executed when the simulation starts 
+            // and body() will be executed when the simulation starts
+            
+            user.nCycle = nCycle;
+            user.waitBetweenCycles = waitBetweenCycle;
+            user.exportArffTo = exportArffTo;
 
             // start simulation
             Util.log().info("Starting simulation");
-            //boolean debug = Boolean.parseBoolean(Util.getProperty(configFile, "debug"));
-            GridSim.startGridSimulation(false);
+            GridSim.startGridSimulation(debug);
             
             // simulation finished
             Util.log().info(NAME + " finishes.");

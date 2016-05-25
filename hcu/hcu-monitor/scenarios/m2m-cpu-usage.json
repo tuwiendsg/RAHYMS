@@ -1,0 +1,161 @@
+{
+    "title": "M2M CPU Usage Monitoring",
+    "monitoring_agents":
+    [
+        {
+            "name": "csv_cloud_service",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/advise-m2m-clustering-testing/CloudService_16_2.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "Time ",
+                        "offset": -1392220924,
+                        "format": "EEE MMM dd HH:mm:ss zzz yyyy",
+                        "_scale": 5.43
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "cloud_service_cpu_usage",
+                    "config":
+                    {
+                        "csv_col": "cpuUsage ",
+                        "metadata": [
+                            {
+                                "csv_col": "numberOfVMs ",
+                                "name": "nunits"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "csv_data_service",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/advise-m2m-clustering-testing/DataEndServiceTopology_16_1.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "Time ",
+                        "offset": -1392220924,
+                        "format": "EEE MMM dd HH:mm:ss zzz yyyy",
+                        "_scale": 5.43
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "data_service_cpu_usage",
+                    "config":
+                    {
+                        "csv_col": "cpuUsage "
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "cpu_usage_joiner",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.EventBasedConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_cloud_service",
+                        "topic": "cloud_service_cpu_usage",
+                        "config": {},
+                        "_quality": {
+                            "rate": 10000.0
+                        }
+                    },
+                    {
+                        "to": "csv_data_service",
+                        "topic": "data_service_cpu_usage",
+                        "config": {},
+                        "_quality": {
+                            "rate": 10000.0
+                        }
+                    }
+                ],
+                "config": {}
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "ep_service_cpu_usage",
+                    "config":
+                    {
+                        "event_processor": "at.ac.tuwien.dsg.hcu.monitor.impl.processor.BaseEPLProcessor",
+                        "args": {
+                            "epl_expression": "
+                                SELECT (cloud_svc.doubleValue * 2) - data_svc.doubleValue as value, cloud_svc.metaData as metaData 
+                                FROM
+                                    Data(name='cloud_service_cpu_usage').std:lastevent() AS cloud_svc
+                                JOIN
+                                    Data(name='data_service_cpu_usage').std:lastevent() AS data_svc
+                            "
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "csv_consumer",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_cloud_service",
+                        "topic": "cloud_service_cpu_usage",
+                        "config": {}
+                    },
+                    {
+                        "to": "csv_data_service",
+                        "topic": "data_service_cpu_usage",
+                        "config": {}
+                    },
+                    {
+                        "to": "cpu_usage_joiner",
+                        "topic": "ep_service_cpu_usage",
+                        "config": {}
+                    }
+                ],
+                "config": {}
+            }
+        }
+    ]
+}

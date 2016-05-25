@@ -14,10 +14,13 @@ import org.jgrapht.graph.ListenableDirectedWeightedGraph;
 import at.ac.tuwien.dsg.hcu.common.interfaces.CloudUserInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
-import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment.Status;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.AssignmentStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.CollectiveStream;
+import at.ac.tuwien.dsg.hcu.monitor.old_stream.EventType;
 import at.ac.tuwien.dsg.hcu.common.model.Batch;
 import at.ac.tuwien.dsg.hcu.common.model.Role;
 import at.ac.tuwien.dsg.hcu.common.model.SCU;
@@ -43,7 +46,7 @@ public class Scheduler implements SchedulerInterface {
     protected ComposerInterface composer;
     protected DependencyProcessorInterface dp;
     protected CloudUserInterface cloudUserInterface;
-    protected DiscovererInterface discoverer;
+    protected MonitorInterface monitor;
     
     public Scheduler(ComposerInterface composer, DependencyProcessorInterface dp) {
         queueList = new LinkedList<Task>();
@@ -58,12 +61,12 @@ public class Scheduler implements SchedulerInterface {
     
     public void queue(Task task) {
         // verify dependencies
-        Batch batch = new Batch(task);
-        if (!dp.verify(batch.getAssignments())) {
+        List<Assignment> assignments = task.createEmptyAssignments();
+        if (!dp.verify(assignments)) {
             Util.log().severe("INVALID dependency detected! Roles dependencies must be acyclic and does not have multi-edges.");
 
             // debug, show the graph
-            ListenableDirectedWeightedGraph<Assignment, DefaultWeightedEdge> graph = dp.generateGraph(batch.getAssignments());
+            ListenableDirectedWeightedGraph<Assignment, DefaultWeightedEdge> graph = dp.generateGraph(assignments);
             if (graph!=null) {
                 ShowGraphApplet<Assignment, DefaultWeightedEdge> applet = new ShowGraphApplet<Assignment, DefaultWeightedEdge>();
                 applet.showGraph(graph);
@@ -107,14 +110,17 @@ public class Scheduler implements SchedulerInterface {
                     for (Assignment a: assignments) { 
                         Util.log().info(a.toString());
                     }
-                    // create SCU and deploy
+                    // create SCU
                     Batch batch = new Batch(assignments);
                     batch.setTask(task);
                     SCU scu = new SCU(batch);
                     batch.setRunningSCU(scu);
+                    // deploy
                     deploySCU(scu);
                     runningList.add(scu);
                     task.setStatus(Task.Status.RUNNING);
+                    // Collective CREATED event
+                    monitor.sendEvent(new CollectiveStream(EventType.CREATED, GridSim.clock(), scu));
                 }
 
                 task = queueList.poll();
@@ -151,6 +157,7 @@ public class Scheduler implements SchedulerInterface {
         if (index==-1) {
             Util.log().info("BatchId " + assignment.getBatchId() + " can't be found on the runningList");
         } else {
+            // get further assignments to be executed
             SCU scu = runningList.get(index);
             Batch batch = scu.getBatch();
             List<Assignment> assignments = batch.getAssignments();
@@ -160,16 +167,27 @@ public class Scheduler implements SchedulerInterface {
             List<Assignment> next = dp.startAfter(assignments, assignment);
             if (next!=null && next.size()>0) {
                 readyAssignments.addAll(next);
+                // Collective TRANSITIONED event
+                monitor.sendEvent(new CollectiveStream(EventType.TRANSITIONED, GridSim.clock(), scu));                
             } else {
                 // no further assignment depends on this assignment
                 // check if all other assignments finished
                 Status batchStatus = checkStatus(batch);
                 if (batchStatus!=Status.RUNNING) {
-                    if (batchStatus==Status.SUCCESSFUL) batch.getTask().setStatus(Task.Status.SUCCESSFUL);
-                    if (batchStatus==Status.FAILED) batch.getTask().setStatus(Task.Status.FAILED);
+                    EventType eventType = null;
+                    if (batchStatus==Status.SUCCESSFUL) {
+                        batch.getTask().setStatus(Task.Status.SUCCESSFUL);
+                        eventType = EventType.FINISHED;
+                    }
+                    if (batchStatus==Status.FAILED) {
+                        batch.getTask().setStatus(Task.Status.FAILED);
+                        eventType = EventType.FAILED;
+                    }
                     cloudUserInterface.notifyTaskResult(batch.getTask());
                     // record statistics
                     batch.getTask().getStat().recordFinishTime(assignment.getFinishTime());
+                    // Collective FINISHED/FAILED event
+                    monitor.sendEvent(new CollectiveStream(eventType, GridSim.clock(), scu));                
                 }
             }
         }
@@ -225,6 +243,8 @@ public class Scheduler implements SchedulerInterface {
                 a.setStartTime(startTime);
                 // swap assignment in batch
                 batch.replaceAssignment(assignment, a);
+                // Collective MODIFIED event
+                monitor.sendEvent(new CollectiveStream(EventType.UPDATED, GridSim.clock(), scu));                
                 // reserve
                 cloudUserInterface.reserveAssignment(a);
                 // kick off
@@ -237,6 +257,11 @@ public class Scheduler implements SchedulerInterface {
     @Override
     public void setCloudUserInterface(CloudUserInterface cloudUserInterface) {
         this.cloudUserInterface = cloudUserInterface;
+    }
+    
+    @Override
+    public void setMonitorInterface(MonitorInterface monitorInterface) {
+    	this.monitor = monitorInterface;
     }
 
     @Override
@@ -253,7 +278,7 @@ public class Scheduler implements SchedulerInterface {
                 break;
             default:
                 // Disable rescheduling, for reliability analysis
-                //rescheduleAssignment(assignment);                
+                rescheduleAssignment(assignment);                
                 break;
         }
             

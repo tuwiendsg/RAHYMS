@@ -1,0 +1,93 @@
+{
+    "seed": 1001,
+    "numberOfElements": 10,
+    "namePrefix": "Surveyor",
+    "singleElementSingleServices": true,
+    "connection": {
+	    "probabilityToConnect": 1.0,
+	    "weight": {"class": "NormalDistribution", "params": [10, 1, 1.0E-9]}
+    },
+    "services": [
+        {   
+            "functionality": "Collector",
+            "probabilityToHave": 1.0,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_collector",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},   
+                    "probabilityToHave": 1.0
+                }
+            ]
+        },
+        {   
+            "functionality": "Assessor",
+            "probabilityToHave": 1.0,
+            "properties": [
+                {
+                    "type": "skill",
+                    "name": "skill_assessor",
+                    "value": {"class": "NormalDistribution", "params": [0.7, 0.2, 1.0E-9]},  
+                    "probabilityToHave": 1.0
+                }
+            ]
+        }
+    ],
+    "commonProperties": [
+        {
+            "type": "static",
+            "name": "performance_rating",
+            "value": {"class": "NormalDistribution", "params": [0.95, 0.01, 1.0E-9]},   
+            "probabilityToHave": 1.0
+        },
+        {
+            "type": "static",
+            "name": "fault_probability",
+            "value": {"class": "NormalDistribution", "params": [0.05, 0.01, 1.0E-9]},   
+            "probabilityToHave": 1.0
+        },
+        {
+            "type": "static",
+            "name": "assignment_priority",
+            "value": 3,   
+            "probabilityToHave": 1.0
+        },
+        {
+            "type": "metric",
+            "name": "reliability",
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.cloud.metric.ReliabilityMetric",   
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "static",
+            "name": "cost",
+            "value": {"class": "NormalDistribution", "params": [5, 0.5, 1.0E-9]},   
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "static",
+            "name": "location",
+            "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                        "mapping": {"0": "Sector-A", "1": "Sector-B", "2": "Sector-C"}},
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "metric",
+            "name": "response_time",
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.metric.GSAvailabilityMetric",   
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "metric",
+            "name": "execution_time",
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.metric.GSAvailabilityMetric",   
+            "probabilityToHave": 1.0
+        },                
+        {
+            "type": "metric",
+            "name": "earliest_availability",
+            "interfaceClass": "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.metric.GSAvailabilityMetric",   
+            "probabilityToHave": 1.0
+        }
+    ]
+}

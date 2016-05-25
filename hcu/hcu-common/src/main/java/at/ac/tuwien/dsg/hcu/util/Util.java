@@ -4,6 +4,7 @@ import gridsim.parallel.log.LogFormatter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -11,12 +12,16 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 public class Util {
 
     private static Properties properties = null;
     private static String lastPropFile = "";
 
-    private static void initProperties(String file) {
+    private static Properties initProperties(String file) {
         if (properties==null || !lastPropFile.equals(file)) {
             properties = new Properties(); 
             try { 
@@ -26,10 +31,13 @@ public class Util {
                 System.out.println(e);
             }
         }
+        return properties;
     }
 
     public static String getProperty(String file, String key) {
-        initProperties(file);
+        if (initProperties(file)==null) {
+            return null;
+        }
         return properties.getProperty(key);
     }
 
@@ -72,28 +80,70 @@ public class Util {
     public static double Double(Object o) {
         return Double(o, 0.0);
     }
-    
+
     public static Logger log(String loggerName) {
-    	Logger log = LogManager.getLogManager().getLogger(loggerName);
-    	if (log==null) {
-    		log = Logger.getLogger(loggerName);
-    		// remove existing handler
-    		log.setUseParentHandlers(false);
-			for(Handler handler : log.getHandlers()){
-				log.removeHandler(handler);
-			}
-			// add new handler
-    		Handler hd = new ConsoleHandler();
-			hd.setFormatter(new LogFormatter());
-			log.addHandler(hd);
-    		LogManager.getLogManager().addLogger(log);
-    	}
+        Logger log = LogManager.getLogManager().getLogger(loggerName);
+        if (log==null) {
+            log = Logger.getLogger(loggerName);
+            // remove existing handler
+            log.setUseParentHandlers(false);
+            for(Handler handler : log.getHandlers()){
+                log.removeHandler(handler);
+            }
+            // add new handler
+            Handler hd = new ConsoleHandler();
+            hd.setFormatter(new LogFormatter());
+            log.addHandler(hd);
+            LogManager.getLogManager().addLogger(log);
+        }
         return log;
     }
 
     public static Logger log() {
-    	Logger log = log(Util.class.getName());
-    	log.setLevel(Level.WARNING);
-    	return log;
+        Logger log = log(Util.class.getName());
+        //log.setLevel(Level.WARNING);
+        log.setLevel(Level.INFO);
+        return log;
     }
+
+    public static Object eval(String expression, Object... arguments) throws ScriptException {
+        ScriptEngineManager engineManager = new ScriptEngineManager();
+        ScriptEngine engine = engineManager.getEngineByName("JavaScript");
+        for (int i=0; i<arguments.length; i++) {
+            expression = expression.replaceAll("%" + (i+1), arguments[i].toString());
+        }
+        return engine.eval(expression);
+    }
+
+    public static Method getMethod(String function) {
+
+        // get class name and method name
+        int dotPos = function.lastIndexOf(".");
+        String className = function.substring(0, dotPos);
+        String methodName = function.substring(dotPos+1);
+
+        Method method = null;
+        try {
+            Class<?> clazz = Class.forName(className);
+            Method[] methods = clazz.getMethods();
+            for (Method m: methods) {
+                if (m.getName().equals(methodName)) {
+                    method = m;
+                    break;
+                }
+            }
+            if (method==null) {
+                throw new NoSuchMethodException("Method not found: " + methodName);
+            }
+            //method = clazz.getMethod(methodName, String.class);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        return method;
+    }
+
 }

@@ -5,7 +5,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.json.JSONObject;
 
-import at.ac.tuwien.dsg.hcu.cloud.monitor.AvailabilityMonitor;
+import at.ac.tuwien.dsg.hcu.cloud.metric.AvailabilityMetric;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
@@ -41,30 +41,30 @@ public class AvailabilityGenerator {
             distStartState = new UniformRealDistribution(new MersenneTwister(seed++), 0, 1);          
         }
 
-        // get next state
+        // get next type
         int lastState;
         if (current.length()>0) {
             lastState = Character.getNumericValue(current.charAt(current.length()-1));
         } else {
             lastState = Character.getNumericValue(Double.toString(Math.round(distStartState.sample())).charAt(0));
         }
-        int nextState = AvailabilityMonitor.AVAILABLE;
-        if (lastState==AvailabilityMonitor.AVAILABLE || lastState==AvailabilityMonitor.BUSY) 
-            nextState = AvailabilityMonitor.NOT_AVAILABLE;
+        int nextState = AvailabilityMetric.AVAILABLE;
+        if (lastState==AvailabilityMetric.AVAILABLE || lastState==AvailabilityMetric.BUSY) 
+            nextState = AvailabilityMetric.NOT_AVAILABLE;
 
         int nextLength = 0; 
         while (result.length()<minLength) {
-            if (nextState==AvailabilityMonitor.AVAILABLE) {
+            if (nextState==AvailabilityMetric.AVAILABLE) {
                 nextLength = distAvail.sample();
             } else {
                 nextLength = distUnavail.sample();
             }
             String block = Util.stringRepeat(Integer.toString(nextState), nextLength);
             result += block;
-            if (nextState==AvailabilityMonitor.AVAILABLE) {
-                nextState = AvailabilityMonitor.NOT_AVAILABLE;
+            if (nextState==AvailabilityMetric.AVAILABLE) {
+                nextState = AvailabilityMetric.NOT_AVAILABLE;
             } else {
-                nextState = AvailabilityMonitor.AVAILABLE;
+                nextState = AvailabilityMetric.AVAILABLE;
             }
         }
 

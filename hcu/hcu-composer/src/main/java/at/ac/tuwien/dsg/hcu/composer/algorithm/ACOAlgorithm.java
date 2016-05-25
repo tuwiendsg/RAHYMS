@@ -40,7 +40,7 @@ public class ACOAlgorithm implements ComposerAlgorithmInterface {
         System.out.println("ACO Variant: " + acoVariantName + ".");
         try {
             acoVariant = (ACOVariantInterface)Class.forName(
-                    "scu.composer.algorithm.aco." + acoVariantName).newInstance();
+                    "at.ac.tuwien.dsg.hcu.composer.algorithm.aco." + acoVariantName).newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -209,7 +209,7 @@ public class ACOAlgorithm implements ComposerAlgorithmInterface {
 
         // return result
         if (feasibleSolutions.size()==0) {
-            System.out.println("No feasible solution found!");
+            System.out.println("ACO can't find feasible solution!");
             return new Solution();
         } else if (perfectSolution!=null) {
             perfectSolution.setData("*" + c);

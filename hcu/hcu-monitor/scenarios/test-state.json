@@ -1,0 +1,111 @@
+{
+    "title": "Testing State Metrics",
+    "monitoring_agents":
+    [
+        {
+            "name": "csv_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "adapter":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.adapter.CSVAdapter",
+                "config":
+                {
+                    "csv_file": "data/test-state.csv",
+                    "csv_time_cfg":
+                    {
+                        "csv_col": "time"
+                    }
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "event",
+                    "config":
+                    {
+                        "csv_col": "event",
+                        "metadata": [
+                            {
+                                "csv_col": "unit",
+                                "name": "id"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "enabled": true,
+            "name": "state_based_agent",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.StateBasedConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "csv_agent",
+                        "topic": "event",
+                        "config": {}
+                    }
+                ],
+                "config": {
+                    "transitions": [
+                        {"from": null, "event": "E1", "to": "A"},
+                        {"from": "A", "event": "E2", "to": "B"},
+                        {"from": "B", "event": "E3", "to": "C"},
+                        {"from": "C", "event": "E5", "to": "B"},
+                        {"from": "C", "event": "E4", "to": "A"},
+                        {"from": "B", "event": "E4", "to": "A"}
+                    ]
+                }
+            },
+            "producer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.producer.BaseProducer",
+                "config": {}
+            },
+            "topics":
+            [
+                {
+                    "name": "duration",
+                    "config":
+                    {
+                        "function": "at.ac.tuwien.dsg.hcu.monitor.util.StateMetricCalculator.duration",
+                        "args": {
+                            "window": 5.0,
+                            "return_all_units": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "csv_consumer",
+            "class": "at.ac.tuwien.dsg.hcu.monitor.impl.agent.BaseAgent",
+            "consumer":
+            {
+                "class": "at.ac.tuwien.dsg.hcu.monitor.impl.consumer.DumpConsumer",
+                "subscriptions":
+                [
+                    {
+                        "to": "state_based_agent",
+                        "topic": "duration",
+                        "config": {}
+                    },
+                    {
+                        "to": "csv_agent",
+                        "topic": "event",
+                        "config": {}
+                    }
+                ],
+                "config": {}
+            }
+        }
+    ]
+}
