@@ -19,19 +19,27 @@ public class Tracer {
 
     private FileWriter fstream;
     private BufferedWriter out;
+    private String fileName;
     
     private boolean uniqueMode = false;
     private static List<String> cache; 
     
     private static ConcurrentMap<String, Tracer> tracers = new ConcurrentHashMap<String, Tracer>();
     
+    public Tracer() {}
+    
     public Tracer(String file) {
         try {
             fstream = new FileWriter(file);
             out = new BufferedWriter(fstream);
+            this.fileName = file;
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public void trace(String text) {

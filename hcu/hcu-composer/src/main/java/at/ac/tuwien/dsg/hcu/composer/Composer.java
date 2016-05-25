@@ -117,8 +117,12 @@ public class Composer implements ComposerInterface {
 
             //todo brk download file icin nasil bir sistem olmali bunu örnek olarak yaptim. sadece global i kaydediyor
 
+            // NOTE: This should be moved to DBTracer constructor
+            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
+            Date now = new Date();
+            String date = sdfDate.format(now);
             DBObject simulationObject = new BasicDBObject("_id", simulationObjectId);
-            simulationObject.put("file_path", filePrefix);
+            simulationObject.put("file_path", composerTracer.getFileName());
             simulationObject.put("date", date);
 
             MongoDatabase.getSimulationCollection().insert(simulationObject);

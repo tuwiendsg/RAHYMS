@@ -6,6 +6,7 @@ import at.ac.tuwien.dsg.hcu.cloud.scheduler.DependencyProcessor;
 import at.ac.tuwien.dsg.hcu.cloud.scheduler.Scheduler;
 import at.ac.tuwien.dsg.hcu.common.interfaces.*;
 import at.ac.tuwien.dsg.hcu.composer.Composer;
+import at.ac.tuwien.dsg.hcu.monitor.legacy.LegacyMonitorManager;
 import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSConsumer;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
@@ -118,9 +119,23 @@ public class MainSimulation {
                     manager, discoverer, dp);
 
             SchedulerInterface scheduler = new Scheduler(composer, dp);
+            
+            // TODO: enable monitoring for simulation from the web
+            boolean monitoringEnabled = false;
+            MonitorInterface monitor = new LegacyMonitorManager(monitoringEnabled);
 
             // start the consumer
-            GSConsumer.start(numberOfCycles, waitBetweenCycles, scheduler, manager, taskConfig, svcConfig);
+            GSConsumer.start(
+                    scheduler,
+                    manager,
+                    monitor,
+                    taskConfig,
+                    svcConfig,
+                    numberOfCycles,
+                    waitBetweenCycles,
+                    null,
+                    false
+            );
 
 
         } catch (FileNotFoundException e) {

@@ -16,7 +16,7 @@ public class ComposerTracer extends Tracer {
     }
 
     public String getTraceHeader() {
-        return "flag,algo_time,task,data,task,solution_components,objective_value,cost,norm_cost,competency,connnectedness,mu_connnectedness,response_time,norm_response_time";
+        return "clock,task_id,flag,algo_time,task,data,task,solution_components,objective_value,cost,norm_cost,competency,connnectedness,mu_connnectedness,response_time,norm_response_time";
     }
 
 
