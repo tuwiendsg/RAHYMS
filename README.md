@@ -48,3 +48,5 @@ It contains the following components:
       and the REST APIP playground is available at http://localhost:8080/rest-ui/
   * Running in simulation mode:
     * run \hcu\hcu-simulation\src\main\java\at\ac\tuwien\dsg\hcu\simulation\RunSimulation.java.
+    
+<a href='https://raw.githubusercontent.com/tuwiendsg/RAHYMS/master/rahyms.pdf'>Documentation</a>
