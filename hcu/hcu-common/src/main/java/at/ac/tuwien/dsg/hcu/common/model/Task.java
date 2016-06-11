@@ -11,6 +11,7 @@ public class Task {
     public enum Status {
         CREATED (100, "Created"),
         QUEUED (110, "Queued"),
+        NEGOTIATING (120, "Negotiating"),
         RUNNING (200, "Running"),
         SUSPENDED (300, "Suspended"),
         SUCCESSFUL (410, "Successful"),
@@ -71,6 +72,7 @@ public class Task {
         this.reward = (Reward) type.getReward().clone();
         this.status = Task.Status.CREATED;
         this.stat = new StatisticPoints(this);
+        this.optimizationObjective = new OptimizationObjective();
     }
 
     public Task(String name, String description, double load, Task parent) {
@@ -88,6 +90,7 @@ public class Task {
         this.reward = new Reward();
         this.status = Task.Status.CREATED;
         this.stat = new StatisticPoints(this);
+        this.optimizationObjective = new OptimizationObjective();
     }
 
     public Task(String name, String description, double load) {
