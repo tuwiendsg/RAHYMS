@@ -60,7 +60,7 @@ public class SimulationService {
             e.printStackTrace();
         }
 
-        //todo bu id lere cözüm bul
+        //todo brk bu id lere cözüm bul
         return new Graph(0, result);
     }
 

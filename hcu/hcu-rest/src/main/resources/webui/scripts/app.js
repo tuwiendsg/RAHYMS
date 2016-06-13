@@ -125,10 +125,8 @@ function HeaderController($rootScope, $scope, $location)
             return valueValidated;
         }
 
-        //todo brk value nun mecburiyetine göre buraya kosul eklenebilir.
         if (!value || !value.class) {
             valueToAdd = {};
-            valueToAdd.check = false;
             return valueToAdd.valueToAdd;
         }
         valueValidated.class = value.class;
@@ -158,10 +156,6 @@ function HeaderController($rootScope, $scope, $location)
 
         var valueValidated = {};
 
-        if (!valueToAdd.check) {
-            return valueValidated;
-        }
-
         valueValidated.class = valueToAdd.class;
         valueValidated.params = [];
 
@@ -176,6 +170,7 @@ function HeaderController($rootScope, $scope, $location)
         if (valueToAdd.class !== 'Static') {
             valueValidated.params.push(valueToAdd.params.second);
         }
+        //todo brk value mecburi diyor ama non functional da girilmemis valuelar var onlar ne olacak? metric leri silersek göstermez isek sorun kalkiyor.
 
         if (valueToAdd.class === 'NormalDistribution') {
             valueValidated.params.push(valueToAdd.params.third);

@@ -36,3 +36,15 @@
 .glyphicon-plus-sign {
      font-size: 20px;
 }
+
+.value input{
+     width: 102.5% !important;
+}
+
+.no-left-padding {
+    padding-left: 0px !important;
+}
+
+.padding-left {
+     padding-left: 100px !important;
+}

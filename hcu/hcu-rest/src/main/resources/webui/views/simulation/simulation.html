@@ -32,9 +32,9 @@
     <div class="row">
         <div class="col-md-5">
             <!-- UNIT DRAG -->
-            <div class="thumbnail" data-drop="true" ng-model="unitListDrag" jqyoui-droppable="{multiple:true}"
+            <div id="unitDrag" class="thumbnail" data-drop="true" ng-model="unitListDrag" jqyoui-droppable="{multiple:true}"
                  style='height:150px;'>
-                <div ng-repeat="generator in unitListDrag" class="btn btn-primary" data-drag="true"
+                <div ng-repeat="generator in unitListDrag" class="btn btn-primary units" data-drag="true"
                      data-jqyoui-options="{revert: 'invalid'}" ng-model="unitListDrag"
                      jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}"
                      ng-hide="!generator.name">{{generator.name}}
@@ -47,10 +47,10 @@
 
         <div class="col-md-5">
             <!-- UNIT DROP -->
-            <div class="thumbnail" data-drop="true" data-jqyoui-options ng-model="unitListDrop"
+            <div id="unitDrop" class="thumbnail" data-drop="true" data-jqyoui-options ng-model="unitListDrop"
                  jqyoui-droppable="{multiple:true}"
                  style='height:150px;'>
-                <div class="btn btn-success" ng-repeat="item in unitListDrop" data-drag="true"
+                <div class="btn btn-success units" ng-repeat="item in unitListDrop" data-drag="true"
                      data-jqyoui-options="{revert: 'invalid'}" ng-model="unitListDrop"
                      jqyoui-draggable="{index: {{$index}},animate:true}"
                      ng-hide="!item.name">{{item.name}}
@@ -72,9 +72,9 @@
     <div class="row">
         <div class="col-md-5">
             <!-- TASK DRAG --><!-- todo brk geri droplari check yap unit ise unite task ise sadece taska -->
-            <div class="thumbnail" data-drop="true" ng-model="taskListDrag" jqyoui-droppable="{multiple:true}"
+            <div id="taskDrag" class="thumbnail" data-drop="true" ng-model="taskListDrag" jqyoui-droppable="{multiple:true}"
                  style='height:150px;'>
-                <div ng-repeat="generator in taskListDrag" class="btn btn-primary" data-drag="true"
+                <div ng-repeat="generator in taskListDrag" class="btn btn-primary tasks" data-drag="true"
                      data-jqyoui-options="{revert: 'invalid'}" ng-model="taskListDrag"
                      jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}"
                      ng-hide="!generator.name">{{generator.name}}
@@ -87,10 +87,10 @@
 
         <div class="col-md-5">
             <!-- TASK DROP -->
-            <div class="thumbnail" data-drop="true" data-jqyoui-options ng-model="taskListDrop"
+            <div id="taskDrop" class="thumbnail" data-drop="true" data-jqyoui-options ng-model="taskListDrop"
                  jqyoui-droppable="{multiple:true}"
                  style='height:150px;'>
-                <div class="btn btn-success" ng-repeat="item in taskListDrop" data-drag="true"
+                <div class="btn btn-success tasks" ng-repeat="item in taskListDrop" data-drag="true"
                      data-jqyoui-options="{revert: 'invalid'}" ng-model="taskListDrop"
                      jqyoui-draggable="{index: {{$index}},animate:true}"
                      ng-hide="!item.name">{{item.name}}

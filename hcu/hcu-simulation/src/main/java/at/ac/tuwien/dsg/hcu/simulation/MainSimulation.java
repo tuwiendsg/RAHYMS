@@ -20,8 +20,9 @@ import java.util.List;
  * Created by karaoglan on 06/04/16.
  */
 public class MainSimulation {
+
     public static final String FILE_TEMP = "/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/config/";
-    //todo brk config web den alinacak
+    //todo brk config web den alinacak, basedirectory ile alakali
     private static String configFile = FILE_TEMP + "consumer.properties";
 
     //todo brk düzelt cok fazla param modeli uygun bir dependcy olan yere al, misal common ..

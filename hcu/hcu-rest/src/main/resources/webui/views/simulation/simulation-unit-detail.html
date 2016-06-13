@@ -45,8 +45,6 @@
 
     </form>
 
-    <!-- todo brk responsive design lazim degildir herhalde? -->
-
     <form class="form-horizontal ng-pristine ng-valid">
 
         <div class="form-group">
@@ -59,33 +57,32 @@
             </div>
         </div>
 
-        <h4>Connectedness Weight Value Generator (Normal Distribution Params)</h4>
-
         <div class="form-group">
 
-            <div class="form-group">
+            <label class="col-sm-2 control-label" for="weight-value-first">Connectedness Weight : </label>
 
-                <label class="col-sm-2 control-label" for="weight-value-first">Average : </label>
+            <label class="col-sm-1 control-label pull-left no-left-padding" for="weight-value-first">Average : </label>
 
-                <div class="col-sm-10">
-                    <input id="weight-value-first" type="number" class="form-control" placeholder="average"
-                           ng-model="valueConnectedness.params.first">
-                </div>
-
-            </div>
-
-            <div class="form-group">
-
-                <label class="col-sm-2 control-label" for="weight-value-second">Deviation : </label>
-
-                <div class="col-sm-10">
-                    <input id="weight-value-second" type="number" class="form-control" placeholder="deviation"
-                           ng-model="valueConnectedness.params.second">
-                </div>
-
+            <div class="col-sm-5 value">
+                <input id="weight-value-first" type="number" class="form-control" placeholder="average"
+                       ng-model="valueConnectedness.params.first">
             </div>
 
         </div>
+
+        <div class="form-group">
+
+            <label class="col-sm-2 control-label"></label>
+
+            <label class="col-sm-1 control-label pull-left no-left-padding" for="weight-value-second">Deviation : </label>
+
+            <div class="col-sm-5 value">
+                <input id="weight-value-second" type="number" class="form-control" placeholder="deviation"
+                       ng-model="valueConnectedness.params.second">
+            </div>
+
+        </div>
+
 
     </form>
 
@@ -95,7 +92,7 @@
         <form>
             <input type="checkbox" id="single-service" ng-model="temporaryUnit.singleElementSingleServices"
                    name="single-service">
-            <label for="single-service">SingleElementSingleServices</label>
+            <label for="single-service">Each Unit provides only one service.</label>
 
         </form>
     </div>
@@ -106,9 +103,9 @@
     <table id="provided-table" class="table table-condensed table-hover" style="margin-bottom: 5px;">
         <tr>
             <th class="col-md-2">Functionality</th>
-            <th class="col-md-1">Probability</th>
-            <th class="col-md-0.5">Add Func. Property</th>
-            <th class="col-md-8">Functional Properties</th>
+            <th class="col-md-1">Probability to have</th>
+            <th class="col-md-0.5">Add Prop/Skill</th>
+            <th class="col-md-8">Properties/Skills</th>
             <th></th>
             <th></th>
         </tr>
@@ -153,8 +150,10 @@
                     <button type="button" class="close" ng-click="defaultParams()" data-dismiss="modal"
                             aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="modalPrivatePropertyLabel" ng-show="!editFunctionalPropertyClicked">Add Functional Property</h4>
-                    <h4 class="modal-title" id="modalPrivatePropertyEditLabel" ng-show="editFunctionalPropertyClicked">Edit Functional Property</h4>
+                    <h4 class="modal-title" id="modalPrivatePropertyLabel" ng-show="!editFunctionalPropertyClicked">Add
+                        Prop./Skill</h4>
+                    <h4 class="modal-title" id="modalPrivatePropertyEditLabel" ng-show="editFunctionalPropertyClicked">
+                        Edit Prop./Skill</h4>
                 </div>
                 <div class="modal-body">
 
@@ -184,40 +183,16 @@
 
                             <div class="col-md-9">
                                 <select id="private-property-type" ng-model="privateProperty.type" class="form-control">
-                                    <option selected>static</option>
-                                    <option>metric</option>
+                                    <option selected>static prop.</option>
                                     <option>skill</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="private-property-interface-class" class="col-sm-3 control-label">Class
-                                : </label>
-
-                            <div class="col-md-9">
-                                <select id="private-property-interface-class" ng-model="privateProperty.interfaceClass"
-                                        class="form-control">
-                                    <option selected value=""></option>
-                                    <option value="at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor">
-                                        ReliabilityMonitor
-                                    </option>
-                                    <option value="at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor.GSAvailabilityMonitor">
-                                        GSAvailabilityMonitor
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
                         <!-- Modal value create -->
                         <hr/>
-                        <form>
-                            <input type="checkbox" id="random-number-checkbox-functional" ng-model="valueToAdd.check"
-                                   name="random-number-checkbox">
-                            <label for="random-number-checkbox-functional">Activate Value Generator</label>
-                        </form>
-                        <hr/>
 
-                        <div ng-show="valueToAdd.check">
+                        <div>
                             <h4>Value Generator</h4>
                             <br/>
 
@@ -385,6 +360,7 @@
             <th></th>
             <th></th>
         </tr>
+        <!-- todo brk neden commondaki interface class silinmeli? -->
         <tr ng-repeat="property in temporaryUnit.commonProperties | orderBy:'$index':true">
             <td>{{property.name}}</td>
             <td>{{property.probabilityToHave}}</td>
@@ -418,8 +394,10 @@
                     <button type="button" class="close" ng-click="defaultParams()" data-dismiss="modal"
                             aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="modalPropertyCreateLabel" ng-show="!editCommonPropertyClicked">Add Non-Functional Property</h4>
-                    <h4 class="modal-title" id="modalPropertyEditLabel" ng-show="editCommonPropertyClicked">Edit Non-Functional Property</h4>
+                    <h4 class="modal-title" id="modalPropertyCreateLabel" ng-show="!editCommonPropertyClicked">Add
+                        Non-Functional Property</h4>
+                    <h4 class="modal-title" id="modalPropertyEditLabel" ng-show="editCommonPropertyClicked">Edit
+                        Non-Functional Property</h4>
                 </div>
                 <div class="modal-body">
 
@@ -447,9 +425,10 @@
                         <div class="form-group">
                             <label for="common-property-type" class="col-sm-3 control-label">Type : </label>
 
+                            <!-- todo brk common da metric olmasi gerekiyor mu private da yok anlasildi. -->
                             <div class="col-md-9">
                                 <select id="common-property-type" ng-model="commonProperty.type" class="form-control">
-                                    <option selected>static</option>
+                                    <option selected>static prop.</option>
                                     <option>metric</option>
                                     <option>skill</option>
                                 </select>
@@ -478,14 +457,8 @@
 
                     <!-- Modal value create -->
                     <hr/>
-                    <form>
-                        <input type="checkbox" id="random-number-checkbox" ng-model="valueToAdd.check"
-                               name="random-number-checkbox">
-                        <label for="random-number-checkbox">Activate Value Generator</label>
-                    </form>
-                    <hr/>
 
-                    <div ng-show="valueToAdd.check">
+                    <div>
                         <h4>Value Generator</h4>
                         <br/>
 

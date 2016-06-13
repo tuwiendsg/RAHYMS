@@ -119,7 +119,6 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
 
         if ($scope.privateProperty.value) {
             $scope.valueToAdd = $scope.generateValueFromRandomNumberForRepresentation($scope.privateProperty.value, $scope.valueToAdd);
-            $scope.valueToAdd.check = true;
         }
 
         if ($scope.privateProperty.value && $scope.privateProperty.value.mapping) {
@@ -146,9 +145,7 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
             delete $scope.commonProperty.interfaceClass;
         }
 
-        if ($scope.valueToAdd.check) {
-            $scope.commonProperty.value = angular.copy($scope.randomNumberGenerate(null, $scope.valueToAdd, $scope.mappingValues));
-        }
+        $scope.commonProperty.value = angular.copy($scope.randomNumberGenerate(null, $scope.valueToAdd, $scope.mappingValues));
 
         if (!$scope.editCommonPropertyClicked) {
             $scope.temporaryUnit.commonProperties.push(angular.copy($scope.commonProperty));
@@ -167,7 +164,6 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
         $scope.commonProperty = $scope.temporaryUnit.commonProperties[index];
         if ($scope.commonProperty.value) {
             $scope.valueToAdd = $scope.generateValueFromRandomNumberForRepresentation($scope.commonProperty.value, $scope.valueToAdd);
-            $scope.valueToAdd.check = true;
         }
         if ($scope.commonProperty.value && $scope.commonProperty.value.mapping) {
             $scope.mappingValues = $scope.commonProperty.value.mapping;
@@ -226,8 +222,13 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
     //todo brk json icinde value olarak gösterilen random value mecburi degil sanirsam sor.^mecbur ise validerung koy.
     //todo brk onu checkbox ile istendiginde aktiv edecegim bunu sor mecburi olup olmadigini?
 
+    //todo brk kaydetmeden cikmak istiyor musunuz olayini yukarida tablara tikaldiginda veyahut sayfayi kapattigida da olacak mi?
     $scope.backToHome = function () {
-        $location.path('/simulation-unit');
+        var dlg = dialogs.confirm('Confirmation', 'Any unsaved changes will be lost. Continue?');
+        dlg.result.then(function (btn) {
+            $location.path('/simulation-unit');
+        }, function (btn) {
+        });
     };
 
 });

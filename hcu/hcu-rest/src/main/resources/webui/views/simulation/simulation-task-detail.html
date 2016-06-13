@@ -59,13 +59,14 @@
             </div>
         </div>
 
-        <h4>Load Value Generator (Normal Distribution Params)</h4>
 
         <div class="form-group">
 
-            <label class="col-md-2 control-label" for="load-value-average">Average : </label>
+            <label class="col-sm-2 control-label" for="load-value-average">Task Load : </label>
 
-            <div class="col-sm-10">
+            <label class="col-sm-1 control-label no-left-padding" for="load-value-average">Average : </label>
+
+            <div class="col-sm-5 value">
                 <input id="load-value-average" type="number" class="form-control" placeholder="Enter average"
                        ng-model="loadValue.params.first">
             </div>
@@ -74,11 +75,13 @@
 
         <div class="form-group">
 
-            <label class="col-md-2 control-label" for="load-value-average">Deviation : </label>
+            <label class="col-sm-2 control-label" for="load-value-deviation"></label>
 
-            <div class="col-sm-10">
+            <label class="col-sm-1 control-label no-left-padding" for="load-value-deviation">Deviation : </label>
 
-                <input type="number" class="form-control" placeholder=" Enter deviation"
+            <div class="col-sm-5 value">
+
+                <input id="load-value-deviation" type="number" class="form-control" placeholder=" Enter deviation"
                        ng-model="loadValue.params.second">
             </div>
 
@@ -89,15 +92,15 @@
     </form>
 
     <!-- roles -->
-    <h4>Roles</h4>
+    <h4>Roles Requirements</h4>
     <table id="provided-table" class="table table-condensed table-hover" style="margin-bottom: 5px;">
         <tr>
             <th class="col-md-2">Functionality</th>
             <th class="col-md-1">Probability</th>
             <th class="col-md-1">RelativeLoadRatio</th>
             <th class="col-md-1">DependsOn</th>
-            <th class="col-md-0.5">Add Func. Property</th>
-            <th class="col-md-8">Functional Properties</th>
+            <th class="col-md-0.5">Add Func. Constraints</th>
+            <th class="col-md-8">Functional Constraints</th>
             <th></th>
             <th></th>
         </tr>
@@ -112,7 +115,7 @@
                     <span class="glyphicon glyphicon-cog"></span>
                 </button>
             </td>
-            <td> <!-- todo brk sor roles constraint nasil yazilsin? Roles constraint felan diye mi? ayni sekilde non func. constraints? -->
+            <td>
                 <span ng-repeat="specification in role.specification" class="label label-info list-info"
                       ng-click="openEditFunctionalProperty($parent.$index, $index)" data-toggle="modal"
                       data-keyboard="false" data-backdrop="static"
@@ -144,8 +147,8 @@
                     <button type="button" class="close" ng-click="defaultParams()" data-dismiss="modal"
                             aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="modalPrivateSpecificationLabel" ng-show="!editFunctionalPropertyClicked">Add Functional Property</h4>
-                    <h4 class="modal-title" id="modalPrivateSpecificationEditLabel" ng-show="editFunctionalPropertyClicked">Edit Functional Property</h4>
+                    <h4 class="modal-title" id="modalPrivateSpecificationLabel" ng-show="!editFunctionalPropertyClicked">Add Functional Constraint</h4>
+                    <h4 class="modal-title" id="modalPrivateSpecificationEditLabel" ng-show="editFunctionalPropertyClicked">Edit Functional Constraint</h4>
                 </div>
                 <div class="modal-body">
 
@@ -177,7 +180,6 @@
                                 <select id="private-specification-type" ng-model="privateSpecification.type"
                                         class="form-control">
                                     <option selected>static</option>
-                                    <option>metric</option>
                                     <option>skill</option>
                                 </select>
                             </div>
@@ -215,14 +217,10 @@
                         </div>
 
                         <hr/>
-                        <form>
-                            <input type="checkbox" id="random-number-checkbox-functional" ng-model="valueToAdd.check"
-                                   name="random-number-checkbox">
-                            <label for="random-number-checkbox-functional">Activate Value Generator</label>
-                        </form>
-                        <hr/>
 
-                        <div ng-show="valueToAdd.check">
+                        <!-- todo brk roles functionality unique olmali degil mi? depends on dan dolayi -->
+
+                        <div>
                             <h4>Value Generator</h4>
                             <br/>
 
@@ -368,8 +366,27 @@
                             </div>
                         </div>
 
-                        <div>### - TODO DEPENDS ON</div>
-                        <!-- todo brk dependson ile ilgili yeri yap -->
+                        <hr/>
+
+                        <h5>Depends On : </h5>
+                        <div ng-repeat="temporaryRole in temporaryTask.taskTypes[0].roles">
+                            <div ng-hide="editRoleClicked && role.functionality === temporaryRole.functionality" class="col-sm-6 padding-left">
+                                <form>
+                                    <input type="checkbox" ng-model="dependsOnValues[temporaryRole.functionality]"
+                                           name="dependsOn">
+                                    <label>{{ temporaryRole.functionality }}</label>
+                                </form>
+
+                            </div>
+                            <div ng-hide="editRoleClicked && role.functionality === temporaryRole.functionality" class="col-sm-6">
+                                <form>
+                                    <input ng-disabled="!dependsOnValues[temporaryRole.functionality]" type="checkbox" ng-model="dependsOnStrongValues[temporaryRole.functionality]"
+                                           name="strongDependency">
+                                    <label>Strong Dependency</label>
+                                </form>
+                            </div>
+
+                        </div>
 
                     </form>
 
@@ -388,7 +405,7 @@
 
     <hr/>
 
-    <h4>Non-Functional Properties</h4>
+    <h4>Non-Functional Constraints</h4>
     <table id="common-specification" class="table table-condensed table-hover" style="margin-bottom: 5px;">
         <tr>
             <th class="col-md-2">Name</th>
@@ -463,7 +480,6 @@
                             <div class="col-md-9">
                                 <select id="common-property-type" ng-model="commonProperty.type" class="form-control">
                                     <option selected>static</option>
-                                    <option>metric</option>
                                     <option>skill</option>
                                 </select>
                             </div>
@@ -499,14 +515,8 @@
 
                     <!-- Modal value create -->
                     <hr/>
-                    <form>
-                        <input type="checkbox" id="random-number-checkbox" ng-model="valueToAdd.check"
-                               name="random-number-checkbox">
-                        <label for="random-number-checkbox">Activate Value Generator</label>
-                    </form>
-                    <hr/>
 
-                    <div ng-show="valueToAdd.check">
+                    <div>
                         <h4>Value Generator</h4>
                         <br/>
 

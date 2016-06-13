@@ -55,7 +55,8 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         $scope.composerProperties = {};
         $scope.simulationProperties = {};
 
-        //todo brk bu prefixler bu sekidle eklenmemesi lazim web de dynamic olmasi lazim sor.
+        //todo brk base directory ile alakali
+        //todo brk bu prefixler bu sekidle eklenmemesi lazim web de dynamic olmasi lazim sor. su anlik gerek yokmus.
         $scope.composerProperties.reliability_trace_file_prefix = '/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/traces/reliability/';
         $scope.composerProperties.trace_file_prefix = '/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/traces/composer/composer-';
 
@@ -99,14 +100,11 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
     };
 
     $scope.startSimulation = function () {
-        console.log($scope.unitListDrag);
-        console.log($scope.unitListDrop);
-        console.log($scope.taskListDrag);
-        console.log($scope.taskListDrop);
 
         $scope.simulationProperties.timeCreated = new Date();
 
         //todo brk simulationProperties modeline gerek kalmadi su an assagida depend. gerekiyor cünkü string olarak composer in icinde yollayacagim
+        //todo brk bu composerdan nasil alinacak simulation name felan incele.
         for (var key in $scope.simulationProperties) {
             $scope.composerProperties[key] = $scope.simulationProperties[key];
         }
@@ -114,8 +112,6 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         $scope.tasks = [];
         $scope.units = [];
         dialogs.wait(undefined, 'Starting simulation', 99);
-
-        //todo brk task ve unit name unique mi olmali ?
 
         angular.forEach($scope.unitListDrop, function (value) {
             $scope.units.push(angular.toJson(value.unit, true));
@@ -148,5 +144,37 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         });
         $scope.is_loading = false;
     };
+
+    $("#unitDrag").droppable({
+        accept: function(d) {
+            if(d.hasClass("units")){
+                return true;
+            }
+        }
+    });
+
+    $("#unitDrop").droppable({
+        accept: function(d) {
+            if(d.hasClass("units")){
+                return true;
+            }
+        }
+    });
+
+    $("#taskDrag").droppable({
+        accept: function(d) {
+            if(d.hasClass("tasks")){
+                return true;
+            }
+        }
+    });
+
+    $("#taskDrop").droppable({
+        accept: function(d) {
+            if(d.hasClass("tasks")){
+                return true;
+            }
+        }
+    });
 
 });

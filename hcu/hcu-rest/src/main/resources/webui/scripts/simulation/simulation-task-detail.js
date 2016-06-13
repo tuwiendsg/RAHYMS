@@ -59,6 +59,9 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         $scope.roleIndexForEditFunctionalProperty = undefined;
         $scope.editFunctionalPropertyIndex = undefined;
 
+        $scope.dependsOn = [];
+        $scope.dependsOnStrongValues = {};
+        $scope.dependsOnValues = {};
         $scope.mappingValues = {};
         $rootScope.mappingValueArray = [];
     };
@@ -69,19 +72,48 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         $scope.role.functionality = $scope.temporaryTask.taskTypes[0].roles[index].functionality;
         $scope.role.probabilityToHave = $scope.temporaryTask.taskTypes[0].roles[index].probabilityToHave;
         $scope.role.relativeLoadRatio = $scope.temporaryTask.taskTypes[0].roles[index].relativeLoadRatio;
+        $scope.calculateDependencyForEditRole($scope.temporaryTask.taskTypes[0].roles[index].dependsOn);
+    };
+
+    $scope.calculateDependencyForEditRole = function(depends) {
+        angular.forEach(depends, function(value, key) {
+            if(value.startsWith("*")) {
+                var functionalityValue = value.substring(1);
+                $scope.dependsOnValues[functionalityValue] = true;
+                $scope.dependsOnStrongValues[functionalityValue] = true;
+            } else if(value) {
+                $scope.dependsOnValues[value] = true;
+            }
+        });
     };
 
     $scope.saveRole = function () {
+
+        $scope.calculateDependency();
+        $scope.role.dependsOn = $scope.dependsOn;
+
         if (!$scope.editRoleClicked) {
             $scope.temporaryTask.taskTypes[0].roles.push(angular.copy($scope.role));
-        }
-        else {
+        } else {
             $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].functionality = angular.copy($scope.role.functionality);
+            $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].dependsOn = angular.copy($scope.role.dependsOn);
             $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].probabilityToHave = angular.copy($scope.role.probabilityToHave);
             $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].relativeLoadRatio = angular.copy($scope.role.relativeLoadRatio);
         }
 
         $scope.defaultParams();
+    };
+
+    $scope.calculateDependency = function () {
+        angular.forEach($scope.dependsOnValues, function(value, key) {
+            if(value) {
+                if($scope.dependsOnStrongValues[key]) {
+                    $scope.dependsOn.push("*" + key);
+                } else {
+                    $scope.dependsOn.push(key);
+                }
+            }
+        });
     };
 
     $scope.deleteRole = function (index) {
@@ -229,7 +261,11 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
     };
 
     $scope.backToHome = function () {
-        $location.path('/simulation-task');
+        var dlg = dialogs.confirm('Confirmation', 'Any unsaved changes will be lost. Continue?');
+        dlg.result.then(function (btn) {
+            $location.path('/simulation-task');
+        }, function (btn) {
+        });
     };
 
 });
