@@ -15,7 +15,7 @@ public class ComputingElement {
     protected Properties properties;
     protected Metrics metrics;
     protected List<Connection> connections;
-    protected List<Service> services;
+    protected List<Integer> services;
     protected ServiceManagerInterface manager;
     protected int assignmentCount = 0;
     protected int finishedCount = 0;
@@ -49,7 +49,7 @@ public class ComputingElement {
         this.metrics = metrics;
         this.metrics.setOwner(this);
         this.connections = connections;
-        this.services = new ArrayList<Service>();
+        this.services = new ArrayList<Integer>();
     }
 
     public int getType() {
@@ -115,7 +115,7 @@ public class ComputingElement {
     public void setConnection(ComputingElement other, double weight) {
         Connection conn = getConnection(other);
         if (conn==null) {
-            conn = new Connection(this, other, weight);
+            conn = new Connection(this.getId(), other.getId(), weight);
             connections.add(conn);
         } else {
             conn.setWeight(weight);
@@ -126,8 +126,8 @@ public class ComputingElement {
     public Connection getConnection(ComputingElement other) {
         Connection conn = null;
         for (Connection c : connections) {
-            if ((c.getComputingElement1()==this && c.getComputingElement2()==other) || 
-                (c.getComputingElement2()==this && c.getComputingElement1()==other)) {
+            if ((c.getNode1()==this.getId() && c.getNode2()==other.getId()) || 
+                (c.getNode2()==this.getId() && c.getNode1()==other.getId())) {
                 conn = c;
                 break;
             }
@@ -144,18 +144,18 @@ public class ComputingElement {
     public String connectionsToString() {
         String sconn = "";
         for (Connection c: connections) {
-            ComputingElement other = c.getOther(this);
+            long other = c.getOther(this.getId());
             if (!sconn.equals("")) sconn += ",";
-            sconn += other.getId() + ":" + c.getWeight(); 
+            sconn += other + ":" + c.getWeight(); 
         }
         return "[" + sconn + "]";
     }
     
     public String servicesToString() {
         String svc = "";
-        for (Service s : services) {
+        for (Integer s : services) {
             if (!svc.equals("")) svc += ",";
-            svc += s.getFunctionality();
+            svc += s;
         }
         return "[" + svc + "]";
     }
@@ -222,30 +222,31 @@ public class ComputingElement {
         return this.getMetrics().getValue(name, _default);
     }
 
-    public List<Service> getServices() {
+    public List<Integer> getServices() {
         return services;
     }
 
-    public void setServices(ArrayList<Service> services) {
+    public void setServices(List<Integer> services) {
         this.services = services;
         autoUpdate();
     }
     
+    /*
     public Service getService(Functionality functionality) {
         Service service = null;
         int index = services.indexOf(new Service(functionality, this));
         if (index>-1) service = services.get(index);
         return service;
-    }
+    }*/
 
     public void addService(Service service) {
-        int index = services.indexOf(service);
+        int index = services.indexOf(service.getId());
         if (index > -1) {
             // same functionality exists, replace
-            this.services.set(index, service);
+            this.services.set(index, service.getId());
         } else {
             // add
-            this.services.add(service);
+            this.services.add(service.getId());
         }
         autoUpdate();
     }

@@ -113,7 +113,7 @@ public class Simulation {
             manager = (ServiceManagerInterface) getImplementation("serviceManager", new Object[]{});
             discoverer = (DiscovererInterface) getImplementation("discoverer", new Object[]{manager});
             dp = new DependencyProcessor();
-            composer = (ComposerInterface) getImplementation("composer", new Object[]{composerConfig, manager, discoverer, dp});
+            composer = (ComposerInterface) getImplementation("composer", new Object[]{composerConfig, discoverer, dp});
             scheduler = (SchedulerInterface) getImplementation("scheduler", new Object[]{composer, dp});
             boolean monitoringEnabled = Boolean.parseBoolean(Util.getProperty(config, "monitor"));
             monitor = (MonitorInterface) getImplementation("monitor", new Object[]{monitoringEnabled});

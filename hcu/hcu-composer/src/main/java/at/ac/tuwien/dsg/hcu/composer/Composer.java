@@ -9,7 +9,6 @@ import at.ac.tuwien.dsg.hcu.cloud.metric.helper.ReliabilityTracer;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
-import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.Connection;
 import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
@@ -38,14 +37,12 @@ public class Composer implements ComposerInterface {
     private ConstructionGraph constructionGraph;
     private ConnectednessGraph connectednessGraph;
     
-    private ServiceManagerInterface manager;
     private DiscovererInterface discoverer;
     private DependencyProcessorInterface dp;
 
-    public Composer(String configFile, ServiceManagerInterface serviceManager,
+    public Composer(String configFile,
             DiscovererInterface discoverer, DependencyProcessorInterface dp) {
         this.configFile = configFile;
-        this.manager = serviceManager;
         this.discoverer = discoverer;
         this.dp = dp;
         init();
@@ -176,7 +173,7 @@ public class Composer implements ComposerInterface {
     
     private ConnectednessGraph generateConnectednessGraph(List<Service> services) {
         Util.log().info("Generating connectedness graph");
-        ArrayList<Connection> relations = (ArrayList<Connection>) manager.getConnections(services);
+        ArrayList<Connection> relations = (ArrayList<Connection>) discoverer.discoverConnections(services);
         ConnectednessGraph connectednessGraph = new ConnectednessGraph();
         connectednessGraph.generate(relations);
         return connectednessGraph;

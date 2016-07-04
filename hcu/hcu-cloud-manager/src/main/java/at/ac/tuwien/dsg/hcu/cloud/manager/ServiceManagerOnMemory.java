@@ -113,41 +113,20 @@ public class ServiceManagerOnMemory implements
     }
 
     @Override
-    public List<Connection> getConnections(List<Service> services) {
-        
-        ArrayList<Connection> connections = new ArrayList<Connection>();
-
-        // get a list of computing elements serving the services
-        ArrayList<ComputingElement> elements = new ArrayList<ComputingElement>();
-        ArrayList<Long> added = new ArrayList<Long>();
-        for (Service s: services) {
-            if (added.indexOf(s.getProvider().getId())==-1) {
-                elements.add(s.getProvider());
-                added.add(s.getProvider().getId());
-            }
-        }
-        
-        // special case for single worker
-        if (elements.size()==1) {
-          connections.add(new Connection(elements.get(0)));
-        }
-          
-        // iterate to get the connections, assuming that the connection is undirectional
-        for (int i=0; i<elements.size(); i++) {
-            ComputingElement e1 = elements.get(i);
-            for (int j=i+1; j<elements.size(); j++) {
-                ComputingElement e2 = elements.get(j);
-                Connection c = e1.getConnection(e2);
-                if (c!=null) connections.add(c);
-          }
-        }
-        return connections;
-    }
-
-    @Override
     public ServiceManagerInterface getInstance() {
         if (_instance==null) _instance = new ServiceManagerOnMemory();
         return _instance;
+    }
+
+    @Override
+    public Service getServiceById(int serviceId) {
+        Service found = null;
+        for (Service s: serviceCache) {
+            if (s.getId()==serviceId) {
+                found = s;
+            }
+        }
+        return found;
     }
 
 }

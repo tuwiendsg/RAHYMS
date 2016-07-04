@@ -17,7 +17,7 @@ public class SimpleNegotiator implements NegotiateInterface {
     @Override
     public void negotiate(Task task, List<Assignment> assignments, NegotiateCallbackInterface callback) {
         task.setStatus(Task.Status.NEGOTIATING);
-        System.out.println("NEGOTIATING task #" + task.getId() + ", assignments=" + assignments);
+        //System.out.println("NEGOTIATING task #" + task.getId() + ", assignments=" + assignments);
         callback.deployAssignments(task, assignments);
     }
 

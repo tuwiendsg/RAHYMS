@@ -7,6 +7,8 @@ import at.ac.tuwien.dsg.hcu.common.fuzzy.MembershipFunction;
 import at.ac.tuwien.dsg.hcu.common.fuzzy.function.SkillMembershipFunctionCollection;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DiscovererInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
+import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
+import at.ac.tuwien.dsg.hcu.common.model.Connection;
 import at.ac.tuwien.dsg.hcu.common.model.Functionality;
 import at.ac.tuwien.dsg.hcu.common.model.HumanComputingElement;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
@@ -105,6 +107,38 @@ public class Discoverer implements DiscovererInterface {
         }
 
         return match;
+    }
+
+    @Override
+    public List<Connection> discoverConnections(List<Service> services) {
+        
+        ArrayList<Connection> connections = new ArrayList<Connection>();
+
+        // get a list of computing elements serving the services
+        ArrayList<ComputingElement> elements = new ArrayList<ComputingElement>();
+        ArrayList<Long> added = new ArrayList<Long>();
+        for (Service s: services) {
+            if (added.indexOf(s.getProvider().getId())==-1) {
+                elements.add(s.getProvider());
+                added.add(s.getProvider().getId());
+            }
+        }
+        
+        // special case for single worker
+        if (elements.size()==1) {
+          connections.add(new Connection(elements.get(0).getId()));
+        }
+          
+        // iterate to get the connections, assuming that the connection is undirectional
+        for (int i=0; i<elements.size(); i++) {
+            ComputingElement e1 = elements.get(i);
+            for (int j=i+1; j<elements.size(); j++) {
+                ComputingElement e2 = elements.get(j);
+                Connection c = e1.getConnection(e2);
+                if (c!=null) connections.add(c);
+          }
+        }
+        return connections;
     }
 
 

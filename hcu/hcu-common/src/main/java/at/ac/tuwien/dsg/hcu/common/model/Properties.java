@@ -1,13 +1,15 @@
 package at.ac.tuwien.dsg.hcu.common.model;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 public class Properties {
     
-    protected Hashtable<String, Object> valueSet;
+    protected Map<String, Object> valueSet;
 
     public Properties() {
-        valueSet = new Hashtable<String, Object>();
+        valueSet = new HashMap<String, Object>();
     }
 
     public String toString() {
@@ -30,10 +32,14 @@ public class Properties {
         valueSet.put(name, value);
     }
     
-    public Hashtable<String, Object> getValueSet() {
+    public Map<String, Object> getValueSet() {
         return valueSet;
     }
     
+    public void setValueSet(Map<String, Object> valueSet) {
+        this.valueSet = valueSet;
+    }
+
     public boolean has(String name) {
         return valueSet.containsKey(name);
     }

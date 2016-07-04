@@ -201,8 +201,9 @@ implements PeerAuthenticationCallback, PeerInfoCallback, CollectiveInfoCallback{
     private List<Service> createServices(ComputingElement element, List<String> services) {
         List<Service> result = new ArrayList<Service>(); 
         // clean up existing services
-        for (Service service: element.getServices()) {
+        for (Integer serviceId: element.getServices()) {
             try {
+                Service service = serviceManager.getServiceById(serviceId);
                 serviceManager.removeService(service);
             } catch (at.ac.tuwien.dsg.hcu.common.exceptions.NotFoundException e) {
                 e.printStackTrace();

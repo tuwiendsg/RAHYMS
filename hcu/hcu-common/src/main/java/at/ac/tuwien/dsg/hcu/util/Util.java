@@ -1,10 +1,9 @@
 package at.ac.tuwien.dsg.hcu.util;
 
-import gridsim.parallel.log.LogFormatter;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -15,6 +14,12 @@ import java.util.logging.Logger;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import at.ac.tuwien.dsg.hcu.common.model.Service;
+import gridsim.parallel.log.LogFormatter;
 
 public class Util {
 
@@ -101,8 +106,8 @@ public class Util {
 
     public static Logger log() {
         Logger log = log(Util.class.getName());
-        //log.setLevel(Level.WARNING);
-        log.setLevel(Level.INFO);
+        log.setLevel(Level.WARNING);
+        //log.setLevel(Level.INFO);
         return log;
     }
 
@@ -146,4 +151,15 @@ public class Util {
         return method;
     }
 
+    public static String dumpObjectToJson(Object obj) {
+        String jsonInString = "";
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            jsonInString = mapper.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return jsonInString;
+    }
 }

@@ -2,6 +2,7 @@ package at.ac.tuwien.dsg.hcu.common.interfaces;
 
 import java.util.List;
 
+import at.ac.tuwien.dsg.hcu.common.model.Connection;
 import at.ac.tuwien.dsg.hcu.common.model.Functionality;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.sla.Specification;
@@ -16,5 +17,8 @@ public interface DiscovererInterface {
     List<Service> discoverServices(Functionality functionality,
             Specification specification, double timeStart, double load,
             double deadline);
+
+    // retrieve connectedness of services
+    public List<Connection> discoverConnections(List<Service> services);
 
 }

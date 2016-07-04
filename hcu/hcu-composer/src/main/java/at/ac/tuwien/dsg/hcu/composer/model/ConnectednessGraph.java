@@ -45,22 +45,22 @@ public class ConnectednessGraph extends
             ComputingElement e2;
 
             // ComputingElement 1
-            if (getComputingElements().containsKey(c.getComputingElement1().getId())) {
-                e1 = getComputingElements().get(c.getComputingElement1().getId());
+            if (getComputingElements().containsKey(c.getNode1())) {
+                e1 = getComputingElements().get(c.getNode1());
             } else {
-                e1 = new ComputingElement(c.getComputingElement1().getId());
-                getComputingElements().put(c.getComputingElement1().getId(), e1);
+                e1 = new ComputingElement(c.getNode1());
+                getComputingElements().put(c.getNode1(), e1);
                 addVertex(e1);
             }
 
-            if (c.getComputingElement2()!=null) {
+            if (c.getNode2()!=0) {
 
                 // ComputingElement 2
-                if (getComputingElements().containsKey(c.getComputingElement2().getId())) {
-                    e2 = getComputingElements().get(c.getComputingElement2().getId());
+                if (getComputingElements().containsKey(c.getNode2())) {
+                    e2 = getComputingElements().get(c.getNode2());
                 } else {
-                    e2 = new ComputingElement(c.getComputingElement2().getId());
-                    getComputingElements().put(c.getComputingElement2().getId(), e2);
+                    e2 = new ComputingElement(c.getNode2());
+                    getComputingElements().put(c.getNode2(), e2);
                     addVertex(e2);
                 }
 

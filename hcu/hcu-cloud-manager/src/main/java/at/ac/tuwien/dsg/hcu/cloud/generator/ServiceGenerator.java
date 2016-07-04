@@ -24,6 +24,7 @@ public class ServiceGenerator {
     private ArrayList<JSONObject> configs = new ArrayList<JSONObject>();
     private int seed;
     private static long lastElementId = 0;
+    private static int lastServiceId = 0;
     
     // distribution generators
     private UniformRealDistribution distPropToHave;
@@ -229,6 +230,7 @@ public class ServiceGenerator {
                     //HumanComputingElement element = (HumanComputingElement)e;
                     // add service
                     Service service = new Service(new Functionality(func), e);
+                    service.setId(lastServiceId++);
                     e.addService(service);
                     services.add(service);
                     for (int j=0; j<prop.length(); j++) {
@@ -300,6 +302,7 @@ public class ServiceGenerator {
             // add service
             HumanComputingElement element = (HumanComputingElement)e;
             Service service = new Service(new Functionality(func), element);
+            service.setId(lastServiceId++);
             element.addService(service);
             services.add(service);
             // add related properties to the element

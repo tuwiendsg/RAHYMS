@@ -25,8 +25,6 @@ public interface ServiceManagerInterface {
     public Service registerService(Service service);
     public void removeService(Service service) throws NotFoundException;
     public List<Service> retrieveServices(Functionality functionality);
+    public Service getServiceById(int serviceId);
     
-    // manage relations
-    public List<Connection> getConnections(List<Service> services);
-
 }

@@ -4,43 +4,43 @@ public class Connection {
 
     // TODO: directed connection
     
-    private ComputingElement element1; // element1.id<element2
-    private ComputingElement element2;
+    private Long node1; // node1.id<node2
+    private Long node2;
     private double weight;
 
     public Connection() {
     }
 
-    public Connection(ComputingElement element1) {
-        this.element1 = element1;
-        this.element2 = null;
+    public Connection(long node1) {
+        this.node1 = node1;
+        this.node2 = 0L;
         this.weight = Double.MAX_VALUE; // TODO: this max value will depend on our conectedness membership function
     }
 
-    public Connection(ComputingElement element1, ComputingElement element2, double weight) {
-        if (element1.getId()<element2.getId()) {
-            this.element1 = element1;
-            this.element2 = element2;
+    public Connection(long node1, long node2, double weight) {
+        if (node1<node2) {
+            this.node1 = node1;
+            this.node2 = node2;
         } else {
-            this.element1 = element2;
-            this.element2 = element1;      
+            this.node1 = node2;
+            this.node2 = node1;      
         }
         this.weight = weight;
     }
 
-    public void setComputingElement1(ComputingElement element1) {
-        this.element1 = element1;
+    public void setNode1(long node1) {
+        this.node1 = node1;
     }
 
-    public void setComputingElement2(ComputingElement element2) {
-        this.element2 = element2;
+    public void setNode2(long node2) {
+        this.node2 = node2;
     }
 
-    public ComputingElement getComputingElement1() {
-        return element1;
+    public long getNode1() {
+        return node1;
     }
-    public ComputingElement getComputingElement2() {
-        return element2;
+    public long getNode2() {
+        return node2;
     }
     public double getWeight() {
         return weight;
@@ -49,16 +49,16 @@ public class Connection {
         this.weight = weight2;
     }
     
-    public ComputingElement getOther(ComputingElement e1) {
-        ComputingElement other = null;
-        if (e1==element1) other = element2;
-        else if (e1==element2) other= element1;
+    public long getOther(long e1) {
+        Long other = null;
+        if (e1==node1) other = node2;
+        else if (e1==node2) other= node1;
         return other;
     }
 
     @Override
     public String toString() {
-        return "Conn [element1=" + element1 + ", element2=" + element2
+        return "Conn [node1=" + node1 + ", node2=" + node2
                 + ", weight=" + weight + "]";
     }
 
@@ -66,8 +66,8 @@ public class Connection {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((element1 == null) ? 0 : element1.hashCode());
-        result = prime * result + ((element2 == null) ? 0 : element2.hashCode());
+        result = prime * result + ((node1 == null) ? 0 : node1.hashCode());
+        result = prime * result + ((node2 == null) ? 0 : node2.hashCode());
         return result;
     }
 
@@ -80,15 +80,15 @@ public class Connection {
         if (getClass() != obj.getClass())
             return false;
         Connection other = (Connection) obj;
-        if (element1 == null) {
-            if (other.element1 != null)
+        if (node1 == null) {
+            if (other.node1 != null)
                 return false;
-        } else if (!element1.equals(other.element1))
+        } else if (!node1.equals(other.node1))
             return false;
-        if (element2 == null) {
-            if (other.element2 != null)
+        if (node2 == null) {
+            if (other.node2 != null)
                 return false;
-        } else if (!element2.equals(other.element2))
+        } else if (!node2.equals(other.node2))
             return false;
         return true;
     }
