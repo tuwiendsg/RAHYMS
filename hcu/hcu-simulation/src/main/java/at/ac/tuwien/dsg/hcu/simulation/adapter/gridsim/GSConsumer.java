@@ -1,12 +1,5 @@
 package at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim;
 
-import eduni.simjava.Sim_system;
-import gridsim.GridSim;
-import gridsim.GridSimTags;
-import gridsim.Gridlet;
-import gridsim.IO_data;
-import gridsim.parallel.reservation.ReservationRequester;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,12 +13,18 @@ import at.ac.tuwien.dsg.hcu.cloud.generator.TaskGenerator;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
-import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
+import at.ac.tuwien.dsg.hcu.common.interfaces.WorkerManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
 import at.ac.tuwien.dsg.hcu.util.Util;
 import at.ac.tuwien.dsg.hcu.util.WekaExporter;
+import eduni.simjava.Sim_system;
+import gridsim.GridSim;
+import gridsim.GridSimTags;
+import gridsim.Gridlet;
+import gridsim.IO_data;
+import gridsim.parallel.reservation.ReservationRequester;
 
 
 /**
@@ -78,9 +77,10 @@ public class GSConsumer extends ReservationRequester {
             
             int nTask = 0;
             
+            ArrayList<Task> tasks = null;
             for (int i=0; i<nCycle; i++) {
 
-                ArrayList<Task> tasks = taskGen.generate();
+                tasks = taskGen.generate();
                 
                 Util.log().info("Generating tasks: " + tasks.size() + " tasks");
 
@@ -133,7 +133,11 @@ public class GSConsumer extends ReservationRequester {
             int success = 0;
             int failed = 0;
             System.out.println("RESULT: ");
-            for (Task task: list) {
+            
+            // when list is empty, we use non gridlet tasks, i.e, external WorkerManager
+            List<Task> resultTask = list.size()>0 ? list : tasks;
+            
+            for (Task task: resultTask) {
                 System.out.println(task);
                if (task.getStatus()==Task.Status.SUCCESSFUL) {
                    success++;
@@ -146,7 +150,7 @@ public class GSConsumer extends ReservationRequester {
             }
             System.out.println("Successfull tasks = " + success);
             System.out.println("Failed tasks = " + failed);
-            System.out.println("Total tasks = " + list.size());
+            System.out.println("Total tasks = " + tasks.size());
             
             // dump weka file
             if (exportArffTo!=null && !exportArffTo.trim().equals("")){
@@ -186,7 +190,8 @@ public class GSConsumer extends ReservationRequester {
 
     public static void start(
             SchedulerInterface scheduler,
-            ServiceManagerInterface manager,
+            ServiceManagerInterface serviceManager,
+            WorkerManagerInterface workerManager,
             MonitorInterface monitor,
             ArrayList<ConfigJson> taskGeneratorConfig,
             ArrayList<ConfigJson> serviceGeneratorConfig,
@@ -214,11 +219,18 @@ public class GSConsumer extends ReservationRequester {
             GridSim.init(numUser, calendar, traceFlag, false);
 
             // Create a new Middleware as GIS entity    
-            gsMiddleware = new GSMiddleware(manager, scheduler, monitor);
+            gsMiddleware = new GSMiddleware(serviceManager, monitor);
+            gsMiddleware.setScheduler(scheduler);
+            if (workerManager!=null) {
+                scheduler.setWorkerManagerInterface(workerManager);
+                workerManager.setScheduler(scheduler);
+            }
             GridSim.setGIS(gsMiddleware);
 
             // Creates grid resource entities (i.e., HCU services)
-            numServices = generateServices(serviceGeneratorConfig);
+            if (serviceManager!=null) {
+                numServices = generateServices(serviceGeneratorConfig);
+            }
 
             // Creates this consumer, as a grid user
             GSConsumer user = new GSConsumer(taskGeneratorConfig);

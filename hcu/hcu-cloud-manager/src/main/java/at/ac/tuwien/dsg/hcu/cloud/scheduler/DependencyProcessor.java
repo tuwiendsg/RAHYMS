@@ -80,10 +80,11 @@ public class DependencyProcessor implements DependencyProcessorInterface {
         if (assignment.getStartTime() > 0) return assignment.getStartTime(); 
         
         // initially make t0 equals to task submission time
-        double t0 = assignment.getTask().getSubmissionTime();
+        Double t0 = assignment.getTask().getSubmissionTime();
         // request availability metric
-        double result = (double)assignment.getAssignee().getMetric("earliest_availability", 
+        Object resultObj = assignment.getAssignee().getMetric("earliest_availability", 
                 new Object[]{t0, assignment.getForecastedDuration()});
+        Double result = (Double) (resultObj != null ? resultObj : 0.0);
         if (result > t0) t0 = result; 
         
         return t0;

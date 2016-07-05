@@ -16,6 +16,8 @@ import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.NegotiateInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.WorkerManagerInterface;
+import at.ac.tuwien.dsg.hcu.rest.client.DummyWorkerManager;
 import at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.GSConsumer;
 import at.ac.tuwien.dsg.hcu.util.ComponentImplementation;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
@@ -36,6 +38,7 @@ public class Simulation {
     
     // components
     ServiceManagerInterface manager;
+    WorkerManagerInterface workerManager;
     DiscovererInterface discoverer;
     DependencyProcessorInterface dp;
     ComposerInterface composer;
@@ -110,7 +113,10 @@ public class Simulation {
             }
             
             // init components
-            manager = (ServiceManagerInterface) getImplementation("serviceManager", new Object[]{});
+            boolean hasServiceManager = scenarioConfig.getRoot().getJSONObject("implementationClasses").has("serviceManager");
+            if (hasServiceManager) {
+                manager = (ServiceManagerInterface) getImplementation("serviceManager", new Object[]{});
+            }
             discoverer = (DiscovererInterface) getImplementation("discoverer", new Object[]{manager});
             dp = new DependencyProcessor();
             composer = (ComposerInterface) getImplementation("composer", new Object[]{composerConfig, discoverer, dp});
@@ -119,6 +125,10 @@ public class Simulation {
             monitor = (MonitorInterface) getImplementation("monitor", new Object[]{monitoringEnabled});
             negotiator = (NegotiateInterface) getImplementation("negotiator", new Object[]{});
             scheduler.setNegotiatorInterface(negotiator);
+            boolean hasWorkerManager = scenarioConfig.getRoot().getJSONObject("implementationClasses").has("workerManager");
+            if (hasWorkerManager) {
+                workerManager = (WorkerManagerInterface) getImplementation("workerManager", new Object[]{});
+            }
         
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -141,6 +151,7 @@ public class Simulation {
         GSConsumer.start(
                 scheduler,
                 manager,
+                workerManager,
                 monitor,
                 taskConfig,
                 svcConfig,

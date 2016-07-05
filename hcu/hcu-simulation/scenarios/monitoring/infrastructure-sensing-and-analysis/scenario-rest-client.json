@@ -1,0 +1,37 @@
+{
+    "title": "Monitoring infrastucture sensing and analysis",
+    "numberOfCycles": 1,
+    "waitBetweenCycle": 15,
+    "implementationClasses": {
+        "_serviceManager": "Disable service manager to disable service generator",
+        "workerManager": "at.ac.tuwien.dsg.hcu.rest.client.DummyWorkerManager",
+        "discoverer": "at.ac.tuwien.dsg.hcu.rest.client.RestDiscoverer",
+        "composer": "at.ac.tuwien.dsg.hcu.composer.Composer",
+        "scheduler": "at.ac.tuwien.dsg.hcu.cloud.scheduler.Scheduler",
+        "negotiator": "at.ac.tuwien.dsg.hcu.cloud.negotiator.SimpleNegotiator",
+        "monitor": "at.ac.tuwien.dsg.hcu.monitor.legacy.LegacyMonitorManager"
+    },
+    "service_generator": {
+        "basedir": "service-generator/",
+        "files": [
+            "sensor-generator.json",
+            "sensor-network-generator.json",
+            "data-analytic-service-generator.json",
+            "citizen-generator.json",
+            "surveyor-generator.json",
+            "people-coordination-service-generator.json",
+            "expert-analyst-generator.json",
+            "inspector-generator.json"
+        ]
+    },
+    "task_generator": {
+        "basedir": "task-generator/",
+        "files": [
+            "human-sensing-task-generator.json",
+            "machine-sensing-task-generator.json"
+        ],
+        "#files": [
+            "human-sensing-task-generator.json"
+        ]
+    }
+}

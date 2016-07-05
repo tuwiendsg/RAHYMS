@@ -9,7 +9,7 @@ import java.util.Queue;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.ListenableDirectedWeightedGraph;
 
-import at.ac.tuwien.dsg.hcu.common.interfaces.CloudUserInterface;
+import at.ac.tuwien.dsg.hcu.common.interfaces.WorkerManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ComposerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.DependencyProcessorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
@@ -46,7 +46,7 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
     protected ComposerInterface composer;
     protected NegotiateInterface negotiator;
     protected DependencyProcessorInterface dp;
-    protected CloudUserInterface cloudUserInterface;
+    protected WorkerManagerInterface workerManager;
     protected MonitorInterface monitor;
     
     public Scheduler(ComposerInterface composer, DependencyProcessorInterface dp) {
@@ -119,7 +119,7 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
             Assignment assignment = readyAssignments.poll();
             while (assignment!=null) { 
                 // TODO: reschedule if reservation has been canceled
-                cloudUserInterface.commitAssignment(assignment);
+                workerManager.commitAssignment(assignment);
                 assignment = readyAssignments.poll();
             }
         }
@@ -128,7 +128,7 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
     public void deploySCU(SCU scu) {
         // reserve
         for (Assignment assignment: scu.getBatch().getAssignments()) {
-            cloudUserInterface.reserveAssignment(assignment);
+            workerManager.reserveAssignment(assignment);
         }
         // getting root assignments
         List<Assignment> root = dp.findNonDependantAssignments(scu.getBatch().getAssignments());
@@ -168,7 +168,7 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
                         batch.getTask().setStatus(Task.Status.FAILED);
                         eventType = EventType.FAILED;
                     }
-                    cloudUserInterface.notifyTaskResult(batch.getTask());
+                    workerManager.notifyTaskResult(batch.getTask());
                     // record statistics
                     batch.getTask().getStat().recordFinishTime(assignment.getFinishTime());
                     // Collective FINISHED/FAILED event
@@ -231,7 +231,7 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
                 // Collective MODIFIED event
                 monitor.sendEvent(new CollectiveStream(EventType.UPDATED, GridSim.clock(), scu));                
                 // reserve
-                cloudUserInterface.reserveAssignment(a);
+                workerManager.reserveAssignment(a);
                 // kick off
                 readyAssignments.add(a);
                 processWaitingAssignments();
@@ -240,8 +240,8 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
     }
 
     @Override
-    public void setCloudUserInterface(CloudUserInterface cloudUserInterface) {
-        this.cloudUserInterface = cloudUserInterface;
+    public void setWorkerManagerInterface(WorkerManagerInterface workerManager) {
+        this.workerManager = workerManager;
     }
     
     @Override
@@ -298,9 +298,9 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
         SCU scu = new SCU(batch);
         batch.setRunningSCU(scu);
         // deploy
-        deploySCU(scu);
         runningList.add(scu);
         task.setStatus(Task.Status.RUNNING);
+        deploySCU(scu);
         // Collective CREATED event
         monitor.sendEvent(new CollectiveStream(EventType.CREATED, GridSim.clock(), scu));
     }
@@ -317,7 +317,7 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
             retryCounter.put(task.getId(), retry + 1);
         } else {
             task.setStatus(Task.Status.FAILED);
-            cloudUserInterface.notifyTaskResult(task);
+            workerManager.notifyTaskResult(task);
         }
     }
     

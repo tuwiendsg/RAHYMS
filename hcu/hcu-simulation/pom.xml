@@ -32,5 +32,10 @@
   		<artifactId>hcu-monitor</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
+    <dependency>
+        <groupId>at.ac.tuwien.dsg.hcu</groupId>
+        <artifactId>hcu-rest-client</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 </project>

@@ -5,8 +5,8 @@ import at.ac.tuwien.dsg.hcu.common.model.Task;
 
 public interface SchedulerInterface {
 
-    public void setCloudUserInterface(CloudUserInterface cloudUserInterface);
-    public void setMonitorInterface(MonitorInterface monitorInterface);
+    public void setWorkerManagerInterface(WorkerManagerInterface workerManager);
+    public void setMonitorInterface(MonitorInterface monitor);
     public void setNegotiatorInterface(NegotiateInterface negotiator);
     
     public void submitTask(Task task);
