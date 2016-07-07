@@ -2,6 +2,7 @@ package at.ac.tuwien.dsg.hcu.common.interfaces;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.common.exceptions.NotFoundException;
 import at.ac.tuwien.dsg.hcu.common.model.ComputingElement;
@@ -27,4 +28,5 @@ public interface ServiceManagerInterface {
     public List<Service> retrieveServices(Functionality functionality);
     public Service getServiceById(int serviceId);
     
+    public void setConfiguration(Map<String, Object> config);
 }

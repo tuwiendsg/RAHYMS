@@ -228,7 +228,7 @@ public class GSConsumer extends ReservationRequester {
             GridSim.setGIS(gsMiddleware);
 
             // Creates grid resource entities (i.e., HCU services)
-            if (serviceManager!=null) {
+            if (serviceManager!=null && serviceGeneratorConfig!=null) {
                 numServices = generateServices(serviceGeneratorConfig);
             }
 

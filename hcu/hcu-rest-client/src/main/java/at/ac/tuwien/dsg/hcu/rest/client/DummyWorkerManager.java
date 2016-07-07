@@ -1,5 +1,7 @@
 package at.ac.tuwien.dsg.hcu.rest.client;
 
+import java.util.Map;
+
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.WorkerManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
@@ -51,6 +53,10 @@ public class DummyWorkerManager implements WorkerManagerInterface {
 
     @Override
     public void wakeSchedulerAt(long time) {
+    }
+
+    @Override
+    public void setConfiguration(Map<String, Object> config) {
     }
 
 }

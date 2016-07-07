@@ -16,6 +16,8 @@ import at.ac.tuwien.dsg.hcu.monitor.old_stream.CollectiveStream;
 import at.ac.tuwien.dsg.hcu.monitor.old_stream.UnitStream;
 import at.ac.tuwien.dsg.hcu.util.Util;
 
+import java.util.Map;
+
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
@@ -128,6 +130,10 @@ public class LegacyMonitorManager implements MonitorInterface {
 
     public RuleEngineInterface getRuleEngine() {
         return ruleEngine;
+    }
+
+    @Override
+    public void setConfiguration(Map<String, Object> config) {
     }
 
 

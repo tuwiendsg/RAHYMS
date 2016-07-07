@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -319,6 +320,10 @@ public class Scheduler implements SchedulerInterface, NegotiateCallbackInterface
             task.setStatus(Task.Status.FAILED);
             workerManager.notifyTaskResult(task);
         }
+    }
+
+    @Override
+    public void setConfiguration(Map<String, Object> config) {
     }
     
     

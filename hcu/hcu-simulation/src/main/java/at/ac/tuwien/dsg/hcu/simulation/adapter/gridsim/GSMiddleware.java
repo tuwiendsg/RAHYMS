@@ -7,6 +7,7 @@ import gridsim.GridSim;
 import gridsim.GridSimTags;
 
 import java.util.Hashtable;
+import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.WorkerManagerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
@@ -206,6 +207,10 @@ public class GSMiddleware extends GridInformationService implements WorkerManage
         this.scheduler = scheduler;
         this.scheduler.setWorkerManagerInterface(this);
         this.scheduler.setMonitorInterface(monitor);
+    }
+
+    @Override
+    public void setConfiguration(Map<String, Object> config) {
     }
 
 }

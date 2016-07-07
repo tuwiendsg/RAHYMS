@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.cloud.generator.ServiceGenerator;
 import at.ac.tuwien.dsg.hcu.common.exceptions.NotFoundException;
@@ -127,6 +128,10 @@ public class ServiceManagerOnMemory implements
             }
         }
         return found;
+    }
+
+    @Override
+    public void setConfiguration(Map<String, Object> config) {
     }
 
 }

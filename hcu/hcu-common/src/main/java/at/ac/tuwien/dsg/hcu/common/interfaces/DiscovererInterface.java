@@ -1,6 +1,7 @@
 package at.ac.tuwien.dsg.hcu.common.interfaces;
 
 import java.util.List;
+import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.common.model.Connection;
 import at.ac.tuwien.dsg.hcu.common.model.Functionality;
@@ -21,4 +22,5 @@ public interface DiscovererInterface {
     // retrieve connectedness of services
     public List<Connection> discoverConnections(List<Service> services);
 
+    public void setConfiguration(Map<String, Object> config);
 }

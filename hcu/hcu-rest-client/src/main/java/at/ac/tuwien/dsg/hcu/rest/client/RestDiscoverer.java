@@ -34,9 +34,8 @@ import at.ac.tuwien.dsg.hcu.util.Util;
 
 public class RestDiscoverer implements DiscovererInterface {
 
-    public static String DISCOVER_SERVICE_ENDPOINT = "http://localhost:3000/discoverServices";
-    public static String DISCOVER_CONNECTIONS_ENDPOINT = "http://localhost:3000/discoverConnections";
-
+    private Map<String, Object> config;
+    
     public RestDiscoverer(ServiceManagerInterface manager) {
         // we dont need an internal service manager here
     }
@@ -65,7 +64,7 @@ public class RestDiscoverer implements DiscovererInterface {
             
             // make api call
             HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(DISCOVER_SERVICE_ENDPOINT);
+            HttpPost post = new HttpPost((String)config.get("discoverServiceEndpoint"));
             StringEntity entity = new StringEntity(jsonData);
             entity.setContentType("application/json;charset=UTF-8");
             post.setEntity(entity);
@@ -179,5 +178,10 @@ public class RestDiscoverer implements DiscovererInterface {
         }
         
         return element;
+    }
+
+    @Override
+    public void setConfiguration(Map<String, Object> config) {
+        this.config = config;
     }
 }

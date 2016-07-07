@@ -1,5 +1,7 @@
 package at.ac.tuwien.dsg.hcu.common.interfaces;
 
+import java.util.Map;
+
 import at.ac.tuwien.dsg.hcu.common.model.Assignment;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
 
@@ -15,4 +17,6 @@ public interface SchedulerInterface {
 
     // this is internal method for waking up scheduler
     public void wake();
+
+    public void setConfiguration(Map<String, Object> config);
 }

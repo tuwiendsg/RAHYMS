@@ -1,6 +1,7 @@
 package at.ac.tuwien.dsg.hcu.cloud.negotiator;
 
 import java.util.List;
+import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.common.interfaces.NegotiateCallbackInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.NegotiateInterface;
@@ -19,6 +20,10 @@ public class SimpleNegotiator implements NegotiateInterface {
         task.setStatus(Task.Status.NEGOTIATING);
         //System.out.println("NEGOTIATING task #" + task.getId() + ", assignments=" + assignments);
         callback.deployAssignments(task, assignments);
+    }
+
+    @Override
+    public void setConfiguration(Map<String, Object> config) {
     }
 
 }

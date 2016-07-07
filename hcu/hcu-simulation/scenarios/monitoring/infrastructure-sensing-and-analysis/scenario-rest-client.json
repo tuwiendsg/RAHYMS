@@ -4,25 +4,18 @@
     "waitBetweenCycle": 15,
     "implementationClasses": {
         "_serviceManager": "Disable service manager to disable service generator",
-        "workerManager": "at.ac.tuwien.dsg.hcu.rest.client.DummyWorkerManager",
         "discoverer": "at.ac.tuwien.dsg.hcu.rest.client.RestDiscoverer",
+        "workerManager": "at.ac.tuwien.dsg.hcu.rest.client.DummyWorkerManager",
         "composer": "at.ac.tuwien.dsg.hcu.composer.Composer",
         "scheduler": "at.ac.tuwien.dsg.hcu.cloud.scheduler.Scheduler",
         "negotiator": "at.ac.tuwien.dsg.hcu.cloud.negotiator.SimpleNegotiator",
         "monitor": "at.ac.tuwien.dsg.hcu.monitor.legacy.LegacyMonitorManager"
     },
-    "service_generator": {
-        "basedir": "service-generator/",
-        "files": [
-            "sensor-generator.json",
-            "sensor-network-generator.json",
-            "data-analytic-service-generator.json",
-            "citizen-generator.json",
-            "surveyor-generator.json",
-            "people-coordination-service-generator.json",
-            "expert-analyst-generator.json",
-            "inspector-generator.json"
-        ]
+    "implementationConfigurations": {
+        "discoverer": {
+            "discoverServiceEndpoint": "http://localhost:3000/discoverServices",
+            "discoverConnectionEndpoint": "http://localhost:3000/discoverConnections"
+        }
     },
     "task_generator": {
         "basedir": "task-generator/",

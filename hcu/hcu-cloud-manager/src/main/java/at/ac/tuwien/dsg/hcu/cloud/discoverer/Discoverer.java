@@ -2,6 +2,7 @@ package at.ac.tuwien.dsg.hcu.cloud.discoverer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import at.ac.tuwien.dsg.hcu.common.fuzzy.MembershipFunction;
 import at.ac.tuwien.dsg.hcu.common.fuzzy.function.SkillMembershipFunctionCollection;
@@ -139,6 +140,10 @@ public class Discoverer implements DiscovererInterface {
           }
         }
         return connections;
+    }
+
+    @Override
+    public void setConfiguration(Map<String, Object> config) {
     }
 
 
