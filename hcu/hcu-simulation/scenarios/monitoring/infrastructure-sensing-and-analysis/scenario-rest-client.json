@@ -20,11 +20,7 @@
     "task_generator": {
         "basedir": "task-generator/",
         "files": [
-            "human-sensing-task-generator.json",
-            "machine-sensing-task-generator.json"
-        ],
-        "#files": [
-            "human-sensing-task-generator.json"
+            "simple-human-sensing-task-generator.json"
         ]
     }
 }

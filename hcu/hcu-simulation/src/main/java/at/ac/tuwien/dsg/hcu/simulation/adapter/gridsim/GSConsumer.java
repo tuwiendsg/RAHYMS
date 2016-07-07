@@ -130,6 +130,9 @@ public class GSConsumer extends ReservationRequester {
                 }
             }
 
+            // sleep for a while before we checking task results
+            Thread.sleep(1000);
+            
             int success = 0;
             int failed = 0;
             System.out.println("RESULT: ");
@@ -138,11 +141,11 @@ public class GSConsumer extends ReservationRequester {
             List<Task> resultTask = list.size()>0 ? list : tasks;
             
             for (Task task: resultTask) {
-                System.out.println(task);
+               System.out.println(task);
                if (task.getStatus()==Task.Status.SUCCESSFUL) {
                    success++;
                }
-               if (task.getStatus()==Task.Status.FAILED) {
+               else if (task.getStatus()==Task.Status.FAILED) {
                    failed++;
                }
                 //String stat = task.getStat().dump();

@@ -257,7 +257,7 @@ public class TaskGenerator {
                     // create role
                     Role role = new Role(new Functionality(func));
                     task.addUpdateRole(role);
-                    System.out.println(task);
+                    //System.out.println(task);
                     roles.put(func, role);
                     
                     // create spec

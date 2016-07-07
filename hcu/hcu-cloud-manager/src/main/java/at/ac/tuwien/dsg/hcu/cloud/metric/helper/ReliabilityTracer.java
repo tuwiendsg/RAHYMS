@@ -54,9 +54,9 @@ public class ReliabilityTracer extends Tracer {
         vsuCitizen = findElementWithName("Citizen");
         vsuSurveyor = findElementWithName("Surveyor");
         
-        System.out.println("vsuCollector.size = " + vsuCollector.size());
-        System.out.println("vsuAssessor.size = " + vsuAssessor.size());
-        System.out.println("vsuSensor.size = " + vsuSensor.size());
+        //System.out.println("vsuCollector.size = " + vsuCollector.size());
+        //System.out.println("vsuAssessor.size = " + vsuAssessor.size());
+        //System.out.println("vsuSensor.size = " + vsuSensor.size());
     }
 
     public void traceln(Task task, ArrayList<ArrayList<Service>> vsus, ArrayList<Assignment> assignments, double clock, int k) {
