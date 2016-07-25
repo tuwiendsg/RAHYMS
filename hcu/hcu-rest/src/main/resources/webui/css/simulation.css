@@ -48,3 +48,13 @@
 .padding-left {
      padding-left: 100px !important;
 }
+
+#graph-image {
+     padding-top: 50px !important;
+}
+
+.boxes{
+     overflow-y: hidden !important;
+     height: 3% !important;
+     min-height: 150px;
+}

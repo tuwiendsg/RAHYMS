@@ -1,6 +1,6 @@
 package at.ac.tuwien.dsg.hcu.rest;
 
-import at.ac.tuwien.dsg.hcu.rest.common.DefaultMongoData;
+import at.ac.tuwien.dsg.hcu.util.DefaultMongoData;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -8,7 +8,6 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.thread.ThreadPool;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -18,8 +17,7 @@ import at.ac.tuwien.dsg.hcu.rest.config.AppConfig;
 
 public class RunRestServer {
 
-    //todo brk /Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-rest/ bu kismi user dan args den al ve public yap her yerden ulas
-    private static final String PROP_FILE = "/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-rest/config/rest.properties";
+    private static final String PROP_FILE = "config/rest.properties";
 
     public static void main(final String[] args) throws Exception {
         Resource.setDefaultUseCaches(false);

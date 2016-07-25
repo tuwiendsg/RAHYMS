@@ -1,8 +1,3 @@
-/**
- * Created by karaoglan on 18/04/16.
- */
-
-
 app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location, dialogs) {
 
     const URL = '/rest/api/simulation';
@@ -15,39 +10,40 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
     $scope.taskListDrag = [];
     $scope.taskListDrop = [];
 
-    $http({
-        method: 'GET',
-        url: TASK_URL
-    }).success(function (data) {
-        for (var i = 0; i < data.length; i++) {
-            data[i].isUnit = false;
-            data[i].task = angular.fromJson(data[i].task);
-            $scope.taskListDrag.push(data[i]);
-        }
-        $scope.is_loading = false;
-    }).error(function (data, status) {
-        $scope.is_loading = false;
-        dialogs.error(undefined, Util.error('Error loading tasks', status, undefined));
-        console.log('Error ' + data);
-    });
+    $scope.getUnitsAndTasks = function () {
+        $http({
+            method: 'GET',
+            url: TASK_URL
+        }).success(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                data[i].isUnit = false;
+                data[i].task = angular.fromJson(data[i].task);
+                $scope.taskListDrag.push(data[i]);
+            }
+        }).error(function (data, status) {
+            dialogs.error(undefined, Util.error('Error loading tasks', status, undefined));
+            console.log('Error ' + data);
+        });
 
-    $http({
-        method: 'GET',
-        url: UNIT_URL
-    }).success(function (data) {
-        for (var i = 0; i < data.length; i++) {
-            data[i].isUnit = true;
-            data[i].unit = angular.fromJson(data[i].unit);
-            $scope.unitListDrag.push(data[i]);
-        }
-        $scope.is_loading = false;
-    }).error(function (data, status) {
-        $scope.is_loading = false;
-        dialogs.error(undefined, Util.error('Error loading units', status, undefined));
-        console.log('Error ' + data);
-    });
+        $http({
+            method: 'GET',
+            url: UNIT_URL
+        }).success(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                data[i].isUnit = true;
+                data[i].unit = angular.fromJson(data[i].unit);
+                $scope.unitListDrag.push(data[i]);
+            }
+        }).error(function (data, status) {
+            dialogs.error(undefined, Util.error('Error loading units', status, undefined));
+            console.log('Error ' + data);
+        });
 
-    //todo brk start dedikten sonra beklerken baska yere tiklanabiliyor.
+    };
+
+    $scope.getUnitsAndTasks();
+
+    //todo brk start dedikten sonra bekletme direk bitsin
 
     $scope.initializeDefaultValues = function () {
 
@@ -55,13 +51,12 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         $scope.composerProperties = {};
         $scope.simulationProperties = {};
 
-        //todo brk base directory ile alakali
-        //todo brk bu prefixler bu sekidle eklenmemesi lazim web de dynamic olmasi lazim sor. su anlik gerek yokmus.
-        $scope.composerProperties.reliability_trace_file_prefix = '/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/traces/reliability/';
-        $scope.composerProperties.trace_file_prefix = '/Users/karaoglan/IdeaProjects/RAHYMS/hcu/hcu-simulation/traces/composer/composer-';
+        $scope.composerProperties.reliability_trace_file_prefix = 'hcu-simulation/traces/reliability/';
+        $scope.composerProperties.trace_file_prefix = 'hcu-simulation/traces/composer/composer-';
 
         $scope.consumerProperties.numberOfCycles = 5;
         $scope.consumerProperties.waitBetweenCycles = 1;
+        $scope.consumerProperties.tracerConfig = "config/tracer.json";
 
         $scope.composerProperties.algorithm = "PriorityDistribution";
         $scope.composerProperties.aco_variant = "AntSystemAlgorithm";
@@ -82,6 +77,7 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         $scope.composerProperties.max_pheromone = 1;
         $scope.composerProperties.q_0 = 0.5;
         $scope.composerProperties.pheromone_decay = 0.01;
+        $scope.composerProperties.cross_summary_limit = 10000;
     };
 
     $scope.initializeDefaultValues();
@@ -99,19 +95,38 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
         $scope.taskListDrag = [];
     };
 
+    $scope.refreshDBToDefault = function () {
+        dialogs.wait(undefined, 'Getting simulations', 99);
+        $http({
+            method: 'GET', //todo brk lazim mi bu method düsün
+            url: URL + '/as-default'
+        }).success(function (data) {
+            $scope.unitListDrag = [];
+            $scope.taskListDrag = [];
+            $scope.unitListDrop = [];
+            $scope.taskListDrop = [];
+            $scope.getUnitsAndTasks();
+            $rootScope.$broadcast('dialogs.wait.complete');
+
+        }).error(function (data, status) {
+            $rootScope.$broadcast('dialogs.wait.complete');
+            dialogs.error(undefined, Util.error('Error refreshing DB', status, undefined));
+            console.log('Error ' + data);
+        });
+    };
+
+    function callWithTimeOut() {
+        setTimeout(function () {
+            $location.path('/simulation-analytics');
+        }, 2000);
+    }
+
     $scope.startSimulation = function () {
 
-        $scope.simulationProperties.timeCreated = new Date();
-
-        //todo brk simulationProperties modeline gerek kalmadi su an assagida depend. gerekiyor cünkü string olarak composer in icinde yollayacagim
-        //todo brk bu composerdan nasil alinacak simulation name felan incele.
-        for (var key in $scope.simulationProperties) {
-            $scope.composerProperties[key] = $scope.simulationProperties[key];
-        }
+        dialogs.wait(undefined, 'Starting simulation, if you dont want to wait click on dialog', 99);
 
         $scope.tasks = [];
         $scope.units = [];
-        dialogs.wait(undefined, 'Starting simulation', 99);
 
         angular.forEach($scope.unitListDrop, function (value) {
             $scope.units.push(angular.toJson(value.unit, true));
@@ -121,7 +136,7 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
             $scope.tasks.push(angular.toJson(value.task, true));
         });
 
-        var jsonData = {
+        var simulationParameter = {
             'units': $scope.units,
             'tasks': $scope.tasks,
             'composerProperties': angular.toJson($scope.composerProperties, true),
@@ -129,12 +144,14 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
             'simulation': $scope.simulationProperties
         };
 
+        //todo brk burada direk analytic e giderse adam beklezse bitmesini simulation in nereden anlayacak hata oldugunu bazen olabiliyor.
+        callWithTimeOut();
+
         $http({
             method: 'POST',
             url: URL,
-            data: jsonData
+            data: simulationParameter
         }).success(function (response) {
-            console.log("response from simulation start is : " + response);
             $rootScope.$broadcast('dialogs.wait.complete');
             $location.path('/simulation-analytics');
         }).error(function (response, status) {
@@ -142,36 +159,37 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
             dialogs.error(undefined, Util.error('Error starting simulation',
                 status, {404: 'Simulation not found', 503: 'Simulation Service unavailable'}));
         });
-        $scope.is_loading = false;
+
+
     };
 
     $("#unitDrag").droppable({
-        accept: function(d) {
-            if(d.hasClass("units")){
+        accept: function (d) {
+            if (d.hasClass("units")) {
                 return true;
             }
         }
     });
 
     $("#unitDrop").droppable({
-        accept: function(d) {
-            if(d.hasClass("units")){
+        accept: function (d) {
+            if (d.hasClass("units")) {
                 return true;
             }
         }
     });
 
     $("#taskDrag").droppable({
-        accept: function(d) {
-            if(d.hasClass("tasks")){
+        accept: function (d) {
+            if (d.hasClass("tasks")) {
                 return true;
             }
         }
     });
 
     $("#taskDrop").droppable({
-        accept: function(d) {
-            if(d.hasClass("tasks")){
+        accept: function (d) {
+            if (d.hasClass("tasks")) {
                 return true;
             }
         }

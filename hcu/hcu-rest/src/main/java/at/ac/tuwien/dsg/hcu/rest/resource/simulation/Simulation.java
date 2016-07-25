@@ -5,13 +5,10 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.util.Calendar;
 
-/**
- * Created by karaoglan on 07/10/15.
- */
-@ApiModel(value = "Simulation", description = "Simulation representation")
+@ApiModel(value = "Simulation", description = "Simulation representation for starting simulation algorithm")
 public class Simulation {
 
-    @ApiModelProperty(value = "Simulation's id", required = true)
+    @ApiModelProperty(value = "Simulation's object id", required = false)
     private String id;
 
     @ApiModelProperty(value = "The date when the simulation was submitted", required = true)
@@ -26,9 +23,8 @@ public class Simulation {
     @ApiModelProperty(value = "The description of the simulation", required = true)
     private String simulationDescription;
 
-    @ApiModelProperty(value = "The path of CSV file which contains corresponding simulation graph parameters")
+    @ApiModelProperty(value = "The path of CSV file which contains corresponding simulation graph parameters", required = false)
     private String filePath;
-
 
     public Simulation() {
         this.timeCreated = Calendar.getInstance().toString();

@@ -1,6 +1,4 @@
-/**
- * Created by karaoglan on 08/04/16.
- */
+
 
 app.controller('SimulationUnitListCtrl', function ($rootScope, $scope, $http, $location, dialogs) {
 
@@ -30,13 +28,10 @@ app.controller('SimulationUnitListCtrl', function ($rootScope, $scope, $http, $l
     $scope.deleteUnitClicked = false;
 
     $http.get(URL + "/default").success(function (data) {
-        $rootScope.$broadcast('dialogs.wait.complete');
         $scope.addUnit = data;
         $scope.addUnit.unit = angular.copy(angular.fromJson(data.unit));
         $scope.addUnit.id = undefined;
-        $scope.is_loading = false;
     }).error(function (data, status) {
-        $scope.is_loading = false;
         dialogs.error(undefined, Util.error('Error loading default unit', status, undefined));
         console.log('Error ' + data)
     });

@@ -11,9 +11,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-/**
- * Created by karaoglan on 10/04/16.
- */
 @Path("/simulation-task")
 @Api(value = "/simulation-task", description = "Manage Simulation Task Properties")
 public class SimulationTaskRestService {
@@ -65,6 +62,29 @@ public class SimulationTaskRestService {
         return simulationTaskMongoDBService.getSimulationTask();
     }
 
+
+    @Produces({MediaType.APPLICATION_JSON})
+    @PUT
+    @Path("/{objectId}")
+    @ApiOperation(value = "Update existing task", notes = "Update existing simulation task with given params", response = Response.class)
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Simulation task successfully updated"),
+            @ApiResponse(code = 400, message = "Simulation task properties are not valid"),
+            @ApiResponse(code = 404, message = "Simulation task with such id doesn't exists")
+    })
+    public Response updateSimulationTask(
+            @ApiParam(value = "objectId of task", required = true) @PathParam("objectId") final String objectId,
+            @ApiParam(value = "name of task", required = true) @FormParam("name") final String name,
+            @ApiParam(value = "properties of task", required = true) @FormParam("task") final String task) {
+
+
+        if (!simulationTaskMongoDBService.updateSimulationTask(new SimulationTask(name, task, objectId))) {
+            throw new IllegalSimulationArgumentException();
+        }
+
+        return Response.ok().build();
+    }
+
     @Path("/{objectId}")
     @DELETE
     @ApiOperation(value = "Delete existing simulation task", notes = "Delete existing simulation task with given objectId", response = Response.class)
@@ -80,24 +100,5 @@ public class SimulationTaskRestService {
         return Response.ok().build();
     }
 
-    @Produces({MediaType.APPLICATION_JSON})
-    @PUT
-    @ApiOperation(value = "Update existing task", notes = "Update existing simulation task with given params", response = Response.class)
-    @ApiResponses({
-            @ApiResponse(code = 201, message = "Simulation task successfully updated"),
-            @ApiResponse(code = 400, message = "Simulation task properties are not valid"),
-            @ApiResponse(code = 404, message = "Simulation task with such id doesn't exists")
-    })
-    public Response updateSimulationTask(
-            @ApiParam(value = "name of task", required = true) @FormParam("name") final String name,
-            @ApiParam(value = "objectId of task", required = true) @FormParam("objectId") final String objectId,
-            @ApiParam(value = "properties of task", required = true) @FormParam("task") final String task) {
 
-
-        if (!simulationTaskMongoDBService.updateSimulationTask(new SimulationTask(name, task, objectId))) {
-            throw new IllegalSimulationArgumentException();
-        }
-
-        return Response.ok().build();
-    }
 }

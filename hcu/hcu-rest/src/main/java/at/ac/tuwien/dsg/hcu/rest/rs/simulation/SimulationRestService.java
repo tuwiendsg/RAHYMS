@@ -2,9 +2,6 @@ package at.ac.tuwien.dsg.hcu.rest.rs.simulation;
 
 import at.ac.tuwien.dsg.hcu.rest.resource.simulation.*;
 import at.ac.tuwien.dsg.hcu.rest.services.simulation.SimulationService;
-import at.ac.tuwien.dsg.hcu.rest.services.simulation.SimulationTaskMongoDBService;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.*;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -12,11 +9,9 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.util.List;
 
-/**
- * Created by karaoglan on 07/10/15.
- */
 @Path("/simulation")
 @Api(value = "/simulation", description = "Manage Simulation Properties")
 public class SimulationRestService {
@@ -29,38 +24,57 @@ public class SimulationRestService {
             @ApiResponse(code = 201, message = "Simulation started successfully"),
             @ApiResponse(code = 404, message = "Simulation not found"),
             @ApiResponse(code = 503, message = "Simulation server not available")
-    })//todo brk bisey döndermek zorunda degil response yollanabilir.AX ismini degistir
-    public Response startSimulation(@ApiParam( value = "Json string to todo", required = true) @RequestBody final SimulationStartParam jsonData) {
+    })
+    public Response startSimulation(@ApiParam( value = "Json string to todo", required = true) @RequestBody final SimulationParameter simulationParamater) {
         //todo brk hata olayini dogru ver soru hatta nasil hatalar web e verilmeli düzen nasil olmali
-        return simulationService.startSimulation(jsonData) ? Response.ok().build() : Response.serverError().build();
+        return simulationService.startSimulation(simulationParamater) ? Response.ok().build() : Response.serverError().build();
     }
 
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/graph")
     @POST
-    @ApiOperation(value = "Show the simulation graph", notes = "show the simulation graph with json params", response = Graph.class)
+    @ApiOperation(value = "Show the simulation graph", notes = "show the simulation graph with json params", response = SimulationGraph.class)
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Graph generated successfully"),
+            @ApiResponse(code = 201, message = "SimulationGraph generated successfully"),
             @ApiResponse(code = 404, message = "graph not found"),
-            @ApiResponse(code = 503, message = "Graph server not available")
+            @ApiResponse(code = 503, message = "SimulationGraph server not available")
     })
-    public Graph showGraph(@ApiParam( value = "Json string to saved", required = true) @RequestBody final GraphData graphData ) {
+    public SimulationGraph showGraph(@ApiParam( value = "Json string to saved", required = true) @RequestBody final SimulationGraphData simulationGraphData) {
 
-        return simulationService.showGraph(graphData);
+        return simulationService.showGraph(simulationGraphData);
     }
 
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("/graph/copy")
-    @POST
-    @ApiOperation(value = "copy csv file into temp folder", notes = "copy file", response = Response.class)
+    @GET
+    @Path("/file")
+    @Produces("text/csv")
+    @ApiOperation(value = "Show the simulation graph", notes = "show the simulation graph with json params", response = SimulationGraph.class)
     @ApiResponses({
-            @ApiResponse(code = 503, message = "could not copy file")
+            @ApiResponse(code = 201, message = "SimulationGraph generated successfully"),
+            @ApiResponse(code = 404, message = "graph not found"), //todo brk degistir commentleri
+            @ApiResponse(code = 503, message = "SimulationGraph server not available")
     })
-    public Response copyFileWithPathToTemp(@ApiParam( value = "path of the file to be copied", required = true) @FormParam("path") final String path,
-                                           @ApiParam( value = "temp path of the file into copied", required = true) @FormParam("tempPath") final String tempPath                                     ) {
+    public Response getCSVFile(@ApiParam(value = "the path of csv file for simulation", required = true) @QueryParam("filePath") final String filePath) {
+        File file = new File(filePath);
 
-        return simulationService.copyFileToTemp(path, tempPath) ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
+        Response.ResponseBuilder response = Response.ok(file);
+        response.header("Content-Disposition", "attachment; filename=\"test_file.csv\"");
+        return response.build();
     }
+
+    @GET
+    @Path("/as-default")
+    @Produces({MediaType.APPLICATION_JSON})
+    @ApiOperation(value = "Refresh the simulation units and tasks as default", response = Response.class)
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Simulation units and tasks refreshed successfully"),
+            @ApiResponse(code = 404, message = "object not found")
+    })
+    public Response refreshDBToDefault() {
+        //todo brk lazim mi incele
+        simulationService.refreshToDefault();
+        return Response.ok().build();
+    }
+
 
     @Produces({MediaType.APPLICATION_JSON})
     @GET

@@ -9,6 +9,9 @@
     <div class="row">
         <div class="col-md-5">
             <h4>Unit Generator
+                <a class="btn btn-default" ng-click="refreshDBToDefault()" style="margin-bottom: 5px"><i
+                        class="icon-plus-sign icon-white"
+                ></i>Get Defaults Again</a>
                 <a class="btn btn-default pull-right" ng-click="dragAll()" style="margin-bottom: 5px"><i
                         class="icon-plus-sign icon-white"
                 ></i>Drag
@@ -32,7 +35,7 @@
     <div class="row">
         <div class="col-md-5">
             <!-- UNIT DRAG -->
-            <div id="unitDrag" class="thumbnail" data-drop="true" ng-model="unitListDrag" jqyoui-droppable="{multiple:true}"
+            <div id="unitDrag" class="thumbnail boxes" data-drop="true" ng-model="unitListDrag" jqyoui-droppable="{multiple:true}"
                  style='height:150px;'>
                 <div ng-repeat="generator in unitListDrag" class="btn btn-primary units" data-drag="true"
                      data-jqyoui-options="{revert: 'invalid'}" ng-model="unitListDrag"
@@ -47,7 +50,7 @@
 
         <div class="col-md-5">
             <!-- UNIT DROP -->
-            <div id="unitDrop" class="thumbnail" data-drop="true" data-jqyoui-options ng-model="unitListDrop"
+            <div id="unitDrop" class="thumbnail boxes" data-drop="true" data-jqyoui-options ng-model="unitListDrop"
                  jqyoui-droppable="{multiple:true}"
                  style='height:150px;'>
                 <div class="btn btn-success units" ng-repeat="item in unitListDrop" data-drag="true"
@@ -71,8 +74,8 @@
 
     <div class="row">
         <div class="col-md-5">
-            <!-- TASK DRAG --><!-- todo brk geri droplari check yap unit ise unite task ise sadece taska -->
-            <div id="taskDrag" class="thumbnail" data-drop="true" ng-model="taskListDrag" jqyoui-droppable="{multiple:true}"
+            <!-- TASK DRAG -->
+            <div id="taskDrag" class="thumbnail boxes" data-drop="true" ng-model="taskListDrag" jqyoui-droppable="{multiple:true}"
                  style='height:150px;'>
                 <div ng-repeat="generator in taskListDrag" class="btn btn-primary tasks" data-drag="true"
                      data-jqyoui-options="{revert: 'invalid'}" ng-model="taskListDrag"
@@ -87,7 +90,7 @@
 
         <div class="col-md-5">
             <!-- TASK DROP -->
-            <div id="taskDrop" class="thumbnail" data-drop="true" data-jqyoui-options ng-model="taskListDrop"
+            <div id="taskDrop" class="thumbnail boxes" data-drop="true" data-jqyoui-options ng-model="taskListDrop"
                  jqyoui-droppable="{multiple:true}"
                  style='height:150px;'>
                 <div class="btn btn-success tasks" ng-repeat="item in taskListDrop" data-drag="true"
@@ -137,7 +140,7 @@
                 <div class="col-md-7">
                     <input type="text" class="form-control" id="simulation-name"
                            placeholder="Enter name of the simulation"
-                           ng-model="simulationProperties.simulationName">
+                           ng-model="simulationProperties.simulationName" required="required">
                 </div>
             </div>
             <div class="form-group">
@@ -146,7 +149,7 @@
                 <div class="col-md-7">
                     <input type="text" class="form-control" id="simulation-description"
                            placeholder="Enter description of the simulation"
-                           ng-model="simulationProperties.simulationDescription">
+                           ng-model="simulationProperties.simulationDescription" required="required">
                 </div>
             </div>
         </div>
@@ -158,7 +161,7 @@
     <hr/>
     <!-- todo brk find solution for validation -->
 
-    <!-- todo brk ask generatorlerde sinir olacak mi? sinir olmazsa tasiyor su anda table dan,  name unique mi? -->
+    <!--todo brk  name unique mi? evet en az 1 er tane-->
 
     <!-- ALGORITHM -->
 
@@ -166,16 +169,6 @@
     <div class="row">
 
         <div class="col-md-6">
-            <div class="form-group">
-                <!-- todo brk ask reliablity prefix gelecek <label for="file-prefix" class="col-sm-3 control-label">Number of cycles : </label>
-
-                <div class="col-md-9">
-                    <input type="text" class="form-control" id="file-prefix"
-                           placeholder="Enter the number of cycles"
-                           ng-model="composerProperties.number_of_cycles">
-                </div>
-                -->
-            </div>
 
             <div class="form-group">
                 <label for="algorithm-type" class="col-sm-5 control-label">Algorithm : </label>
@@ -193,19 +186,8 @@
             </div>
 
 
+
             <div ng-if="composerProperties.algorithm === 'ACOAlgorithm'">
-
-                <div class="form-group">
-                    <label for="algorithm-aco" class="col-sm-5 control-label">Aco Variant : </label>
-
-                    <div class="col-md-7">
-                        <select id="algorithm-aco" ng-model="composerProperties.aco_variant" class="form-control">
-                            <option selected>AntSystemAlgorithm</option>
-                            <option>MinMaxAntSystemAlgorithm</option>
-                            <option>AntColonySystemAlgorithm</option>
-                        </select>
-                    </div>
-                </div>
 
                 <div class="form-group">
                     <label for="epsilon_pheromone" class="col-sm-5 control-label">Epsilon Pheromone : </label>
@@ -215,6 +197,19 @@
                                ng-model="composerProperties.epsilon_pheromone" class="form-control">
                     </div>
                 </div>
+
+                <div class="form-group">
+
+                    <label for="cross-summary" class="col-sm-5 control-label">Cross Summary Limit : </label>
+
+                    <div class="col-md-7">
+                        <input type="number" class="form-control" id="cross-summary"
+                               placeholder="Enter the cross summary"
+                               ng-model="composerProperties.cross_summary_limit" only-digits>
+                    </div>
+                </div>
+
+
 
                 <div class="form-group">
                     <label for="number_of_ants" class="col-sm-5 control-label">Number Of Ants : </label>
@@ -252,18 +247,6 @@
                         <input type="number" id="initial_pheromone" placeholder="Please enter Initial Pheromone"
                                ng-model="composerProperties.initial_pheromone" class="form-control">
                     </div>
-                </div>
-
-
-            </div>
-            <!-- ALGORITHM FINISH -->
-
-        </div>
-
-        <div ng-if="composerProperties.algorithm === 'ACOAlgorithm'">
-            <div class="col-md-6">
-                <div class="form-group">
-
                 </div>
 
                 <div class="form-group">
@@ -331,52 +314,65 @@
                     </div>
                 </div>
 
-                <!-- heuristic factor FINISH -->
+
             </div>
+            <!-- ALGORITHM FINISH -->
+
         </div>
-    </div>
 
-    <hr/>
-
-    <div ng-if="composerProperties.algorithm === 'ACOAlgorithm'">
-        <div>
-            <div class="col-md-3"></div>
+        <div ng-if="composerProperties.algorithm === 'ACOAlgorithm'">
             <div class="col-md-6">
+                <div class="form-group">
+
+                </div>
+
+                <div class="form-group">
+                    <label for="algorithm-aco" class="col-sm-5 control-label">Aco Variant : </label>
+
+                    <div class="col-md-7">
+                        <select id="algorithm-aco" ng-model="composerProperties.aco_variant" class="form-control">
+                            <option selected>AntSystemAlgorithm</option>
+                            <option>MinMaxAntSystemAlgorithm</option>
+                            <option>AntColonySystemAlgorithm</option>
+                        </select>
+                    </div>
+                </div>
+
                 <form class="form-horizontal" role="form" ng-submit="startSimulation()">
                     <div ng-if="composerProperties.aco_variant === 'AntSystemAlgorithm'" class="form-group">
                         <label for="objective_multiplier" class="col-sm-5 control-label">Objective Multiplier : </label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="objective_multiplier"
+                            <input type="number" step="0.01" class="form-control" id="objective_multiplier"
                                    placeholder="Please Enter Objective Multiplier"
-                                   ng-model="composerProperties.objective_multiplier">
+                                   ng-model="composerProperties.objective_multiplier" required="required">
                         </div>
                     </div>
                     <div ng-if="composerProperties.aco_variant === 'MinMaxAntSystemAlgorithm'" class="form-group">
                         <label for="min_pheromone" class="col-sm-5 control-label">Min Pheromone : </label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="min_pheromone"
+                            <input type="number" step="0.01" class="form-control" id="min_pheromone"
                                    placeholder="Please Enter Min Pheromone"
                                    ng-model="composerProperties.min_pheromone">
                         </div>
                         <label for="max_pheromone" class="col-sm-5 control-label">Max Pheromone : </label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="max_pheromone"
+                            <input type="number" step="0.01" class="form-control" id="max_pheromone"
                                    placeholder="Please Enter Max Pheromone"
                                    ng-model="composerProperties.max_pheromone">
                         </div>
                     </div>
                     <div ng-if="composerProperties.aco_variant === 'AntColonySystemAlgorithm'" class="form-group">
-                        <label for="q_0" class="col-sm-5 control-label">q_0 Value : </label>
+                        <label for="q_0" class="col-sm-5 control-label">q<sub>0</sub> Value : </label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="q_0"
+                            <input type="number" step="0.01" class="form-control" id="q_0"
                                    placeholder="Please Enter q_0 Value"
-                                   ng-model="composerProperties.q_0">
+                                   ng-model="composerProperties.q_0" required>
                         </div>
                         <label for="pheromone_decay" class="col-sm-5 control-label">Pheromone Decay : </label>
                         <div class="col-sm-7">
-                            <input type="number" class="form-control" id="pheromone_decay"
+                            <input type="number" step="0.01" class="form-control" id="pheromone_decay"
                                    placeholder="Please Enter Pheromone Decay"
-                                   ng-model="composerProperties.pheromone_decay">
+                                   ng-model="composerProperties.pheromone_decay" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -385,10 +381,15 @@
                         </div>
                     </div>
                 </form>
+
+
+
+                <!-- heuristic factor FINISH -->
             </div>
-            <div class="col-md-3"></div>
         </div>
     </div>
+
+    <hr/>
 
     <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 </div>

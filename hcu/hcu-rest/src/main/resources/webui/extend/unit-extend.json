@@ -1,0 +1,7 @@
+{
+  "distribution": ["NormalDistribution", "UniformIntegerDistribution", "Static"],
+  "functional-property-type": ["static", "skill"],
+  "non-functional-property-type": ["static", "metric", "skill"],
+  "metric-interface-class": []
+}
+//todo brk static olan static prob. seklinde gözükecekler web de func. ve non func. i sisteme ekle sadece buraya yazildi.

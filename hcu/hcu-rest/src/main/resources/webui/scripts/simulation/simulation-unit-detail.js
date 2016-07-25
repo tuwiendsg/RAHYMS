@@ -1,6 +1,4 @@
-/**
- * Created by karaoglan on 17/04/16.
- */
+
 
 app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $scope, $http, $location, dialogs) {
 
@@ -15,15 +13,12 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
         $scope.unitGeneratorName = angular.copy($scope.unitGenerator.name);
         $scope.temporaryUnit = angular.copy(angular.fromJson($scope.unitGenerator.unit));
         $scope.valueConnectedness = angular.copy($scope.generateValueFromRandomNumberForRepresentation($scope.temporaryUnit.connection.weight, null));
-        $scope.is_loading = false;
         $scope.defaultParams();
     }).error(function (data, status) {
-        $scope.is_loading = false;
+        $rootScope.$broadcast('dialogs.wait.complete');
         dialogs.error(undefined, Util.error('Error loading unit detail', status, undefined));
         console.log('Error ' + data)
     });
-
-    //todo brk functional properties deki kisimda sadece normal dist mi olacak?
 
     $scope.defaultParams = function () {
 
@@ -86,8 +81,6 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
     $scope.openAddPropertyModalForIndex = function (index) {
         $scope.servicesIndexForEditFunctionalProperty = index;
     };
-
-    //todo brk genel olarak value veyahut weight ile ilgili kesin heryerde lazim mi notnull?
 
     $scope.savePrivateProperty = function () {
         if (!$scope.temporaryUnit.services[$scope.servicesIndexForEditFunctionalProperty].properties) {
@@ -182,8 +175,6 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
 
     //todo brk optional olabilen degerleri kontrol et.
 
-    /* COMMON PROPERTY FINISH */
-
     //todo brk service.properties de interface class lazim mi?
 
     $scope.updateUnit = function () {
@@ -195,9 +186,8 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
             $scope.randomNumberGenerate($scope.valueConnectedness, $scope.valueToAdd, $scope.mappingValues));
 
         dialogs.wait(undefined, 'saving unit', 99);
-        var unitToSend = {
+        var unitToUpdate = {
             'name': $scope.unitGeneratorName,
-            'objectId': objectId,
             'unit': angular.toJson($scope.temporaryUnit, true)
         };
 
@@ -205,8 +195,8 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
 
         $http({
             method: 'PUT',
-            url: URL,
-            data: $.param(unitToSend),
+            url: URL + '/' + objectId,
+            data: $.param(unitToUpdate),
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }).success(function (data) {
             $rootScope.$broadcast('dialogs.wait.complete');
@@ -219,10 +209,7 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
 
     };
 
-    //todo brk json icinde value olarak gösterilen random value mecburi degil sanirsam sor.^mecbur ise validerung koy.
-    //todo brk onu checkbox ile istendiginde aktiv edecegim bunu sor mecburi olup olmadigini?
-
-    //todo brk kaydetmeden cikmak istiyor musunuz olayini yukarida tablara tikaldiginda veyahut sayfayi kapattigida da olacak mi?
+    //todo brk kaydetmeden cikmak istiyor musunuz olayini yukarida tablara tikaldiginda veyahut sayfayi kapattigida da olacak ama nasil?
     $scope.backToHome = function () {
         var dlg = dialogs.confirm('Confirmation', 'Any unsaved changes will be lost. Continue?');
         dlg.result.then(function (btn) {

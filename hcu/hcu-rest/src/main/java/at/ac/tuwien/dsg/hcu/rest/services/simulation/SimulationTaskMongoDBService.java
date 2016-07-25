@@ -1,11 +1,10 @@
 package at.ac.tuwien.dsg.hcu.rest.services.simulation;
 
-import at.ac.tuwien.dsg.hcu.composer.helper.MongoDatabase;
 import at.ac.tuwien.dsg.hcu.rest.exceptions.IllegalSimulationArgumentException;
 import at.ac.tuwien.dsg.hcu.rest.exceptions.NotFoundException;
 import at.ac.tuwien.dsg.hcu.rest.resource.simulation.SimulationTask;
+import at.ac.tuwien.dsg.hcu.util.MongoDatabase;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
@@ -13,9 +12,6 @@ import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by karaoglan on 10/04/16.
- */
 public class SimulationTaskMongoDBService {
 
     public SimulationTask createSimulationTask(SimulationTask task) {
@@ -80,7 +76,7 @@ public class SimulationTaskMongoDBService {
 
         return simulationTask;
     }
-    //todo brk tezi yazrken extend edilebilecek olan bölümleri iyi belirleyip nasil extend edebilecegini kisinin detayli bir sekilde anlatilmasi gerekiyor tezde
+    //todo brk mlab bilgilerini properties dosyasindan al ve teze yazilmali mi sor? yaz tezi yazrken extend edilebilecek olan bölümleri iyi belirleyip nasil extend edebilecegini kisinin detayli bir sekilde anlatilmasi gerekiyor tezde
 
     public List<SimulationTask> getSimulationTask() {
 

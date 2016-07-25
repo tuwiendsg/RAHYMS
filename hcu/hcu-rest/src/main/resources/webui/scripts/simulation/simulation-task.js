@@ -1,6 +1,3 @@
-/**
- * Created by karaoglan on 08/04/16.
- */
 
 app.controller('SimulationTaskListCtrl', function ($rootScope, $scope, $http, $location, dialogs) {
 
@@ -30,13 +27,10 @@ app.controller('SimulationTaskListCtrl', function ($rootScope, $scope, $http, $l
     $scope.deleteTaskClicked = false;
 
     $http.get(URL + "/default").success(function (data) {
-        $rootScope.$broadcast('dialogs.wait.complete');
         $scope.addTask = data;
         $scope.addTask.task = angular.copy(angular.fromJson(data.task));
         $scope.addTask.id = undefined;
-        $scope.is_loading = false;
     }).error(function (data, status) {
-        $scope.is_loading = false;
         dialogs.error(undefined, Util.error('Error loading default task', status, undefined));
         console.log('Error ' + data)
     });
@@ -70,9 +64,8 @@ app.controller('SimulationTaskListCtrl', function ($rootScope, $scope, $http, $l
     };
 
     $scope.createTask = function () {
-        console.log($scope.addTask.task);
         dialogs.wait(undefined, 'Creating task', 99);
-        var taskToSend = {
+        var taskToUpdate = {
             'name': $scope.addTask.name,
             'task': angular.toJson($scope.addTask.task, true)
         };
@@ -80,7 +73,7 @@ app.controller('SimulationTaskListCtrl', function ($rootScope, $scope, $http, $l
         $http({
             method: 'POST',
             url: URL,
-            data: $.param(taskToSend),
+            data: $.param(taskToUpdate),
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }).success(function (data) {
             $rootScope.$broadcast('dialogs.wait.complete');

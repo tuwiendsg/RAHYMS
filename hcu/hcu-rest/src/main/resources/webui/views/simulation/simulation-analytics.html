@@ -9,20 +9,83 @@
 <div>
     <div class="col-md-6">
         <div class="form-group">
-            <label for="simulation-select" class="col-sm-5 control-label pull-right">Simulation : </label>
+            <label for="simulation-select" class="col-sm-3 control-label">Simulation : </label>
 
             <div class="col-md-7">
-                <select id="simulation-select" ng-change="copyFileToTemp()" ng-model="simulationSelected"
-                        ng-options="simulation.timeCreated for simulation in simulations" class="form-control">
+                <select id="simulation-select" ng-model="simulationSelected"
+                        ng-options="simulation.simulationName for simulation in simulations" class="form-control">
                     <option disabled value="">Please select a simulation</option>
                 </select>
             </div>
 
         </div>
     </div>
-    <div class="col-md-6 pull-right">
-        SIMULATION BILGILERI GELECEK
+
+    <div ng-show="simulationSelected" class="col-md-6 pull-right">
+        <div class="form-group">
+            <label for="simulation-name" class="col-sm-3 control-label">Name : </label>
+
+            <div class="col-md-7">
+                <div id="simulation-name">
+                    {{simulationSelected.simulationName}}
+                </div>
+            </div>
+
+        </div>
+        <br/>
+
+        <div class="form-group">
+            <label for="simulation-description" class="col-sm-3 control-label">Description : </label>
+
+            <div class="col-md-7">
+                <div id="simulation-description">
+                    {{simulationSelected.simulationDescription}}
+                </div>
+            </div>
+
+        </div>
+
+        <br/>
+
+        <div class="form-group">
+            <label for="simulation-start" class="col-sm-3 control-label">Time start : </label>
+
+            <div class="col-md-7">
+                <div id="simulation-start">
+                    {{simulationSelected.timeCreated}}
+                </div>
+            </div>
+
+        </div>
+
+        <br/>
+
+        <div class="form-group">
+            <label for="simulation-finish" class="col-sm-3 control-label">Time finished : </label>
+
+            <div class="col-md-7">
+                <div id="simulation-finish">
+                    {{simulationSelected.timeFinished}}
+                </div>
+            </div>
+
+        </div>
+
+        <br/>
+
+        <div ng-show="simulationSelected.timeFinished === 'Running'" class="form-group">
+            <label class="col-sm-3 control-label">
+                <button type="submit" class="btn btn-success pull-left" ng-click="refresh()">Refresh
+                </button>
+            </label>
+
+
+        </div>
+
+
+        <br/>
     </div>
+
 </div>
 
 
@@ -30,64 +93,68 @@
 <br/>
 <br/>
 <br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
-<h3>Metric Correlation</h3>
-<div class="panel panel-default">
-    <div class="panel-body">
+<div ng-show="simulationSelected && simulationSelected.timeFinished !== 'Running'">
+    <h3>Metric Correlation</h3>
+    <div class="panel panel-default">
+        <div class="panel-body">
 
-        <div class="col-md-4">
-            <div ng-if="simulationSelected">
-                <div class="form-group">
+            <div class="col-md-5">
+                <div ng-if="simulationSelected">
+                    <div class="form-group">
 
-                    <label for="graph-x-axis" class="col-sm-3 control-label">M1 : </label>
+                        <label for="graph-x-axis" class="col-sm-4 control-label">M1 : </label>
 
-                    <select id="graph-x-axis" ng-model="graph.xAxis" class="form-control col-sm-2">
-                        <option disabled selected value="">M1</option>
-                        <option>clock</option>
-                        <option>task_id</option>
-                    </select>
+                        <select id="graph-x-axis" ng-model="graph.xAxis" class="form-control col-sm-2">
+                            <option disabled selected value="">M1</option>
+                            <option>clock</option>
+                            <option>task_id</option>
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="graph-y-axis" class="col-sm-4 control-label">M2 : </label>
+                        <!-- todo brk bunlari dosyadan al -->
+                        <select id="graph-y-axis" ng-model="graph.yAxis" class="form-control col-sm-2">
+                            <option disabled selected value="">M2</option>
+                            <option>algo_time</option>
+                            <option>objective_value</option>
+                            <option>cost</option>
+                            <option>norm_cost</option>
+                            <option>competency</option>
+                            <option>connectedness</option>
+                            <option>mu_connectedness</option>
+                            <option>response_time</option>
+                            <option>norm_response_time</option>
+                        </select>
+                    </div>
 
                 </div>
-                <div class="form-group">
-                    <label for="graph-y-axis" class="col-sm-3 control-label">M2 : </label>
 
-                    <select id="graph-y-axis" ng-model="graph.yAxis" class="form-control col-sm-2">
-                        <option disabled selected value="">M2</option>
-                        <option>algo_time</option>
-                        <option>objective_value</option>
-                        <option>cost</option>
-                        <option>norm_cost</option>
-                        <option>competency</option>
-                        <option>connectedness</option>
-                        <option>mu_connectedness</option>
-                        <option>response_time</option>
-                        <option>norm_response_time</option>
-                    </select>
-                </div>
 
             </div>
 
+            <div class="col-md-4"></div>
 
-        </div>
-
-        <div class="col-md-4">
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" ng-click="showGraph()">Plot Graph
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary pull-left" ng-click="showGraph()">Plot Graph
                 </button>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="form-group">
-                <a ng-click="downloadFile()" class="btn btn-primary" download="file.csv">Download CSV
+                <a ng-click="downloadFile()" class="btn btn-primary pull-right">Download CSV
                     File</a>
             </div>
-        </div>
 
+            <div ng-show="showingGraph" id="graph-div">
+                <img id="graph-image" ng-change="graph.image" ng-model="graph.image" data-ng-src="data:image/png;base64,{{graph.image}}"
+                     data-err-src="images/png/avatar.png"/>
+            </div>
+
+        </div>
     </div>
 </div>
 
-<div ng-if="showingGraph" class="row">
-    <img ng-change="graph.image" ng-model="graph.image" data-ng-src="data:image/png;base64,{{graph.image}}"
-         data-err-src="images/png/avatar.png"/>
-</div>
+

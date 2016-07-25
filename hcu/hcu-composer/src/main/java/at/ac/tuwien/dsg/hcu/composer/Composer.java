@@ -17,7 +17,7 @@ import at.ac.tuwien.dsg.hcu.common.model.Role;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
 import at.ac.tuwien.dsg.hcu.composer.algorithm.ComposerAlgorithmInterface;
-import at.ac.tuwien.dsg.hcu.composer.helper.MongoDatabase;
+import at.ac.tuwien.dsg.hcu.util.MongoDatabase;
 import at.ac.tuwien.dsg.hcu.composer.model.ConnectednessGraph;
 import at.ac.tuwien.dsg.hcu.composer.model.ConstructionGraph;
 import at.ac.tuwien.dsg.hcu.composer.model.Solution;
@@ -36,11 +36,6 @@ import java.util.*;
 
 public class Composer implements ComposerInterface {
 
-    //todo brk cycle var o yuzen tekrar yazildi cycle olmasa simualtion helper dan alinmali database bilgileri
-    public static final String TRACE_HEADER = "clock,task_id,flag,algo_time,task_name,data,task,";
-    //todo brk simulation graph icin hangi simulation e ait oldugunu buradan verecegiz assagiya
-    ObjectId simulationObjectId = new ObjectId();
-
     private static ComposerTracer composerTracer = null;
     private static ReliabilityTracer reliabilityTracer = null;
     private static AssignmentTracer assignmentTracer = null;
@@ -53,20 +48,27 @@ public class Composer implements ComposerInterface {
     private Task task;
     private ConstructionGraph constructionGraph;
     private ConnectednessGraph connectednessGraph;
-    
+
     private ServiceManagerInterface manager;
     private DiscovererInterface discoverer;
     private DependencyProcessorInterface dp;
 
-    public Composer(String configFile, ServiceManagerInterface serviceManager,
-            DiscovererInterface discoverer, DependencyProcessorInterface dp) {
+    private ObjectId simulationId;
+
+    public Composer(String configFile,
+                    ServiceManagerInterface serviceManager,
+                    DiscovererInterface discoverer,
+                    DependencyProcessorInterface dp,
+                    ObjectId simulationId) {
+
         this.configFile = configFile;
         this.manager = serviceManager;
         this.discoverer = discoverer;
         this.dp = dp;
+        this.simulationId = simulationId;
         init();
     }
-    
+
     public DependencyProcessorInterface getDp() {
         return dp;
     }
@@ -112,31 +114,24 @@ public class Composer implements ComposerInterface {
 
         // get composer tracer
         composerTracer = (ComposerTracer) Tracer.getTracer("composer");
-        if (composerTracer!=null) {
+
+        if (composerTracer != null) {
             dbTracer = new DBTracer();
 
-            //todo brk download file icin nasil bir sistem olmali bunu örnek olarak yaptim. sadece global i kaydediyor, sadece global mi olmasi lazim?
+            if(simulationId != null) {
+                MongoDatabase.updateSimulationObject(simulationId, composerTracer.getFileName(), null);
+            }
 
-            //todo brk bunu buradan al düzgün bir yere key misal db tracer.
-            // NOTE: This should be moved to DBTracer constructor
-            DBObject simulationObject = new BasicDBObject("_id", simulationObjectId);
-            simulationObject.put("timeCreated", Util.getProperty(configFile, "timeCreated"));
-            simulationObject.put("timeFinished", null);
-            simulationObject.put("name", Util.getProperty(configFile, "simulationName"));
-            simulationObject.put("description", Util.getProperty(configFile, "simulationDescription"));
-            simulationObject.put("file_path", composerTracer.getFileName());
-
-            MongoDatabase.getSimulationCollection().insert(simulationObject);
         }
 
         // get reliability tracer
         reliabilityTracer = (ReliabilityTracer) Tracer.getTracer("reliability");
-        if (reliabilityTracer!=null) {
+        if (reliabilityTracer != null) {
             reliabilityTracer.setDiscoverer(discoverer);
         }
 
         assignmentTracer = (AssignmentTracer) Tracer.getTracer("assignment");
-        if (assignmentTracer!=null) {
+        if (assignmentTracer != null) {
             assignmentTracer.setDiscoverer(discoverer);
         }
 
@@ -145,24 +140,24 @@ public class Composer implements ComposerInterface {
         //logger.info("Composer Service started using " + algoName + " algorithm.");
 
     }
-    
+
     @Override
     public List<Assignment> partialCompose(Task task,
-            List<Role> roles, double clock) {
+                                           List<Role> roles, double clock) {
 
         // TODO: handle sub-task
-        
+
         // check objective weight
-        if (task.getOptimizationObjective().getWeight("skill") + 
+        if (task.getOptimizationObjective().getWeight("skill") +
                 task.getOptimizationObjective().getWeight("connectedness") +
                 task.getOptimizationObjective().getWeight("cost") +
                 task.getOptimizationObjective().getWeight("time") <= 0) {
             Util.log().info("Invalid objective!");
-            if (composerTracer!=null) {
-                composerTracer.traceln(","+task.getName()+",,\"" + task.detail() + "\",\"Invalid objective!\"");
+            if (composerTracer != null) {
+                composerTracer.traceln("," + task.getName() + ",,\"" + task.toString() + "\",\"Invalid objective!\"");
 
                 //todo brk burasi cagirilmiyor aslinda
-                dbTracerValues += "," + task.getName() + ",,\"" + task.detail() + "\",\"Invalid objective!\"";
+                dbTracerValues += "," + task.getName() + ",,\"" + task.toString() + "\",\"Invalid objective!\"";
             }
             return new ArrayList<Assignment>();
         }
@@ -172,18 +167,18 @@ public class Composer implements ComposerInterface {
 
         // generate construction graph
         Util.log().info("Generating construction graph");
-        ConstructionGraph constructionGraph = 
+        ConstructionGraph constructionGraph =
                 new ConstructionGraph(discoverer);
         constructionGraph = constructionGraph.generate(task, roles);
         this.setConstructionGraph(constructionGraph);
 
-        if (constructionGraph==null) {
+        if (constructionGraph == null) {
             Util.log().warning("No feasible solution found!");
-            if (composerTracer!=null) {
-                composerTracer.traceln(GridSim.clock() + "," + task.getId() + "," + task.getName() + ",,\"" + task.detail() + "\",\"No feasible solution found!\"");
+            if (composerTracer != null) {
+                composerTracer.traceln(GridSim.clock() + "," + task.getId() + ",\"\",0," + task.getName() + ",,\"" + task.toString() + "\",\"No feasible solution found!\"");
                 //todo brk hata nasil?
                 dbTracerValues += algoName;
-                dbTracerValues += "," + GridSim.clock() + "," + task.getId() + "," + task.getName() + ",,\"" + task.detail() + "\",\"No feasible solution found!\"";
+                dbTracerValues += "," + GridSim.clock() + "," + task.getId() + ",\"\",0," + task.getName() + ",,\"" + task.toString() + "\",\"No feasible solution found!\"";
             }
             return null;
         }
@@ -200,19 +195,19 @@ public class Composer implements ComposerInterface {
         // show graph
         //ShowGraphApplet<Worker, RelationEdge> applet = new ShowGraphApplet<Worker, RelationEdge>();
         //applet.showGraph(connectednessGraph);
-        
+
         Solution solution = startAlgoritm();
-        
-        if (reliabilityTracer!=null && constructionGraph!=null) {
+
+        if (reliabilityTracer != null && constructionGraph != null) {
             reliabilityTracer.traceln(task, solution.getAssignments(), clock, taskCounter);
         }
-        
-        if (assignmentTracer!=null && constructionGraph!=null) {
+
+        if (assignmentTracer != null && constructionGraph != null) {
             assignmentTracer.traceln();
         }
 
         return solution.getAssignments();
-        
+
     }
 
     @Override
@@ -220,7 +215,7 @@ public class Composer implements ComposerInterface {
         taskCounter++;
         return partialCompose(task, null, clock);
     }
-    
+
     private ConnectednessGraph generateConnectednessGraph(List<Service> services) {
         Util.log().info("Generating connectedness graph");
         ArrayList<Connection> relations = (ArrayList<Connection>) manager.getConnections(services);
@@ -228,7 +223,7 @@ public class Composer implements ComposerInterface {
         connectednessGraph.generate(relations);
         return connectednessGraph;
     }
-    
+
     private Solution startAlgoritm() {
 
         Solution solution = new Solution();
@@ -237,7 +232,7 @@ public class Composer implements ComposerInterface {
         try {
 
             // init algorithm
-            algorithm = (ComposerAlgorithmInterface)Class
+            algorithm = (ComposerAlgorithmInterface) Class
                     .forName(this.getClass().getPackage().getName() + ".algorithm." + algoName).newInstance();
             algorithm.init(configFile, constructionGraph, this);
 
@@ -251,48 +246,30 @@ public class Composer implements ComposerInterface {
             String data = "";
             String flag = "";
             // trace
-            if (composerTracer!=null) {
-                if (solution!=null && solution.size()>0) {
+            if (composerTracer != null) {
+                if (solution != null && solution.size() > 0) {
                     data = solution.getData();
                 }
-                if (this.isSolutionFeasible(solution)) flag = "f"; 
-                composerTracer.trace(GridSim.clock()+","+task.getId()+","+flag + "," + algoTime + ","+task.getName()+","
-                        +data+",\"" + task.toString() + "\",");
+                if (this.isSolutionFeasible(solution)) flag = "f";
+                composerTracer.trace(GridSim.clock() + "," + task.getId() + "," + flag + "," + algoTime + "," + task.getName() + ","
+                        + data + ",\"" + task.toString() + "\",");
 
-                dbTracerValues += simulationObjectId;
+                dbTracerValues += simulationId.toString();
                 dbTracerValues += "," + algoName;
-                dbTracerValues += "," +GridSim.clock()+","+task.getId()+","+flag + "," + algoTime + ","+task.getName()+","
-                        +data+"," + task.toString() + ",";
-                if (solution!=null && solution.size()>0) {
+                dbTracerValues += "," + GridSim.clock() + "," + task.getId() + "," + flag + "," + algoTime + "," + task.getName() + ","
+                        + data + "," + task.toString() + ",";
+
+                if (solution != null && solution.size() > 0) {
                     composerTracer.traceln(solution, "");
+                    dbTracerValues += dbTracer.trace(solution);
+
                 } else {
-                    composerTracer.traceln("Algo can't find solution!"); 
+                    composerTracer.traceln("Algo can't find solution!");
                 }
             }
 
             dbTracer.traceln(dbTracerValues);
             dbTracerValues = new String("");
-
-            /*DBObject simulationInformation =  new BasicDBObject("_id", ObjectId.get()).
-                    append("clock", GridSim.clock()).
-                    append("task_id", task.getId()).
-                    append("flag", flag).
-                    append("algo_time", algoTime).
-                    append("task", data).
-                    append("solution_components", solution.trace()).
-                    append("objective_value", solution.getAggregateScore()).
-                    append("cost", solution.getCost()).
-                    append("norm_cost", solution.getNormCost()).
-                    append("competency", solution.getSkillScore()).
-                    append("connectedness", solution.getConnectednessScore()).
-                    append("mu_connectedness", solution.getFuzzyConnectedness()).
-                    append("response_time", solution.getTime()).
-                    append("norm_response_time", solution.getNormTime());
-
-            DBCollection collection = database.getCollection("simulation-information");
-
-            collection.insert(simulationInformation);*/
-
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -307,31 +284,29 @@ public class Composer implements ComposerInterface {
     }
 
     public boolean isSolutionFeasible(Solution s) {
-        
+
         OptimizationObjective objective = task.getOptimizationObjective();
 
         // get SLOs constraints
         double costLimit = (double) task.getObjectiveValue("cost_limit", 99999.0);
         double deadline = (double) task.getObjectiveValue("deadline", 99999.0);
-        
-        if (objective.getWeight("connectedness")>0 && 
-                s.size()>1 && s.getFuzzyConnectedness()==0.0) return false;
-        else if (objective.getWeight("cost")>0 && 
-                s.getCost()>costLimit) return false;
-        
-        else if (objective.getWeight("skill")>0 && s.getSkillScore()==0.0) return false;
-        else if (objective.getWeight("time")>0) {
+
+        if (objective.getWeight("connectedness") > 0 &&
+                s.size() > 1 && s.getFuzzyConnectedness() == 0.0) return false;
+        else if (objective.getWeight("cost") > 0 &&
+                s.getCost() > costLimit) return false;
+
+        else if (objective.getWeight("skill") > 0 && s.getSkillScore() == 0.0) return false;
+        else if (objective.getWeight("time") > 0) {
             double finishTime = dp.forecastFinishTime(s.getAssignments());
-            if (finishTime>deadline) return false;
+            if (finishTime > deadline) return false;
             else return true;
-        }
-        
-        else return true;
+        } else return true;
     }
 
     public ArrayList<Solution> filterFeasibleSolutions(ArrayList<Solution> solutions) {
         ArrayList<Solution> feasibleSolutions = new ArrayList<Solution>();
-        for (Solution solution: solutions) {
+        for (Solution solution : solutions) {
             if (isSolutionFeasible(solution)) {
                 feasibleSolutions.add(solution);
             }
@@ -339,12 +314,12 @@ public class Composer implements ComposerInterface {
         return feasibleSolutions;
     }
 
-    public Hashtable<Solution,Double> calculateObjectiveValues(ArrayList<Solution> solutions) {
+    public Hashtable<Solution, Double> calculateObjectiveValues(ArrayList<Solution> solutions) {
 
         OptimizationObjective objective = task.getOptimizationObjective();
-        
+
         String connectednessQuality = (String) task.getObjectiveValue("connectedness", "poor");
-        Hashtable<Solution,Double> objectiveValues = new Hashtable<Solution,Double>();
+        Hashtable<Solution, Double> objectiveValues = new Hashtable<Solution, Double>();
 
         // get objective weight
         double competencyWeight = objective.getWeight("skill");
@@ -355,37 +330,38 @@ public class Composer implements ComposerInterface {
         // pre calculate cost and response time (required for normalization)
         ArrayList<Double> costs = null;
         double maxCost = 0;
-        if (costWeight>0) {
+        if (costWeight > 0) {
             costs = getCostForEachSolution(solutions);
             maxCost = Collections.max(costs);
         }
         ArrayList<Double> responseTimes = null;
         double maxResponseTime = 0;
-        if (rtWeight>0) {
+        if (rtWeight > 0) {
             responseTimes = getResponseTimeForEachSolution(solutions);
             maxResponseTime = Collections.max(responseTimes);
         }
 
         // calculate for each solution
         int k = 0;
-        for (Solution solution: solutions) {
+        for (Solution solution : solutions) {
 
             // competency objective
             double competenceScore = 0;
-            if (competencyWeight>0) {
+            if (competencyWeight > 0) {
                 double minCompentency = Double.MAX_VALUE;
-                for (SolutionComponent comp: solution.getList()) {
+                for (SolutionComponent comp : solution.getList()) {
                     double competency = comp.getGradeOfSkill();
-                    if (competency<minCompentency) minCompentency = competency;
+                    if (competency < minCompentency) minCompentency = competency;
                 }
-                if (minCompentency>Double.MAX_VALUE-1) competenceScore = 0; // selected workers do not have competency
+                if (minCompentency > Double.MAX_VALUE - 1)
+                    competenceScore = 0; // selected workers do not have competency
                 else competenceScore = minCompentency;
             }
 
             // connectedness objective
             double connectednessScore = 0;
             double fuzzyyConnectednessScore = 0;
-            if (connectednessWeight>0) {
+            if (connectednessWeight > 0) {
                 connectednessScore = connectednessGraph.getConnectedness(solution);
                 // fuzzify
                 fuzzyyConnectednessScore = SolutionComponent.getGradeOfConnectedness(connectednessScore, connectednessQuality);
@@ -394,7 +370,7 @@ public class Composer implements ComposerInterface {
             // cost objective
             double costScore = 0;
             double normCostScore = 0;
-            if (costWeight>0) {
+            if (costWeight > 0) {
                 costScore = costs.get(k);
                 double center = (double) task.getObjectiveValue("cost_limit", 99999.0);
                 normCostScore = center / (center + costScore);
@@ -403,19 +379,19 @@ public class Composer implements ComposerInterface {
             // response time objective
             double responseTimeScore = 0;
             double normResponseTimeScore = 0;
-            if (rtWeight>0) {
+            if (rtWeight > 0) {
                 responseTimeScore = responseTimes.get(k);
-                double center = (double) task.getObjectiveValue("deadline", 99999.0) - 
+                double center = (double) task.getObjectiveValue("deadline", 99999.0) -
                         task.getSubmissionTime() * 1.0;
                 normResponseTimeScore = center / (center + responseTimeScore);
             }
 
             // aggregate objectivity scores
-            double aggregateScore = ( 
-                    (competencyWeight * (1-competenceScore)) +
-                    (connectednessWeight * (1-fuzzyyConnectednessScore)) +
-                    (rtWeight * (1-normResponseTimeScore)) +
-                    (costWeight * (1-normCostScore)) ) 
+            double aggregateScore = (
+                    (competencyWeight * (1 - competenceScore)) +
+                            (connectednessWeight * (1 - fuzzyyConnectednessScore)) +
+                            (rtWeight * (1 - normResponseTimeScore)) +
+                            (costWeight * (1 - normCostScore)))
                     / (competencyWeight + connectednessWeight + rtWeight + costWeight);
 
             // save the measurement values on the first element
@@ -438,10 +414,10 @@ public class Composer implements ComposerInterface {
 
     private ArrayList<Double> getCostForEachSolution(ArrayList<Solution> solutions) {
         ArrayList<Double> costs = new ArrayList<Double>();
-        for (Solution solution: solutions) {
+        for (Solution solution : solutions) {
             double cost = 0;
-            for (SolutionComponent comp: solution.getList()) {
-                cost += (double)comp.getAssignee().getProvider().getProperties()
+            for (SolutionComponent comp : solution.getList()) {
+                cost += (double) comp.getAssignee().getProvider().getProperties()
                         .getValue("cost", 0.0);
             }
             costs.add(cost);
@@ -451,18 +427,18 @@ public class Composer implements ComposerInterface {
 
     private ArrayList<Double> getResponseTimeForEachSolution(ArrayList<Solution> solutions) {
         ArrayList<Double> responseTimes = new ArrayList<Double>();
-        for (Solution solution: solutions) {
+        for (Solution solution : solutions) {
             double responseTime = dp.forecastFinishTime(solution.getAssignments());
             responseTimes.add(responseTime);
         }
         return responseTimes;
     }
 
-    public Hashtable<SolutionComponent,Double> calculateHeuristicScores(
+    public Hashtable<SolutionComponent, Double> calculateHeuristicScores(
             ArrayList<SolutionComponent> options, Solution solutionSoFar) {
 
         // init vars
-        Hashtable<SolutionComponent,Double> scores = new Hashtable<SolutionComponent,Double>();
+        Hashtable<SolutionComponent, Double> scores = new Hashtable<SolutionComponent, Double>();
         ArrayList<Double> deltaConnectedness = new ArrayList<Double>();
         ArrayList<Double> deltaCost = new ArrayList<Double>();
         ArrayList<Double> deltaRT = new ArrayList<Double>();
@@ -476,25 +452,25 @@ public class Composer implements ComposerInterface {
         double costWeight = objective.getWeight("cost");
 
         // get response time so far
-        if (rtWeight>0) {
+        if (rtWeight > 0) {
             prevRT = dp.forecastFinishTime(solutionSoFar.getAssignments());
         }
 
         // first iteration to calculate medians
-        for (SolutionComponent comp: options) {
+        for (SolutionComponent comp : options) {
             // connectedness
-            if (connectednessWeight>0) {
-                double dc = connectednessGraph.getDeltaConnectedness(solutionSoFar, 
+            if (connectednessWeight > 0) {
+                double dc = connectednessGraph.getDeltaConnectedness(solutionSoFar,
                         comp.getAssignee().getProvider());
                 deltaConnectedness.add(dc);
             }
             // cost
-            if (costWeight>0) {
-                deltaCost.add((double)comp.getAssignee().getProvider().getProperties()
+            if (costWeight > 0) {
+                deltaCost.add((double) comp.getAssignee().getProvider().getProperties()
                         .getValue("cost", 0.0));
             }
             // response time
-            if (rtWeight>0) {
+            if (rtWeight > 0) {
                 List<Assignment> assignmentSoFar = solutionSoFar.getAssignments();
                 assignmentSoFar.add(comp);
                 double forecastedResponseTime = dp.forecastFinishTime(assignmentSoFar);
@@ -505,49 +481,50 @@ public class Composer implements ComposerInterface {
 
         // calculate connectedness median
         double medianConnectedness = 0;
-        if (connectednessWeight>0) {
+        if (connectednessWeight > 0) {
             medianConnectedness = (Collections.min(deltaConnectedness) + Collections.max(deltaConnectedness)) / 2;
         }
 
         // calculate cost median
         double medianCost = 0;
-        if (costWeight>0) {
+        if (costWeight > 0) {
             medianCost = (Collections.min(deltaCost) + Collections.max(deltaCost)) / 2;
         }
 
         // calculate response time median
         double medianRT = 0;
-        if (rtWeight>0) {
+        if (rtWeight > 0) {
             medianRT = (Collections.min(deltaRT) + Collections.max(deltaRT)) / 2;
         }
 
         // second iteration to measure heuristic factors
         int i = 0;
-        while (i<options.size()) {
+        while (i < options.size()) {
 
             double connScore = 0;
             //if (medianConnectedness>0) connScore = deltaConnectedness.get(i) / (medianConnectedness +  deltaConnectedness.get(i));
             //double connCenter = ((InfinityTrapezoidalMembershipFunction)ConnectednessMembershipFunctions.getInstance().getMembershipFunction(task.getConnectedness())).center();
             double connCenter = 0.5;
-            if (connectednessWeight>0) connScore = deltaConnectedness.get(i) / (connCenter +  deltaConnectedness.get(i));
+            if (connectednessWeight > 0)
+                connScore = deltaConnectedness.get(i) / (connCenter + deltaConnectedness.get(i));
 
             double costScore = 0;
             //if (medianCost>0) costScore = medianCost / (medianCost + deltaCost.get(i));
             double costCenter = (double) task.getObjectiveValue("cost_limit", 99999.0);
-            if (medianCost>0) costScore = costCenter / (costCenter + deltaCost.get(i));
+            if (medianCost > 0) costScore = costCenter / (costCenter + deltaCost.get(i));
 
             double rtScore = 0;
-            if (medianRT>0) rtScore = medianRT / (medianRT + deltaRT.get(i));
+            if (medianRT > 0) rtScore = medianRT / (medianRT + deltaRT.get(i));
 
             double competencyScore = 0;
-            if (competencyWeight>0) competencyScore = options.get(i).getGradeOfSkill();
+            if (competencyWeight > 0) competencyScore = options.get(i).getGradeOfSkill();
 
             // calculate heuristic factor
-            double heuristicScore = 
-                    ( (connScore * connectednessWeight) + 
-                            (costScore * costWeight) + 
+            double heuristicScore =
+                    ((connScore * connectednessWeight) +
+                            (costScore * costWeight) +
                             (rtScore * rtWeight) +
-                            (competencyScore * competencyWeight) ) / 
+                            (competencyScore * competencyWeight)) /
                             (connectednessWeight + costWeight + rtWeight + competencyWeight);
 
             scores.put(options.get(i), heuristicScore);

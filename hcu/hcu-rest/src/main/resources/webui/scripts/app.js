@@ -91,7 +91,6 @@ app.config(function ($routeProvider) {
 
 function HeaderController($rootScope, $scope, $location)
 {
-
     const MAX_OF_MAPPING_VALUES = 9;
 
     $scope.isActive = function (viewLocation) {
@@ -118,7 +117,6 @@ function HeaderController($rootScope, $scope, $location)
         valueValidated.params = {};
 
         //for static
-        //todo brk task da static value var mi?
         if(angular.isNumber(value)) {
             valueValidated.class = 'Static';
             valueValidated.params.first = value;
@@ -144,8 +142,6 @@ function HeaderController($rootScope, $scope, $location)
 
         return valueValidated;
     };
-
-    //todo brk bu value daki static secenegi bütün value olan yerlere gelecek mi? non functional da var , functional a da gelecek mi?
 
     $rootScope.randomNumberGenerate = function (valueConnect, valueToAdd, mappingValues) {
 
@@ -216,5 +212,19 @@ function HeaderController($rootScope, $scope, $location)
         console.info("number of mapping values and array : " + $rootScope.mappingValueArray.length + '\n' +
             $rootScope.mappingValueArray);
     };
+
+    $rootScope.readFiles = function () {
+        $.getJSON('extend/unit-extend.json', function(jd) {
+            console.info(jd);
+            $rootScope.distributions = [];
+
+            for(var i=0; i < jd.distribution.length; i++) {
+                $rootScope.distributions.push(jd.distribution[i]);
+            }
+
+        });
+    };
+
+    $rootScope.readFiles();
 }
 

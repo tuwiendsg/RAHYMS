@@ -116,7 +116,7 @@ public class Simulation {
             manager = new ServiceManagerOnMemory();
             discoverer = new Discoverer(manager);
             dp = new DependencyProcessor();
-            composer = new Composer(composerConfig, manager, discoverer, dp);
+            composer = new Composer(composerConfig, manager, discoverer, dp, null);
             scheduler = new Scheduler(composer, dp);
             
             boolean monitoringEnabled = Boolean.parseBoolean(Util.getProperty(config, "monitor"));
@@ -149,7 +149,8 @@ public class Simulation {
                 scenarioConfig.getRoot().getInt("numberOfCycles"),
                 scenarioConfig.getRoot().getInt("waitBetweenCycle"),
                 Util.getProperty(config, "export_arff_to"),
-                Boolean.parseBoolean(Util.getProperty(config, "gridsim_debug"))
+                Boolean.parseBoolean(Util.getProperty(config, "gridsim_debug")),
+                false
         );
     }
     

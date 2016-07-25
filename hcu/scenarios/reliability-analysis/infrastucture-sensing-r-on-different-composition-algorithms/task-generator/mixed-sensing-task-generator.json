@@ -1,0 +1,86 @@
+{
+    "seed": 1001,
+    "taskTypes": [
+        { 
+            "name": "MixedSensing",
+            "description": "MixedSensing",
+            "isRootTask": true,
+            "tasksOccurance": {"class": "java.lang.Integer", "params": [5], "sampleMethod": "doubleValue"},
+            "load": {"class": "NormalDistribution", "params": [3, 0.5, 1.0E-9]},  
+            "roles": [
+                {   
+                    "functionality": "Collector",
+                    "probabilityToHave": 1.0,
+                    "relativeLoadRatio": 1.0,
+                    "specification": [ 
+                    ]
+                },
+                {   
+                    "functionality": "Assessor",
+                    "probabilityToHave": 1.0,
+                    "relativeLoadRatio": 0.8,
+                    "dependsOn": ["*Collector"],
+                    "specification": [ 
+                    ]
+                },
+                {   
+                    "functionality": "Sensor",
+                    "probabilityToHave": 1.0,
+                    "relativeLoadRatio": 1.0,
+                    "specification": [ 
+                    ]
+                }
+            ],
+            "subTaskTypes": [],
+            "specification": [
+                {
+                    "type": "static",
+                    "name": "deadline",
+                    "value": {"class": "NormalDistribution", "params": [1000, 10, 1.0E-9]},
+                    "probabilityToHave": 1.0
+                },
+                {
+                    "type": "static",
+                    "name": "cost_limit",
+                    "value": {"class": "NormalDistribution", "params": [1000, 1, 1.0E-9]},
+                    "probabilityToHave": 1.0
+                },
+                {
+                    "type": "static",
+                    "name": "connectedness",
+                    "value": {"class": "UniformIntegerDistribution", "params": [0, 1], 
+                              "mapping": {"0": "poor", "1": "fair", "2": "good", "3": "very_good"}},
+                    "probabilityToHave": 1.0
+                },
+                {
+                    "type": "static",
+                    "name": "location",
+                    "value": {"class": "UniformIntegerDistribution", "params": [0, 2], 
+                                "mapping": {"0": "Sector-A", "1": "Sector-B", "2": "Sector-C"}},
+                    "_comparator": "at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator",
+                    "probabilityToHave": 1.0
+                }                        
+            ],
+            "optimizationObjective": [
+                {
+                    "name": "skill",
+                    "value": 0.0
+                },
+                {
+                    "name": "cost",
+                    "value": 7.0
+                },
+                {
+                    "name": "time",
+                    "value": 1.0
+                },
+                {
+                    "name": "connectedness",
+                    "value": 0.0
+                }
+            ]
+        }
+        
+    ]
+    
+}

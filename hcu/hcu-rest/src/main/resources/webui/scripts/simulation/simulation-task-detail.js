@@ -1,7 +1,3 @@
-/**
- * Created by karaoglan on 14/04/16.
- */
-
 app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $scope, $http, $location, dialogs) {
 
     const URL = '/rest/api/simulation-task';
@@ -12,7 +8,6 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
     $http.get(URL + "/" + objectId).success(function (data) {
         $rootScope.$broadcast('dialogs.wait.complete');
         $scope.taskGenerator = data;
-        $scope.is_loading = false;
 
         $scope.taskGeneratorName = angular.copy($scope.taskGenerator.name);
         $scope.temporaryTask = angular.copy(angular.fromJson($scope.taskGenerator.task));
@@ -23,17 +18,14 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
 
         $scope.defaultParams();
 
-
     }).error(function (data, status) {
-        $scope.is_loading = false;
+        $rootScope.$broadcast('dialogs.wait.complete');
         dialogs.error(undefined, Util.error('Error loading task detail', status, undefined));
         console.log('Error ' + data)
     });
 
-    //todo brk dependsOn strong and weak dependency olayi var * ile belli oluyor. Sor bir de diger role lere depend oluyor galiba? birden fazla
 
-    //todo brk humansensing json da param da 0-2 yazmasina ragmen 4 eleman eklemis sor.
-
+    //todo brk non functional string compar degistirmiyor edit kismin iincele yeni eklerken de eklemiyor
     $scope.defaultParams = function () {
 
         $scope.role = {};
@@ -66,7 +58,7 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         $rootScope.mappingValueArray = [];
     };
 
-    $scope.editRoleSetParams = function(index) {
+    $scope.editRoleSetParams = function (index) {
         $scope.editRoleClicked = true;
         $scope.editRoleIndex = index;
         $scope.role.functionality = $scope.temporaryTask.taskTypes[0].roles[index].functionality;
@@ -75,13 +67,13 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         $scope.calculateDependencyForEditRole($scope.temporaryTask.taskTypes[0].roles[index].dependsOn);
     };
 
-    $scope.calculateDependencyForEditRole = function(depends) {
-        angular.forEach(depends, function(value, key) {
-            if(value.startsWith("*")) {
+    $scope.calculateDependencyForEditRole = function (depends) {
+        angular.forEach(depends, function (value, key) {
+            if (value.startsWith("*")) {
                 var functionalityValue = value.substring(1);
                 $scope.dependsOnValues[functionalityValue] = true;
                 $scope.dependsOnStrongValues[functionalityValue] = true;
-            } else if(value) {
+            } else if (value) {
                 $scope.dependsOnValues[value] = true;
             }
         });
@@ -93,21 +85,47 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         $scope.role.dependsOn = $scope.dependsOn;
 
         if (!$scope.editRoleClicked) {
+            if(!$scope.checkRoleFunctionalityForUnique($scope.role.functionality) ) {
+                dialogs.notify(undefined, "Please enter unique functionality name!");
+                return;
+            }
+
             $scope.temporaryTask.taskTypes[0].roles.push(angular.copy($scope.role));
         } else {
+            if(!$scope.checkRoleFunctionalityForUnique($scope.role.functionality, $scope.editRoleIndex) ) {
+                dialogs.notify(undefined, "Please enter unique functionality name!");
+                return;
+            }
+
             $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].functionality = angular.copy($scope.role.functionality);
             $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].dependsOn = angular.copy($scope.role.dependsOn);
             $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].probabilityToHave = angular.copy($scope.role.probabilityToHave);
             $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].relativeLoadRatio = angular.copy($scope.role.relativeLoadRatio);
         }
 
+        //todo brk bak su an bos array atiyor sorun var mi dependson da algorithmada
+
         $scope.defaultParams();
     };
 
+    $scope.checkRoleFunctionalityForUnique = function (func, index) {
+        for (var i = 0; i < $scope.temporaryTask.taskTypes[0].roles.length; i++) {
+
+            if (index !== undefined && i === index) continue;
+
+            if ($scope.temporaryTask.taskTypes[0].roles[i].functionality === func) {
+                return false;
+            }
+        }
+        return true;
+
+
+    };
+
     $scope.calculateDependency = function () {
-        angular.forEach($scope.dependsOnValues, function(value, key) {
-            if(value) {
-                if($scope.dependsOnStrongValues[key]) {
+        angular.forEach($scope.dependsOnValues, function (value, key) {
+            if (value) {
+                if ($scope.dependsOnStrongValues[key]) {
                     $scope.dependsOn.push("*" + key);
                 } else {
                     $scope.dependsOn.push(key);
@@ -117,7 +135,7 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
     };
 
     $scope.deleteRole = function (index) {
-        var dlg = dialogs.confirm('Confirmation', 'Are you sure want to delete the role "'+ $scope.temporaryTask.taskTypes[0].roles[index].functionality +'" at index #' + index + '?');
+        var dlg = dialogs.confirm('Confirmation', 'Are you sure want to delete the role "' + $scope.temporaryTask.taskTypes[0].roles[index].functionality + '" at index #' + index + '?');
         dlg.result.then(function (btn) {
             $scope.temporaryTask.taskTypes[0].roles.splice(index, 1);
         }, function (btn) {
@@ -191,8 +209,8 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
     };
 
     $scope.deleteFunctionalProperty = function () {
-        var dlg = dialogs.confirm('Confirmation', 'Are you sure want to delete the functional property "'+ $scope.temporaryTask.taskTypes[0].roles[$scope.roleIndexForEditFunctionalProperty].specification
-                [$scope.editFunctionalPropertyIndex].name +'" at index #' + $scope.editFunctionalPropertyIndex + '?');
+        var dlg = dialogs.confirm('Confirmation', 'Are you sure want to delete the functional property "' + $scope.temporaryTask.taskTypes[0].roles[$scope.roleIndexForEditFunctionalProperty].specification
+                [$scope.editFunctionalPropertyIndex].name + '" at index #' + $scope.editFunctionalPropertyIndex + '?');
 
         dlg.result.then(function (btn) {
             $scope.temporaryTask.taskTypes[0].roles[$scope.roleIndexForEditFunctionalProperty].specification.splice($scope.editFunctionalPropertyIndex, 1);
@@ -217,7 +235,7 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
     };
 
     $scope.deleteProperty = function (index) {
-        var dlg = dialogs.confirm('Confirmation', 'Are you sure want to delete the property "'+ $scope.temporaryTask.taskTypes[0].specification[index].name +'" at index #' + index + '?');
+        var dlg = dialogs.confirm('Confirmation', 'Are you sure want to delete the property "' + $scope.temporaryTask.taskTypes[0].specification[index].name + '" at index #' + index + '?');
         dlg.result.then(function (btn) {
             $scope.temporaryTask.taskTypes[0].specification.splice(index, 1);
         }, function (btn) {
@@ -227,7 +245,7 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
 
     $scope.updateTask = function () {
 
-        if(!$scope.temporaryTask.taskTypes[0].tasksOccurance) {
+        if (!$scope.temporaryTask.taskTypes[0].tasksOccurance) {
             $scope.temporaryTask.taskTypes[0].tasksOccurance = $scope.defaultTasksOccurance;
         }
 
@@ -238,16 +256,15 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
             $scope.randomNumberGenerate($scope.loadValue, $scope.valueToAdd, $scope.mappingValues));
 
         dialogs.wait(undefined, 'saving task', 99);
-        var taskToSend = {
+        var taskToUpdate = {
             'name': $scope.taskGeneratorName,
-            'objectId': objectId,
             'task': angular.toJson($scope.temporaryTask, true)
         };
 
         $http({
             method: 'PUT',
-            url: URL,
-            data: $.param(taskToSend),
+            url: URL + '/' + objectId,
+            data: $.param(taskToUpdate),
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }).success(function (data) {
             $rootScope.$broadcast('dialogs.wait.complete');

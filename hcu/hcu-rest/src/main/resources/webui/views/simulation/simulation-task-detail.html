@@ -210,8 +210,7 @@
 
                                     <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator">
                                         StringComparator
-
-                                    </option><!-- todo brk burada java package i vardi bunlarin oldugu bul oradan yaz comparator class lari -->
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -369,21 +368,24 @@
                         <hr/>
 
                         <h5>Depends On : </h5>
-                        <div ng-repeat="temporaryRole in temporaryTask.taskTypes[0].roles">
-                            <div ng-hide="editRoleClicked && role.functionality === temporaryRole.functionality" class="col-sm-6 padding-left">
-                                <form>
-                                    <input type="checkbox" ng-model="dependsOnValues[temporaryRole.functionality]"
-                                           name="dependsOn">
-                                    <label>{{ temporaryRole.functionality }}</label>
-                                </form>
+                        <div class="boxes">
+                            <div ng-repeat="temporaryRole in temporaryTask.taskTypes[0].roles">
+                                <div ng-hide="editRoleClicked && role.functionality === temporaryRole.functionality" class="col-sm-6 padding-left">
+                                    <form>
+                                        <input type="checkbox" ng-model="dependsOnValues[temporaryRole.functionality]"
+                                               name="dependsOn">
+                                        <label>{{ temporaryRole.functionality }}</label>
+                                    </form>
 
-                            </div>
-                            <div ng-hide="editRoleClicked && role.functionality === temporaryRole.functionality" class="col-sm-6">
-                                <form>
-                                    <input ng-disabled="!dependsOnValues[temporaryRole.functionality]" type="checkbox" ng-model="dependsOnStrongValues[temporaryRole.functionality]"
-                                           name="strongDependency">
-                                    <label>Strong Dependency</label>
-                                </form>
+                                </div>
+                                <div ng-hide="editRoleClicked && role.functionality === temporaryRole.functionality" class="col-sm-6">
+                                    <form>
+                                        <input ng-disabled="!dependsOnValues[temporaryRole.functionality]" type="checkbox" ng-model="dependsOnStrongValues[temporaryRole.functionality]"
+                                               name="strongDependency">
+                                        <label>Strong Dependency</label>
+                                    </form>
+                                </div>
+
                             </div>
 
                         </div>
@@ -484,8 +486,6 @@
                                 </select>
                             </div>
                         </div>
-
-                        <!-- todo brk bu _ alt cizgili olanlarin hepsini normalin icine aldim. sor. !! -->
 
                         <div class="form-group">
                             <label for="common-specification-class" class="col-sm-3 control-label">Comparator : </label>
@@ -598,7 +598,6 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="defaultParams()">Close</button>
-                    <!-- todo brk change the ng click function for task -->
 
                     <button type="button" class="btn btn-primary" ng-click="saveProperty()" data-dismiss="modal">Save
                         changes

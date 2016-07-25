@@ -11,9 +11,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-/**
- * Created by karaoglan on 17/04/16.
- */
 @Path("/simulation-unit")
 @Api(value = "/simulation-unit", description = "Manage Simulation Unit Properties")
 public class SimulationUnitRestService {
@@ -65,6 +62,27 @@ public class SimulationUnitRestService {
         return simulationUnitMongoDBService.getSimulationUnit();
     }
 
+    @Produces({MediaType.APPLICATION_JSON})
+    @PUT
+    @Path("/{objectId}")
+    @ApiOperation(value = "Update existing unit", notes = "Update existing simulation unit with given params", response = Response.class)
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Simulation unit successfully updated"),
+            @ApiResponse(code = 400, message = "Simulation unit properties are not valid"),
+            @ApiResponse(code = 404, message = "Simulation unit with such id doesn't exists")
+    })
+    public Response updateSimulationUnit(
+            @ApiParam(value = "objectId of unit", required = true) @PathParam("objectId") final String objectId,
+            @ApiParam(value = "name of unit", required = true) @FormParam("name") final String name,
+            @ApiParam(value = "properties of unit", required = true) @FormParam("unit") final String unit) {
+
+        if (!simulationUnitMongoDBService.updateSimulationUnit(new SimulationUnit(name, unit, objectId))) {
+            throw new IllegalSimulationArgumentException();
+        }
+
+        return Response.ok().build();
+    }
+
     @Path("/{objectId}")
     @DELETE
     @ApiOperation(value = "Delete existing simulation unit", notes = "Delete existing simulation unit with given objectId", response = Response.class)
@@ -76,29 +94,8 @@ public class SimulationUnitRestService {
     public Response deleteSimulationUnit(@ApiParam(value = "objectId of unit", required = true) @PathParam("objectId") final String objectId) {
         if(!simulationUnitMongoDBService.removeSimulationUnit(objectId)) {
             throw new IllegalSimulationArgumentException();
-        }
+        }  //todo brk bak bu calisiyor mu? response code olayi
         return Response.ok().build();
     }
 
-
-    @Produces({MediaType.APPLICATION_JSON})
-    @PUT
-    @ApiOperation(value = "Update existing unit", notes = "Update existing simulation unit with given params", response = Response.class)
-    @ApiResponses({
-            @ApiResponse(code = 201, message = "Simulation unit successfully updated"),
-            @ApiResponse(code = 400, message = "Simulation unit properties are not valid"),
-            @ApiResponse(code = 404, message = "Simulation unit with such id doesn't exists")
-    })
-    public Response updateSimulationUnit(
-            @ApiParam(value = "name of unit", required = true) @FormParam("name") final String name,
-            @ApiParam(value = "objectId of unit", required = true) @FormParam("objectId") final String objectId,
-            @ApiParam(value = "properties of unit", required = true) @FormParam("unit") final String unit) {
-
-
-        if (!simulationUnitMongoDBService.updateSimulationUnit(new SimulationUnit(name, unit, objectId))) {
-            throw new IllegalSimulationArgumentException();
-        }
-
-        return Response.ok().build();
-    }
 }

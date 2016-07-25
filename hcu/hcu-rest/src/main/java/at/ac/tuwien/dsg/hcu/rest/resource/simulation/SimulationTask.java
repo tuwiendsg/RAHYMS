@@ -5,20 +5,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
-/**
- * Created by karaoglan on 16/04/16.
- */
 @ApiModel(value = "Simulation Task", description = "Properties of Task for Simulation")
 public class SimulationTask {
+
+    @ApiModelProperty(value = "Tasks's mongod objectId", required = false)
+    private String id;
 
     @ApiModelProperty(value = "Task's name", required = true)
     private String name;
 
     @ApiModelProperty(value = "task's properties", required = true)
     private String task;
-
-    @ApiModelProperty(value = "Tasks's objectId", required = false)
-    private String id;
 
     public SimulationTask() {
     }

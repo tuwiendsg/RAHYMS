@@ -1,20 +1,13 @@
 package at.ac.tuwien.dsg.hcu.composer;
 
-/**
- * Created by karaoglan on 31/03/16.
- */
-
-import at.ac.tuwien.dsg.hcu.composer.helper.MongoDatabase;
 import at.ac.tuwien.dsg.hcu.composer.model.Solution;
+import at.ac.tuwien.dsg.hcu.util.MongoDatabase;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 
 import java.util.Arrays;
 
-/**
- * Created by karaoglan on 19/02/16.
- */
 public class DBTracer extends ComposerTracer {
 
     public static final String ALGORITHM_NAME = "algo_name,";
@@ -29,7 +22,7 @@ public class DBTracer extends ComposerTracer {
     }
 
     public String getTraceHeader() {
-        return SIMULATION_ID + ALGORITHM_NAME + Composer.TRACE_HEADER + super.getTraceHeader();
+        return SIMULATION_ID + ALGORITHM_NAME + super.getTraceHeader();
     }
 
     public String trace(Solution solution) {
@@ -44,7 +37,6 @@ public class DBTracer extends ComposerTracer {
         String[] copyValue = null;
 
         if(fields.length != values.length) {
-            //todo brk no solution
             copyValue = Arrays.copyOf(values, fields.length);
             for(int i = values.length; i<fields.length;i++) {
                 copyValue[i] = "";

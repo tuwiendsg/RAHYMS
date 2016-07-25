@@ -55,6 +55,8 @@ public class TaskService {
             String config = System.getProperty(AppConfig.REST_CONFIG);
             
             String taskGeneratorConfigFile = Util.getProperty(config, "task_generator_rule");
+            //todo brk if taskGeneratorConfigFile is not startwith "/" then
+            // concat config.path
             String composerConfigFile = Util.getProperty(config, "composer_config");
 
             // init task generator
@@ -65,7 +67,7 @@ public class TaskService {
             peerManager = new PeerService();
             DiscovererInterface discoverer = new Discoverer(peerManager);
             DependencyProcessorInterface dp = new DependencyProcessor();
-            composer = new Composer(composerConfigFile, peerManager, discoverer, dp);
+            composer = new Composer(composerConfigFile, peerManager, discoverer, dp, null);
 
             // init smartcom
             SmartCom smartCom = new SmartCom(peerManager, peerManager, peerManager);

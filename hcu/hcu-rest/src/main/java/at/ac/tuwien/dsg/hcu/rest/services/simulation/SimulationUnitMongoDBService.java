@@ -1,10 +1,9 @@
 package at.ac.tuwien.dsg.hcu.rest.services.simulation;
 
-import at.ac.tuwien.dsg.hcu.composer.helper.MongoDatabase;
 import at.ac.tuwien.dsg.hcu.rest.exceptions.IllegalSimulationArgumentException;
 import at.ac.tuwien.dsg.hcu.rest.exceptions.NotFoundException;
-import at.ac.tuwien.dsg.hcu.rest.resource.simulation.SimulationTask;
 import at.ac.tuwien.dsg.hcu.rest.resource.simulation.SimulationUnit;
+import at.ac.tuwien.dsg.hcu.util.MongoDatabase;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -13,9 +12,6 @@ import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by karaoglan on 17/04/16.
- */
 public class SimulationUnitMongoDBService {
 
     public SimulationUnit createSimulationUnit(SimulationUnit unit) {

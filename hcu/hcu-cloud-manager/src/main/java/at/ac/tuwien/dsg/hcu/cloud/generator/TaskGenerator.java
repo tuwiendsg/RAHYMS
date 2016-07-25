@@ -125,7 +125,7 @@ public class TaskGenerator {
         if (taskTypeCfg.getBoolean("isRootTask")) {
             //logger.info("Generating " + name + " tasks...");
             // init occurance distribution
-            //todo brk muhammad changed it
+            //todo brk muhammad changed it dogru mu kontrol et
             try {
                 occurance = taskTypeCfg.getInt("tasksOccurance");
             } catch (JSONException e) {

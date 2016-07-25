@@ -195,7 +195,8 @@ public class GSConsumer extends ReservationRequester {
             int nCycle,
             int waitBetweenCycle,
             String exportArffTo,
-            boolean debug
+            boolean debug,
+            boolean simulationWebApi
     ) {
         
         Util.log().info("Initializing " + NAME);
@@ -235,21 +236,24 @@ public class GSConsumer extends ReservationRequester {
             Util.log().info("Starting simulation");
 
 
-            //todo brk simulation finished here
             GridSim.startGridSimulation(debug);
             
             // simulation finished
             Util.log().info(NAME + " finishes.");
 
-            //todo brk bunu simulationun bittigi bir yere al burada normal simulation da olusturulan dosyalari da siliyor.
-            //all created json simulation property files in Runtime, deleted
-            for(ConfigJson taskConfig : taskGeneratorConfig) {
-                Files.delete(Paths.get(taskConfig.getPath()));
+            if(simulationWebApi) {
+                //all created json simulation property files in Runtime, deleted,
+                //todo brk ask bu sekilde olur mu, simulationwebapi ekledim method call a, mantikli yer bulmaya calis
+                for(ConfigJson taskConfig : taskGeneratorConfig) {
+                    Files.delete(Paths.get(taskConfig.getPath()));
+                }
+
+                for(ConfigJson unitJson : serviceGeneratorConfig) {
+                    Files.delete(Paths.get(unitJson.getPath()));
+                }
             }
 
-            for(ConfigJson unitJson : serviceGeneratorConfig) {
-                Files.delete(Paths.get(unitJson.getPath()));
-            }
+
         }
         catch (Exception e) {
             e.printStackTrace();

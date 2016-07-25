@@ -23,11 +23,11 @@ public class Util {
 
     private static Properties initProperties(String file) {
         if (properties==null || !lastPropFile.equals(file)) {
-            properties = new Properties(); 
-            try { 
-                properties.load(new FileInputStream(file));  
+            properties = new XProperties();
+            try {
+                properties.load(new FileInputStream(file));
                 lastPropFile = file;
-            } catch (IOException e) { 
+            } catch (IOException e) {
                 System.out.println(e);
             }
         }
@@ -42,7 +42,7 @@ public class Util {
     }
 
     public static String stringRepeat(String s, int repeat) {
-        return new String(new char[(int) repeat]).replace("\0", s);    
+        return new String(new char[(int) repeat]).replace("\0", s);
     }
 
     public static int Integer(Object o, int defaultValue) {
