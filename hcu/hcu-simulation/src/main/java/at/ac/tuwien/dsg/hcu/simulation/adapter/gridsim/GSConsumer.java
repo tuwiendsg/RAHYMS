@@ -22,7 +22,6 @@ import at.ac.tuwien.dsg.hcu.cloud.generator.TaskGenerator;
 import at.ac.tuwien.dsg.hcu.common.interfaces.MonitorInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.SchedulerInterface;
 import at.ac.tuwien.dsg.hcu.common.interfaces.ServiceManagerInterface;
-import at.ac.tuwien.dsg.hcu.common.model.OptimizationObjective;
 import at.ac.tuwien.dsg.hcu.common.model.Service;
 import at.ac.tuwien.dsg.hcu.common.model.Task;
 import at.ac.tuwien.dsg.hcu.util.ConfigJson;
@@ -243,13 +242,13 @@ public class GSConsumer extends ReservationRequester {
 
             if(simulationWebApi) {
                 //all created json simulation property files in Runtime, deleted,
-                //todo brk ask bu sekilde olur mu, simulationwebapi ekledim method call a, mantikli yer bulmaya calis
+
                 for(ConfigJson taskConfig : taskGeneratorConfig) {
                     Files.delete(Paths.get(taskConfig.getPath()));
                 }
 
-                for(ConfigJson unitJson : serviceGeneratorConfig) {
-                    Files.delete(Paths.get(unitJson.getPath()));
+                for(ConfigJson unitConfig : serviceGeneratorConfig) {
+                    Files.delete(Paths.get(unitConfig.getPath()));
                 }
             }
 

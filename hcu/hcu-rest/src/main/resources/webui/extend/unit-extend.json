@@ -1,7 +1,9 @@
 {
   "distribution": ["NormalDistribution", "UniformIntegerDistribution", "Static"],
-  "functional-property-type": ["static", "skill"],
-  "non-functional-property-type": ["static", "metric", "skill"],
-  "metric-interface-class": []
+  "functionalPropertyType": ["static", "skill"],
+  "nonFunctionalPropertyType": ["static", "metric", "skill"],
+  "metricInterfaceClass": [
+    "at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor",
+    "at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor.GSAvailabilityMonitor"
+  ]
 }
-//todo brk static olan static prob. seklinde gözükecekler web de func. ve non func. i sisteme ekle sadece buraya yazildi.

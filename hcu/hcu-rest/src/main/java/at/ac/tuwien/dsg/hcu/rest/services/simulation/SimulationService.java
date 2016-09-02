@@ -38,7 +38,6 @@ public class SimulationService {
                 null
                 );
 
-        //todo brk bazen simulation u ayni elemanlarla pespese yapinca veri eklenmiyor. simulation icin yeni instance lazimmis muhammad dedi
         new MainWebSimulation().runSimulation(
                 simulationParameter.getUnits(),
                 simulationParameter.getTasks(),

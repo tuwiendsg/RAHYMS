@@ -191,8 +191,6 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
             'unit': angular.toJson($scope.temporaryUnit, true)
         };
 
-        //todo brk ask veyhut incele su hata olaylari 409 felan?
-
         $http({
             method: 'PUT',
             url: URL + '/' + objectId,
@@ -209,7 +207,6 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
 
     };
 
-    //todo brk kaydetmeden cikmak istiyor musunuz olayini yukarida tablara tikaldiginda veyahut sayfayi kapattigida da olacak ama nasil?
     $scope.backToHome = function () {
         var dlg = dialogs.confirm('Confirmation', 'Any unsaved changes will be lost. Continue?');
         dlg.result.then(function (btn) {

@@ -182,11 +182,12 @@
                             <label for="private-property-type" class="col-sm-3 control-label">Type : </label>
 
                             <div class="col-md-9">
-                                <select id="private-property-type" ng-model="privateProperty.type" class="form-control">
-                                    <option selected>static prop.</option>
-                                    <option>skill</option>
+                                <select id="private-property-type" ng-model="privateProperty.type"
+                                        ng-options="functionalPropertyType for functionalPropertyType in functionalPropertyType" class="form-control">
+                                    <option disabled value="">Please select a type</option>
                                 </select>
                             </div>
+
                         </div>
 
                         <!-- Modal value create -->
@@ -203,15 +204,6 @@
                                         : </label>
 
                                     <div class="col-md-9">
-                                        <!-- todo brk remove after check
-                                        <select id="select-distro-common-functional" class="form-control"
-                                                ng-model="valueToAdd.class">
-                                              <option value="UniformIntegerDistribution">Uniform Integer
-                                                Distribution
-                                            </option>
-                                            <option selected value="NormalDistribution">Normal Distribution</option>
-                                            <option>Static</option>
-                                        </select>-->
 
                                         <select id="select-distro-common-functional" ng-model="valueToAdd.class"
                                                 ng-options="distribution for distribution in distributions" class="form-control">
@@ -367,7 +359,6 @@
             <th></th>
             <th></th>
         </tr>
-        <!-- todo brk neden commondaki interface class silinmeli? -->
         <tr ng-repeat="property in temporaryUnit.commonProperties | orderBy:'$index':true">
             <td>{{property.name}}</td>
             <td>{{property.probabilityToHave}}</td>
@@ -433,11 +424,12 @@
                             <label for="common-property-type" class="col-sm-3 control-label">Type : </label>
 
                             <!-- todo brk common da metric olmasi gerekiyor mu private da yok cünkü. -->
+
+
                             <div class="col-md-9">
-                                <select id="common-property-type" ng-model="commonProperty.type" class="form-control">
-                                    <option selected>static prop.</option>
-                                    <option>metric</option>
-                                    <option>skill</option>
+                                <select id="common-property-type" ng-model="commonProperty.type"
+                                        ng-options="nonFunctionalPropertyType for nonFunctionalPropertyType in nonFunctionalPropertyType" class="form-control">
+                                    <option disabled value="">Please select a type</option>
                                 </select>
                             </div>
                         </div>
@@ -447,16 +439,12 @@
                                 : </label>
 
                             <div class="col-md-9">
+
                                 <select id="common-property-interface-class" ng-model="commonProperty.interfaceClass"
-                                        class="form-control">
-                                    <option selected value=""></option>
-                                    <option value="at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor">
-                                        ReliabilityMonitor
-                                    </option>
-                                    <option value="at.ac.tuwien.dsg.hcu.simulation.adapter.gridsim.monitor.GSAvailabilityMonitor">
-                                        GSAvailabilityMonitor
-                                    </option>
+                                        ng-options="metricInterfaceClass as (metricInterfaceClass | takeLastWordAfterDot) for metricInterfaceClass in metricInterfaceClass" class="form-control">
+                                    <option disabled value="">Please select a type</option>
                                 </select>
+
                             </div>
                         </div>
 
@@ -476,14 +464,12 @@
                                     : </label>
 
                                 <div class="col-md-9">
-                                    <select id="select-distro-common" class="form-control"
-                                            ng-model="valueToAdd.class">
-                                        <option value="UniformIntegerDistribution">Uniform Integer
-                                            Distribution
-                                        </option>
-                                        <option selected value="NormalDistribution">Normal Distribution</option>
-                                        <option>Static</option>
+
+                                    <select id="select-distro-common" ng-model="valueToAdd.class"
+                                            ng-options="distribution for distribution in distributions" class="form-control">
+                                        <option disabled value="">Please select a distribution</option>
                                     </select>
+
                                 </div>
                             </div>
 

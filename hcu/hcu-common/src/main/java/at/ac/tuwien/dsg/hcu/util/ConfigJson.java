@@ -12,7 +12,7 @@ public class ConfigJson {
 
     protected JSONTokener tokener = null;
     protected JSONObject root = null;    
-    protected String path; //todo brk normalde yoktur dosyalari silmek icin save yapilan json lar icin ekledim
+    protected String path;
 
     public ConfigJson(String file) throws FileNotFoundException, IOException,
             JSONException {

@@ -94,7 +94,7 @@ public class SimulationUnitRestService {
     public Response deleteSimulationUnit(@ApiParam(value = "objectId of unit", required = true) @PathParam("objectId") final String objectId) {
         if(!simulationUnitMongoDBService.removeSimulationUnit(objectId)) {
             throw new IllegalSimulationArgumentException();
-        }  //todo brk bak bu calisiyor mu? response code olayi
+        }
         return Response.ok().build();
     }
 

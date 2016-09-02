@@ -178,11 +178,11 @@
 
                             <div class="col-md-9">
                                 <select id="private-specification-type" ng-model="privateSpecification.type"
-                                        class="form-control">
-                                    <option selected>static</option>
-                                    <option>skill</option>
+                                        ng-options="taskConstraintType for taskConstraintType in taskConstraintTypes" class="form-control">
+                                    <option disabled value="">Please select a type</option>
                                 </select>
                             </div>
+
                         </div>
 
                         <div class="form-group">
@@ -191,28 +191,12 @@
                                 : </label>
 
                             <div class="col-md-9">
-                                <select id="private-specification-interface-class"
-                                        ng-model="privateSpecification.comparator"
-                                        class="form-control">
-                                    <option selected value=""></option>
-                                    <option value="at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor">
-                                        ReliabilityMonitor
-                                    </option>
-                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator">
-                                        FuzzyComparator
-                                    </option>
-                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericAscendingComparator">
-                                        NumericAscendingComparator
-                                    </option>
-                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericDescendingComparator">
-                                        NumericDescendingComparator
-                                    </option>
-
-                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator">
-                                        StringComparator
-                                    </option>
+                                <select id="private-specification-interface-class" ng-model="privateSpecification.comparator"
+                                        ng-options="functionalComparator as (functionalComparator | takeLastWordAfterDot) for functionalComparator in functionalComparators" class="form-control">
+                                    <option disabled value="">Please select a comparator class</option>
                                 </select>
                             </div>
+
                         </div>
 
                         <hr/>
@@ -230,13 +214,9 @@
                                         : </label>
 
                                     <div class="col-md-9">
-                                        <select id="select-distro-common-functional" class="form-control"
-                                                ng-model="valueToAdd.class">
-                                            <option value="UniformIntegerDistribution">Uniform Integer
-                                                Distribution
-                                            </option>
-                                            <option selected value="NormalDistribution">Normal Distribution</option>
-                                            <option>Static</option>
+                                        <select id="select-distro-common-functional" ng-model="valueToAdd.class"
+                                                ng-options="distribution for distribution in distributions" class="form-control">
+                                            <option disabled value="">Please select a distribution</option>
                                         </select>
                                     </div>
                                 </div>
@@ -480,9 +460,9 @@
                             <label for="common-property-type" class="col-sm-3 control-label">Type : </label>
 
                             <div class="col-md-9">
-                                <select id="common-property-type" ng-model="commonProperty.type" class="form-control">
-                                    <option selected>static</option>
-                                    <option>skill</option>
+                                <select id="common-property-type" ng-model="commonProperty.type" class="form-control"
+                                    ng-options="taskConstraintType for taskConstraintType in taskConstraintTypes">
+                                    <option disabled value="">Please select a type</option>
                                 </select>
                             </div>
                         </div>
@@ -492,23 +472,11 @@
 
                             <div class="col-md-9">
                                 <select id="common-specification-class" ng-model="commonSpecification.comparator"
-                                        class="form-control">
-                                    <option selected value=""></option>
-                                    <!-- todo brk read from file -->
-                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator">
-                                        FuzzyComparator
-                                    </option>
-                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator">
-                                        StringComparator
-                                    </option>
-                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericAscendingComparator">
-                                        NumericAscendingComparator
-                                    </option>
-                                    <option value="at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericDescendingComparator">
-                                        NumericDescendingComparator
-                                    </option>
+                                        ng-options="comparator as (comparator | takeLastWordAfterDot) for comparator in comparators" class="form-control">
+                                    <option disabled value="">Please select a comparator class</option>
                                 </select>
                             </div>
+
                         </div>
 
                     </form>
@@ -527,15 +495,12 @@
                                     : </label>
 
                                 <div class="col-md-9">
-                                    <select id="select-distro-common" class="form-control"
-                                            ng-model="valueToAdd.class">
-                                        <option value="UniformIntegerDistribution">Uniform Integer
-                                            Distribution
-                                        </option>
-                                        <option selected value="NormalDistribution">Normal Distribution</option>
-                                        <option>Static</option>
+                                    <select id="select-distro-common" ng-model="valueToAdd.class"
+                                            ng-options="distribution for distribution in distributions" class="form-control">
+                                        <option disabled value="">Please select a distribution</option>
                                     </select>
                                 </div>
+
                             </div>
 
                             <div ng-if="valueToAdd.class !== 'Static' ">

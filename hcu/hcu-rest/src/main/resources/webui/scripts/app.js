@@ -166,7 +166,6 @@ function HeaderController($rootScope, $scope, $location)
         if (valueToAdd.class !== 'Static') {
             valueValidated.params.push(valueToAdd.params.second);
         }
-        //todo brk value mecburi diyor ama non functional da girilmemis valuelar var onlar ne olacak? metric leri silersek göstermez isek sorun kalkiyor.
 
         if (valueToAdd.class === 'NormalDistribution') {
             valueValidated.params.push(valueToAdd.params.third);
@@ -213,18 +212,55 @@ function HeaderController($rootScope, $scope, $location)
             $rootScope.mappingValueArray);
     };
 
-    $rootScope.readFiles = function () {
-        $.getJSON('extend/unit-extend.json', function(jd) {
-            console.info(jd);
-            $rootScope.distributions = [];
+    $.getJSON('extend/task-extend.json', function(jd) {
+        console.info("taskext \n" + jd);
+        $rootScope.comparators = [];
+        $rootScope.taskConstraintTypes = [];
+        $rootScope.functionalComparators = [];
 
-            for(var i=0; i < jd.distribution.length; i++) {
-                $rootScope.distributions.push(jd.distribution[i]);
-            }
+        for(var i=0; i < jd.comparators.length; i++) {
+            $rootScope.comparators.push(jd.comparators[i]);
+        }
 
-        });
-    };
+        for(var i=0; i < jd.taskConstraintTypes.length; i++) {
+            $rootScope.taskConstraintTypes.push(jd.taskConstraintTypes[i]);
+        }
+        for(var i=0; i < jd.functionalComparators.length; i++) {
+            $rootScope.functionalComparators.push(jd.functionalComparators[i]);
+        }
 
-    $rootScope.readFiles();
+
+    }).fail(function (jqxhr, status, error) {
+        console.log('error', status, error) }
+    );
+
+    $.getJSON('extend/unit-extend.json', function(jd) {
+        console.info("unitext \n" + jd);
+        $rootScope.distributions = [];
+        $rootScope.functionalPropertyType = [];
+        $rootScope.nonFunctionalPropertyType = [];
+        $rootScope.metricInterfaceClass = [];
+
+        for(var i=0; i < jd.distribution.length; i++) {
+            $rootScope.distributions.push(jd.distribution[i]);
+        }
+
+        for(var i=0; i < jd.functionalPropertyType.length; i++) {
+            $rootScope.functionalPropertyType.push(jd.functionalPropertyType[i]);
+        }
+
+        for(var i=0; i < jd.nonFunctionalPropertyType.length; i++) {
+            $rootScope.nonFunctionalPropertyType.push(jd.nonFunctionalPropertyType[i]);
+        }
+
+        for(var i=0; i < jd.metricInterfaceClass.length; i++) {
+            $rootScope.metricInterfaceClass.push(jd.metricInterfaceClass[i]);
+        }
+
+    }).fail(function (jqxhr, status, error) {
+        console.log('error', status, error) }
+    );
+
 }
+
 

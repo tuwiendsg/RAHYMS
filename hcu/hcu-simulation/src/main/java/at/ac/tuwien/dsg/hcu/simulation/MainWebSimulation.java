@@ -154,7 +154,6 @@ public class MainWebSimulation {
                 }
             }
 
-            //todo brk i added for init tracer? right?
             // init tracers
             if (tracerConfig!=null) {
                 Tracer.initFromConfig(tracerConfigArray);
@@ -189,7 +188,6 @@ public class MainWebSimulation {
             );
 
             //simulation finished
-            //todo brk bu skeilde update yaptim simulation bitis zamanini sorun var mi? new date var mi baska yerde bitis zamani sor
             MongoDatabase.updateSimulationObject(simulationId, null, new Date().toString());
 
         } catch (FileNotFoundException e) {

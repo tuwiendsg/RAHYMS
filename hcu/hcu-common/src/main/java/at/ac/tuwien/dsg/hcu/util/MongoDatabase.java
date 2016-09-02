@@ -6,7 +6,9 @@ import org.bson.types.ObjectId;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 public class MongoDatabase {
@@ -14,34 +16,15 @@ public class MongoDatabase {
     private static final String PROP_FILE = "config/simulation.properties";
     private static DB database;
 
+    private static final double MAX_NUMBER = 15333333;
+    private static final double MIN_NUMBER = -15333333;
+
     public static DB getDatabase() {
 
-        Boolean simulationLocalMongo = Boolean.valueOf(Util.getProperty(PROP_FILE, "SIMULATION_LOCAL"));
-
-        if (simulationLocalMongo) {
-            if (database == null) {
-                //todo brk cözüm bul buna
-                MongoClient mongoClient = new MongoClient("localhost", 27017);
-
-                database = mongoClient.getDB(Util.getProperty(PROP_FILE, "SIMULATION_DB_NAME"));
-
-            /*MongoClient client = new MongoClient(
-                            Util.getProperty(PROP_FILE, "SIMULATION_LOCAL_MONGO_HOST"),
-                            Util.getProperty(PROP_FILE, "SIMULATION_LOCAL_MONGO_PASS")
-                            );*/
-
-                //database = client.getDB(Util.getProperty(PROP_FILE, "SIMULATION_DB_NAME"));
-            }
-        } else {
-            //todo brk bilgileri not al ve teze ekle properties dosyasinda oldugunu söyle
-
-            if (database == null) {
-                MongoClientURI uri = new MongoClientURI(Util.getProperty(PROP_FILE, "SIMULATION_MLAB_URI"));
-                MongoClient client = new MongoClient(uri);
-                database = client.getDB(uri.getDatabase());
-            }
-
-
+        if (database == null) {
+            MongoClientURI uri = new MongoClientURI(Util.getProperty(PROP_FILE, "SIMULATION_MLAB_URI"));
+            MongoClient client = new MongoClient(uri);
+            database = client.getDB(uri.getDatabase());
         }
 
         return MongoDatabase.database;
@@ -114,7 +97,6 @@ public class MongoDatabase {
         DBCursor cursor = getSimulationGraphInformationCollection().find(whereQuery);
 
         List<Double> listOfColumnElemOfRows = new ArrayList<>();
-        //todo brk icerisinde e olan degerlerde sorun oluyor göstermede large numbers e means ...E11 misal x*10^11
         int i = 0;
         while (cursor.hasNext()) {
 
@@ -138,9 +120,21 @@ public class MongoDatabase {
     private static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
 
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
+        if (value == 0) return value;
+
+        DecimalFormat df = new DecimalFormat("#");
+        df.setMaximumFractionDigits(8);
+        df.setMaximumIntegerDigits(9);
+
+        if(value >= Double.MAX_VALUE) {
+            value = new Double(MAX_NUMBER);
+        }
+
+        if(value <= Double.MIN_VALUE) {
+            value = new Double(MIN_NUMBER);
+        }
+
+        return value;
     }
 
     public static void toBringDefaultSimulationUnitsAndTasks() throws IOException {

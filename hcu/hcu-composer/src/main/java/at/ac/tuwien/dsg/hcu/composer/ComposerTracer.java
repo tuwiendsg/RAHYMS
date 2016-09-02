@@ -18,6 +18,4 @@ public class ComposerTracer extends Tracer {
     public String getTraceHeader() {
         return "clock,task_id,flag,algo_time,task_name,data,task,solution_components,objective_value,cost,norm_cost,competency,connectedness,mu_connectedness,response_time,norm_response_time";
     }
-
-    //todo brk buradaki deegerler db ye kaydit ediliyor bunu belirt tezde degisiklik olmasi icin composer da degisiklik olmasi lazim.
 }

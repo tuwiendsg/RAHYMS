@@ -156,7 +156,6 @@ public class Composer implements ComposerInterface {
             if (composerTracer != null) {
                 composerTracer.traceln("," + task.getName() + ",,\"" + task.toString() + "\",\"Invalid objective!\"");
 
-                //todo brk burasi cagirilmiyor aslinda
                 dbTracerValues += "," + task.getName() + ",,\"" + task.toString() + "\",\"Invalid objective!\"";
             }
             return new ArrayList<Assignment>();
@@ -176,7 +175,6 @@ public class Composer implements ComposerInterface {
             Util.log().warning("No feasible solution found!");
             if (composerTracer != null) {
                 composerTracer.traceln(GridSim.clock() + "," + task.getId() + ",\"\",0," + task.getName() + ",,\"" + task.toString() + "\",\"No feasible solution found!\"");
-                //todo brk hata nasil?
                 dbTracerValues += algoName;
                 dbTracerValues += "," + GridSim.clock() + "," + task.getId() + ",\"\",0," + task.getName() + ",,\"" + task.toString() + "\",\"No feasible solution found!\"";
             }

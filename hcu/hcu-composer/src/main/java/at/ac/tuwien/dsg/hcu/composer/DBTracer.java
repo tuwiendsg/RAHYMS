@@ -50,7 +50,7 @@ public class DBTracer extends ComposerTracer {
 
         int index = 0;
         for (String f : values) {
-            simulationInformation.put(fields[index], !f.trim().isEmpty() ? f : /*todo brk  hangisi olmali "null" */null);
+            simulationInformation.put(fields[index], !f.trim().isEmpty() ? f : null);
             index++;
         }
 

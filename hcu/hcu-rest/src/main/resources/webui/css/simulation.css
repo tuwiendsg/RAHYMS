@@ -54,7 +54,6 @@
 }
 
 .boxes{
-     overflow-y: hidden !important;
      height: 3% !important;
      min-height: 150px;
 }

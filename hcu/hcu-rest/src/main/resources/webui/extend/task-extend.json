@@ -1,4 +1,16 @@
 {
-  "comparator-class": []
+  "comparators": [
+    "at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator",
+    "at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator",
+    "at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericAscendingComparator",
+    "at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericDescendingComparator"
+    ],
+  "taskConstraintTypes" : ["static", "skill"],
+  "functionalComparators" : [
+    "at.ac.tuwien.dsg.hcu.cloud.monitor.ReliabilityMonitor",
+    "at.ac.tuwien.dsg.hcu.common.sla.comparator.FuzzyComparator",
+    "at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericAscendingComparator",
+    "at.ac.tuwien.dsg.hcu.common.sla.comparator.NumericDescendingComparator",
+    "at.ac.tuwien.dsg.hcu.common.sla.comparator.StringComparator"
+  ]
 }
-//todo brk add comparator class ve sisteme de yerlestir ng option felan

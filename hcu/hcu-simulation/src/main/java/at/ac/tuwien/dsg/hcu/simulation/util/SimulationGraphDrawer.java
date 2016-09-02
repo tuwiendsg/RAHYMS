@@ -67,8 +67,7 @@ public class SimulationGraphDrawer {
             XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
             renderer.setSeriesLinesVisible(0, true);
             plot.setRenderer(renderer);
-
-
+            
         }else {
             //task_id
 
@@ -82,9 +81,6 @@ public class SimulationGraphDrawer {
 
 
     private XYDataset populateData() {
-
-        //todo brk norm cost ta misal digerlerinde de olabilir bak olay su: x icin clock secilince clock 0.9984 ile 1 arasindak
-        //kücük degerlerde gösteriyor, id secinde ama sol tarafta tam degerleri gösterdigidnene 1 e tekamül ediyor.
 
         List<Double> valuesOfColumnForX = MongoDatabase.getColumnForGraph(xAxis, simulationId);
         List<Double> valuesOfColumnForY = MongoDatabase.getColumnForGraph(yAxis, simulationId);

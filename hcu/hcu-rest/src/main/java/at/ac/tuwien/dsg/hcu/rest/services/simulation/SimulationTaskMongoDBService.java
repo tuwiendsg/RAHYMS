@@ -76,7 +76,6 @@ public class SimulationTaskMongoDBService {
 
         return simulationTask;
     }
-    //todo brk mlab bilgilerini properties dosyasindan al ve teze yazilmali mi sor? yaz tezi yazrken extend edilebilecek olan bölümleri iyi belirleyip nasil extend edebilecegini kisinin detayli bir sekilde anlatilmasi gerekiyor tezde
 
     public List<SimulationTask> getSimulationTask() {
 

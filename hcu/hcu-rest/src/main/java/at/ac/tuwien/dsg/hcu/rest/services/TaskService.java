@@ -55,7 +55,7 @@ public class TaskService {
             String config = System.getProperty(AppConfig.REST_CONFIG);
             
             String taskGeneratorConfigFile = Util.getProperty(config, "task_generator_rule");
-            //todo brk if taskGeneratorConfigFile is not startwith "/" then
+
             // concat config.path
             String composerConfigFile = Util.getProperty(config, "composer_config");
 

@@ -43,16 +43,14 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
 
     $scope.getUnitsAndTasks();
 
-    //todo brk start dedikten sonra bekletme direk bitsin
-
     $scope.initializeDefaultValues = function () {
 
         $scope.consumerProperties = {};
         $scope.composerProperties = {};
         $scope.simulationProperties = {};
 
-        $scope.composerProperties.reliability_trace_file_prefix = 'hcu-simulation/traces/reliability/';
-        $scope.composerProperties.trace_file_prefix = 'hcu-simulation/traces/composer/composer-';
+        $scope.composerProperties.reliability_trace_file_prefix = 'traces/reliability/';
+        $scope.composerProperties.trace_file_prefix = 'traces/composer/composer-';
 
         $scope.consumerProperties.numberOfCycles = 5;
         $scope.consumerProperties.waitBetweenCycles = 1;
@@ -98,7 +96,7 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
     $scope.refreshDBToDefault = function () {
         dialogs.wait(undefined, 'Getting simulations', 99);
         $http({
-            method: 'GET', //todo brk lazim mi bu method düsün
+            method: 'GET',
             url: URL + '/as-default'
         }).success(function (data) {
             $scope.unitListDrag = [];
@@ -144,7 +142,6 @@ app.controller('SimulationCtrl', function ($rootScope, $scope, $http, $location,
             'simulation': $scope.simulationProperties
         };
 
-        //todo brk burada direk analytic e giderse adam beklezse bitmesini simulation in nereden anlayacak hata oldugunu bazen olabiliyor.
         callWithTimeOut();
 
         $http({

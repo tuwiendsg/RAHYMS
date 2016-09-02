@@ -25,9 +25,8 @@ public class SimulationRestService {
             @ApiResponse(code = 404, message = "Simulation not found"),
             @ApiResponse(code = 503, message = "Simulation server not available")
     })
-    public Response startSimulation(@ApiParam( value = "Json string to todo", required = true) @RequestBody final SimulationParameter simulationParamater) {
-        //todo brk hata olayini dogru ver soru hatta nasil hatalar web e verilmeli düzen nasil olmali
-        return simulationService.startSimulation(simulationParamater) ? Response.ok().build() : Response.serverError().build();
+    public Response startSimulation(@ApiParam( value = "Json string to todo", required = true) @RequestBody final SimulationParameter simulationParameter) {
+        return simulationService.startSimulation(simulationParameter) ? Response.ok().build() : Response.serverError().build();
     }
 
     @Produces({MediaType.APPLICATION_JSON})
@@ -47,11 +46,11 @@ public class SimulationRestService {
     @GET
     @Path("/file")
     @Produces("text/csv")
-    @ApiOperation(value = "Show the simulation graph", notes = "show the simulation graph with json params", response = SimulationGraph.class)
+    @ApiOperation(value = "Show the simulation result csv", notes = "show the simulation csv containing the result information", response = Response.class)
     @ApiResponses({
-            @ApiResponse(code = 201, message = "SimulationGraph generated successfully"),
-            @ApiResponse(code = 404, message = "graph not found"), //todo brk degistir commentleri
-            @ApiResponse(code = 503, message = "SimulationGraph server not available")
+            @ApiResponse(code = 201, message = "Simulation result as csv generated successfully"),
+            @ApiResponse(code = 404, message = "file not found"),
+            @ApiResponse(code = 503, message = "Simulation server not available")
     })
     public Response getCSVFile(@ApiParam(value = "the path of csv file for simulation", required = true) @QueryParam("filePath") final String filePath) {
         File file = new File(filePath);
@@ -70,7 +69,6 @@ public class SimulationRestService {
             @ApiResponse(code = 404, message = "object not found")
     })
     public Response refreshDBToDefault() {
-        //todo brk lazim mi incele
         simulationService.refreshToDefault();
         return Response.ok().build();
     }

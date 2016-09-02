@@ -81,6 +81,9 @@ app.controller('SimulationAnalyticsCtrl', function ($rootScope, $scope, $http, $
     };
 
     $scope.refresh = function () {
+
+        dialogs.wait(undefined, 'Refreshing simulation', 99);
+
         $scope.getSimulations();
 
         for (var i = 0; i < $scope.simulations.length; i++) {
