@@ -51,11 +51,34 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
         $rootScope.mappingValueArray = [];
     };
 
+    $scope.checkServiceFunctionalityForUnique = function (func, index) {
+        for (var i = 0; i < $scope.temporaryUnit.services.length; i++) {
+
+            if (index !== undefined && i === index) continue;
+
+            if ($scope.temporaryUnit.services[i].functionality.toLowerCase() === func.toLowerCase()) {
+                return false;
+            }
+        }
+        return true;
+
+
+    };
+
     $scope.saveService = function () {
+
         if (!$scope.editServiceClicked) {
+            if(!$scope.checkServiceFunctionalityForUnique($scope.providedService.functionality) ) {
+                dialogs.notify(undefined, "Please enter unique functionality name!");
+                return;
+            }
             $scope.temporaryUnit.services.push(angular.copy($scope.providedService));
         }
         else {
+            if(!$scope.checkServiceFunctionalityForUnique($scope.providedService.functionality, $scope.editServiceIndex) ) {
+                dialogs.notify(undefined, "Please enter unique functionality name!");
+                return;
+            }
             $scope.temporaryUnit.services[$scope.editServiceIndex].functionality = angular.copy($scope.providedService.functionality);
             $scope.temporaryUnit.services[$scope.editServiceIndex].probabilityToHave = angular.copy($scope.providedService.probabilityToHave);
         }
@@ -91,7 +114,6 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
             delete $scope.privateProperty.interfaceClass;
         }
 
-        //todo brk validate prob values every.
         $scope.privateProperty.value = angular.copy($scope.randomNumberGenerate(null, $scope.valueToAdd, $scope.mappingValues));
 
         if ($scope.editFunctionalPropertyClicked) {
@@ -129,8 +151,6 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
         });
 
     };
-
-    //todo brk functional property mecburi mi eklenmek zorunda mi?
 
     $scope.saveProperty = function () {
 
@@ -173,17 +193,32 @@ app.controller('SimulationUnitDetailCtrl', function ($rootScope, $routeParams, $
         });
     };
 
-    //todo brk optional olabilen degerleri kontrol et.
+    $scope.checkUnitForUnique = function (unitName) {
+        var i = 0;
+        for (var first in $rootScope.units) {
 
-    //todo brk service.properties de interface class lazim mi?
+            if ($rootScope.units[first].objectId === objectId) continue;
+
+            if ($scope.units[first].name.toLowerCase() === unitName.toLowerCase()) {
+                return false;
+            }
+
+            i++;
+        }
+        return true;
+    };
 
     $scope.updateUnit = function () {
 
         $scope.valueConnectedness.class = 'NormalDistribution';
-        $scope.valueConnectedness.check = true;
         $scope.valueConnectedness.params.third = 1.0E-9;
         $scope.temporaryUnit.connection.weight = angular.copy(
             $scope.randomNumberGenerate($scope.valueConnectedness, $scope.valueToAdd, $scope.mappingValues));
+
+        if(!$scope.checkUnitForUnique($scope.unitGeneratorName) ) {
+            dialogs.notify(undefined, "Please enter unique name!");
+            return;
+        }
 
         dialogs.wait(undefined, 'saving unit', 99);
         var unitToUpdate = {

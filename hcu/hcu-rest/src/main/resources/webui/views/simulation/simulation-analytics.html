@@ -110,32 +110,21 @@
 
                         <label for="graph-x-axis" class="col-sm-4 control-label">M1 : </label>
 
-                        <select id="graph-x-axis" ng-model="graph.xAxis" class="form-control col-sm-2">
-                            <option disabled selected value="">M1</option>
-                            <option>clock</option>
-                            <option>task_id</option>
+                        <select id="graph-x-axis" ng-model="graph.xAxis"
+                                ng-options="metricFst for metricFst in metric1" class="form-control col-sm-2">
+                            <option disabled value="">M1</option>
                         </select>
 
                     </div>
                     <div class="form-group">
                         <label for="graph-y-axis" class="col-sm-4 control-label">M2 : </label>
-                        <!-- todo brk bunlari dosyadan al -->
-                        <select id="graph-y-axis" ng-model="graph.yAxis" class="form-control col-sm-2">
-                            <option disabled selected value="">M2</option>
-                            <option>algo_time</option>
-                            <option>objective_value</option>
-                            <option>cost</option>
-                            <option>norm_cost</option>
-                            <option>competency</option>
-                            <option>connectedness</option>
-                            <option>mu_connectedness</option>
-                            <option>response_time</option>
-                            <option>norm_response_time</option>
+
+                        <select id="graph-y-axis" ng-model="graph.yAxis"
+                                ng-options="metricSec for metricSec in metric2" class="form-control col-sm-2">
+                            <option disabled value="">M2</option>
                         </select>
                     </div>
-
                 </div>
-
 
             </div>
 

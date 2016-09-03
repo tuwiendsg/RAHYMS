@@ -24,8 +24,6 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         console.log('Error ' + data)
     });
 
-
-    //todo brk non functional string compar degistirmiyor edit kismin iincele yeni eklerken de eklemiyor
     $scope.defaultParams = function () {
 
         $scope.role = {};
@@ -103,8 +101,6 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
             $scope.temporaryTask.taskTypes[0].roles[$scope.editRoleIndex].relativeLoadRatio = angular.copy($scope.role.relativeLoadRatio);
         }
 
-        //todo brk bak su an bos array atiyor sorun var mi dependson da algorithmada
-
         $scope.defaultParams();
     };
 
@@ -113,13 +109,11 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
 
             if (index !== undefined && i === index) continue;
 
-            if ($scope.temporaryTask.taskTypes[0].roles[i].functionality === func) {
+            if ($scope.temporaryTask.taskTypes[0].roles[i].functionality.toLowerCase() === func.toLowerCase()) {
                 return false;
             }
         }
         return true;
-
-
     };
 
     $scope.calculateDependency = function () {
@@ -151,7 +145,6 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
 
         if ($scope.privateSpecification.value) {
             $scope.valueToAdd = $scope.generateValueFromRandomNumberForRepresentation($scope.privateSpecification.value, $scope.valueToAdd);
-            $scope.valueToAdd.check = true;
         }
 
         if ($scope.privateSpecification.value.params && $scope.privateSpecification.value.mapping) {
@@ -174,7 +167,6 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
             delete $scope.privateSpecification.comparator;
         }
 
-        //todo brk validate prob values every.
         $scope.privateSpecification.value = angular.copy($scope.randomNumberGenerate(null, $scope.valueToAdd, $scope.mappingValues));
 
         if ($scope.editFunctionalPropertyClicked) {
@@ -193,7 +185,7 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
             delete $scope.commonProperty.interfaceClass;
         }
 
-        if ($scope.valueToAdd.check) {
+        if ($scope.valueToAdd) {
             $scope.commonProperty.value = angular.copy($scope.randomNumberGenerate(null, $scope.valueToAdd, $scope.mappingValues));
         }
 
@@ -223,9 +215,9 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         $scope.editCommonPropertyClicked = true;
         $scope.editCommonPropertyIndex = index;
         $scope.commonProperty = $scope.temporaryTask.taskTypes[0].specification[index];
+
         if ($scope.commonProperty.value) {
             $scope.valueToAdd = $scope.generateValueFromRandomNumberForRepresentation($scope.commonProperty.value, $scope.valueToAdd);
-            $scope.valueToAdd.check = true;
         }
         if ($scope.commonProperty.value && $scope.commonProperty.value.mapping) {
             $scope.mappingValues = $scope.commonProperty.value.mapping;
@@ -242,6 +234,20 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
         });
     };
 
+    $scope.checkTaskForUnique = function (taskName) {
+        var i = 0;
+        for (var first in $rootScope.tasks) {
+
+            if ($rootScope.tasks[first].objectId === objectId) continue;
+
+            if ($rootScope.tasks[first].name.toLowerCase() === taskName.toLowerCase()) {
+                return false;
+            }
+
+            i++;
+        }
+        return true;
+    };
 
     $scope.updateTask = function () {
 
@@ -249,8 +255,12 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
             $scope.temporaryTask.taskTypes[0].tasksOccurance = $scope.defaultTasksOccurance;
         }
 
+        if(!$scope.checkTaskForUnique($scope.taskGeneratorName) ) {
+            dialogs.notify(undefined, "Please enter unique name!");
+            return;
+        }
+
         $scope.loadValue.class = 'NormalDistribution';
-        $scope.loadValue.check = true;
         $scope.loadValue.params.third = 1.0E-9;
         $scope.temporaryTask.taskTypes[0].load = angular.copy(
             $scope.randomNumberGenerate($scope.loadValue, $scope.valueToAdd, $scope.mappingValues));
@@ -271,7 +281,7 @@ app.controller('SimulationTaskDetailCtrl', function ($rootScope, $routeParams, $
             $location.path('/simulation-task');
         }).error(function (data, status) {
             $rootScope.$broadcast('dialogs.wait.complete');
-            dialogs.error(undefined, Util.error('Error updating task', status, {409: 'todo brk look with the same exists'}));
+            dialogs.error(undefined, Util.error('Error updating task', status, {409: 'server unavailable'}));
             console.log('Error ' + data)
         });
 

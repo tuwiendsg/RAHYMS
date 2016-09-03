@@ -201,8 +201,6 @@
 
                         <hr/>
 
-                        <!-- todo brk roles functionality unique olmali degil mi? depends on dan dolayi -->
-
                         <div>
                             <h4>Value Generator</h4>
                             <br/>
@@ -471,7 +469,7 @@
                             <label for="common-specification-class" class="col-sm-3 control-label">Comparator : </label>
 
                             <div class="col-md-9">
-                                <select id="common-specification-class" ng-model="commonSpecification.comparator"
+                                <select id="common-specification-class" ng-model="commonProperty.comparator"
                                         ng-options="comparator as (comparator | takeLastWordAfterDot) for comparator in comparators" class="form-control">
                                     <option disabled value="">Please select a comparator class</option>
                                 </select>

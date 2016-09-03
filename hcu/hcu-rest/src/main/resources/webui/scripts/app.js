@@ -261,6 +261,23 @@ function HeaderController($rootScope, $scope, $location)
         console.log('error', status, error) }
     );
 
+    $.getJSON('extend/analytic-extend.json', function(jd) {
+        console.info("analytic ext \n" + jd);
+        $rootScope.metric1 = [];
+        $rootScope.metric2 = [];
+
+        for(var i=0; i < jd.metric1.length; i++) {
+            $rootScope.metric1.push(jd.metric1[i]);
+        }
+
+        for(var i=0; i < jd.metric2.length; i++) {
+            $rootScope.metric2.push(jd.metric2[i]);
+        }
+
+    }).fail(function (jqxhr, status, error) {
+        console.log('error', status, error) }
+    );
+
 }
 
 

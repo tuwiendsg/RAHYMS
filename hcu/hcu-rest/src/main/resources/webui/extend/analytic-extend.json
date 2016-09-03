@@ -1,5 +1,18 @@
 {
-  "distribution": []
+  "metric1": [
+    "clock",
+    "task_id"
+  ],
+  "metric2": [
+    "algo_time",
+    "objective_value",
+    "cost",
+    "norm_cost",
+    "competency",
+    "connectedness",
+    "mu_connectedness",
+    "response_time",
+    "norm_response_time"
+  ]
 
-  unit-extend.json
 }

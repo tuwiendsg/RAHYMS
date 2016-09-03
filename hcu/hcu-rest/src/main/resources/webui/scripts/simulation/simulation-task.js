@@ -10,9 +10,9 @@ app.controller('SimulationTaskListCtrl', function ($rootScope, $scope, $http, $l
             method: 'GET',
             url: URL
         }).success(function (data) {
-            $scope.tasks = {};
+            $rootScope.tasks = {};
             for (var i = 0; i < data.length; i++) {
-                $scope.tasks[i] = data[i];
+                $rootScope.tasks[i] = data[i];
             }
             $scope.is_loading = false;
         }).error(function (data, status) {
@@ -63,8 +63,25 @@ app.controller('SimulationTaskListCtrl', function ($rootScope, $scope, $http, $l
 
     };
 
+    $scope.checkTaskForUnique = function (task) {
+        for (var first in $scope.tasks) {
+
+            if ($scope.tasks[first].name.toLowerCase() === task.name.toLowerCase()) {
+                return false;
+            }
+        }
+        return true;
+    };
+
     $scope.createTask = function () {
+
+        if(!$scope.checkTaskForUnique($scope.addTask) ) {
+            dialogs.notify(undefined, "Please enter unique name!");
+            return;
+        }
+
         dialogs.wait(undefined, 'Creating task', 99);
+
         var taskToUpdate = {
             'name': $scope.addTask.name,
             'task': angular.toJson($scope.addTask.task, true)

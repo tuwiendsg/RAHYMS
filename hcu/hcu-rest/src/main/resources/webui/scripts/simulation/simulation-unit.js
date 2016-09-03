@@ -11,9 +11,9 @@ app.controller('SimulationUnitListCtrl', function ($rootScope, $scope, $http, $l
             method: 'GET',
             url: URL
         }).success(function (data) {
-            $scope.units = {};
+            $rootScope.units = {};
             for (var i = 0; i < data.length; i++) {
-                $scope.units[i] = data[i];
+                $rootScope.units[i] = data[i];
             }
             $scope.is_loading = false;
         }).error(function (data, status) {
@@ -66,8 +66,24 @@ app.controller('SimulationUnitListCtrl', function ($rootScope, $scope, $http, $l
 
     };
 
+    $scope.checkUnitForUnique = function (unit) {
+        for (var first in $scope.units) {
+
+            if ($scope.units[first].name.toLowerCase() === unit.name.toLowerCase()) {
+                return false;
+            }
+        }
+        return true;
+    };
+
     $scope.createUnit = function () {
         console.log($scope.addUnit.unit);
+
+        if(!$scope.checkUnitForUnique($scope.addUnit) ) {
+            dialogs.notify(undefined, "Please enter unique name!");
+            return;
+        }
+
         dialogs.wait(undefined, 'Creating unit', 99);
         var unitToSend = {
             'name': $scope.addUnit.name,
