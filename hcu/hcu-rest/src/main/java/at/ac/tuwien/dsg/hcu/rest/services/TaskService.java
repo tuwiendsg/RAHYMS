@@ -64,10 +64,10 @@ public class TaskService implements NegotiateCallbackInterface {
         try {
 
             String config = System.getProperty(AppConfig.REST_CONFIG);
-            
+            System.out.println("Configure file: "+config);
             String taskGeneratorConfigFile = Util.getProperty(config, "task_generator_rule");
             String composerConfigFile = Util.getProperty(config, "composer_config");
-
+            System.out.println(taskGeneratorConfigFile +" and "+composerConfigFile);
             // init task generator
             ConfigJson taskGeneratorRuleConfig = new ConfigJson(taskGeneratorConfigFile);
             generator = new TaskGenerator(taskGeneratorRuleConfig);
@@ -76,7 +76,7 @@ public class TaskService implements NegotiateCallbackInterface {
             serviceManager = (ServiceManagerInterface) ComponentImplementation.getImplementation("serviceManager", Util.getProperty(config, "service_manager"), new Object[]{});
             discoverer = (DiscovererInterface) ComponentImplementation.getImplementation("discoverer", Util.getProperty(config, "discoverer"), new Object[]{serviceManager});
             DependencyProcessorInterface dp = new DependencyProcessor();
-            composer = (ComposerInterface) ComponentImplementation.getImplementation("composer", Util.getProperty(config, "composer"), new Object[]{composerConfigFile, serviceManager, discoverer, dp});
+            composer = (ComposerInterface) ComponentImplementation.getImplementation("composer", Util.getProperty(config, "composer"), new Object[]{composerConfigFile, discoverer, dp}); //nosevicemanager before dp
             negotiator = (NegotiateInterface) ComponentImplementation.getImplementation("negotiator", Util.getProperty(config, "negotiator"), new Object[]{});
             PeerService.setServiceManager(serviceManager);
             peerManager = new PeerService();
